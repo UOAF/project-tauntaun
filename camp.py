@@ -4,6 +4,7 @@ from dcs.mission import StartType
 from dcs import ships, planes
 from dcs.task import ActivateBeaconCommand, ActivateICLSCommand, EPLRS
 import dcs
+import dcs.mapping as mapping
 import os
 import os.path
 from dataclasses import dataclass
@@ -11,7 +12,7 @@ from namegen import namegen
 from random import random
 import server
 import itertools
-
+from coord import lat_lon_to_xz
 from util import feet_to_meters, knots_to_kph
 
 from enum import Enum
@@ -61,6 +62,26 @@ class Campaign():
         countries = self.get_countries(side)
         return itertools.chain(*(countries[cname].ship_group for cname in countries))
 
+    def lookup_unit(self, unit_id):
+        for group in self.get_plane_groups('blue'):
+            if unit_id == group.id:
+                return group
+
+        for group in self.get_ship_groups('blue'):
+            if unit_id == group.id:
+                return group
+
+    def update_unit_route(self, unit_id, points):
+        group = self.lookup_unit(unit_id)
+        if group is None:
+            raise ValueError(f"no group found with id {unit_id}")
+        for point, new_pos in zip(group.points, points):
+            lat = float(new_pos['lat'])
+            lon = float(new_pos['lon'])
+            x, z = lat_lon_to_xz(lat, lon)
+            point.position = mapping.Point(x, z)
+
+
 
 def create_mission(campaign):
     m = dcs.Mission(terrain.Caucasus())
@@ -89,11 +110,11 @@ def create_mission(campaign):
     cvbg.add_waypoint(ship_pos + dcs.Point(0, -100*1000))
     cvbg.add_waypoint(ship_pos + dcs.Point(-30*1000, -100*1000))
     cvbg.add_waypoint(ship_pos + dcs.Point(-30*1000, 0))
-    cvbg.add_waypoint(ship_pos)
-    cvbg.add_waypoint(ship_pos + dcs.Point(0, -100*1000))
-    cvbg.add_waypoint(ship_pos + dcs.Point(-30*1000, -100*1000))
-    cvbg.add_waypoint(ship_pos + dcs.Point(-30*1000, 0))
-    cvbg.add_waypoint(ship_pos)
+    # cvbg.add_waypoint(ship_pos)
+    # cvbg.add_waypoint(ship_pos + dcs.Point(0, -100*1000))
+    # cvbg.add_waypoint(ship_pos + dcs.Point(-30*1000, -100*1000))
+    # cvbg.add_waypoint(ship_pos + dcs.Point(-30*1000, 0))
+    # cvbg.add_waypoint(ship_pos)
 
     name = namegen.next_unit_name(usa)
     fg = m.flight_group_from_unit(country=usa,

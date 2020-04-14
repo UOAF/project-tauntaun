@@ -1,4 +1,7 @@
 from quart import Quart, render_template, send_from_directory, make_response, jsonify, abort
+from quart import websocket
+from functools import wraps
+from secrets import compare_digest
 
 from unit_sidc import sidc_map
 
@@ -8,12 +11,12 @@ from hypercorn.asyncio import serve
 import asyncio
 
 import signal
-
+import json
 from coord import xz_to_lat_lon
 
 
 import logging
-logging.basicConfig(level=logging.DEBUG)
+logger = logging.basicConfig(level=logging.DEBUG)
 
 
 def plain_text_response(x):
@@ -30,8 +33,6 @@ def collect_basic_unit_info(group):
         'lat': lat,
         'lon': lon
     }
-
-    print(f"group {g.name}")
 
     def to_latlon(p):
         lat, lon = xz_to_lat_lon(p['x'], p['y'])
@@ -77,6 +78,47 @@ def create_app(campaign):
 
         return jsonify([render_plane_group(g) for g in groups])
 
+    ws_clients = set()
+    def collect_websocket(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            ws_clients.add(websocket._get_current_object())
+            print(f"adding {websocket._get_current_object()}")
+            try:
+                return await func(*args, **kwargs)
+            finally:
+                ws_clients.remove(websocket._get_current_object())
+        return wrapper
+
+    async def broadcast(message):
+        for ws in ws_clients:
+            await ws.send(f'sent an update!!1! {message}')
+
+    @app.websocket('/ws/update')
+    @collect_websocket
+    async def client_update_ws():
+        while True:
+            data = await websocket.receive()
+            print(data)
+            data = json.loads(data)
+            update_type = data['key']
+
+            async def unit_route_updated(unit_data):
+                campaign.update_unit_route(
+                    unit_data['id'], unit_data['points'])
+                await broadcast('TIME TO FIX YOUR SHIT YO')
+
+            dispatch_map = {
+                'unit_route_updated': unit_route_updated
+            }
+
+            try:
+                await dispatch_map[update_type](data['value'])
+            except KeyError():
+                # TODO log error
+                pass
+
+
     @app.route('/game/ships/<string:coalition>')
     async def render_ship_groups(coalition):
         validate_coalition(coalition)
@@ -84,6 +126,8 @@ def create_app(campaign):
         return jsonify([collect_basic_unit_info(g) for g in groups])
 
     return app
+
+
 
 
 def run(campaign, port=80):
@@ -99,9 +143,9 @@ def run(campaign, port=80):
     signal.signal(signal.SIGTERM, _signal_handler)
 
     config = Config()
-    config.bind = ["localhost:80"]  # As an example configuration setting
+    config.bind = ["0.0.0.0:80"]  # As an example configuration setting
 
     loop.run_until_complete(
-        serve(app, config, shutdown_trigger=shutdown_event.wait)
+        serve(app, config, shutdown_trigger=shutdown_event.wait),
     )
 

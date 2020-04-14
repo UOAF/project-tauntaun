@@ -1,8 +1,21 @@
 
-var x0 = 43;
-var y0 = 41;
+var lat0 = 43;
+var lon0 = 41;
 
-var theater_map = L.map('mapid').setView([x0, y0], 9);
+var theater_map = L.map('mapid').setView([lat0, lon0], 9);
+L.PM.initialize({ optIn: false });
+
+var unit_markers = [];
+var update_ws_url = new URL('/ws/update', window.location.href);
+update_ws_url.protocol = update_ws_url.protocol.replace('http', 'ws');
+var update_ws = new WebSocket(update_ws_url)
+update_ws.onopen = (event) => {
+    console.log("OPEN!!!");
+};
+
+update_ws.onmessage = (event) => {
+    console.log("DATA", event);
+;}
 
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoiYm9ibW9yZXR0aSIsImEiOiJjazI4amV6eWswaWF2M2JtYjh3dmowdnQ1In0.XutSpPpaRm9LZudTNgVZwQ', {
     maxZoom: 13,
@@ -12,17 +25,42 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}@2x.png?access_toke
     id: 'bobmoretti.3zp0vycr'
 }).addTo(theater_map);
 
-function is_underway(unit)
-{
+
+
+function is_underway(unit) {
     return unit.points[0].action == "Turning Point";
 }
 
-function render_route(unit)
-{
+
+
+function render_route(unit) {
     var latlons = unit.points.map((p) => [p.lat, p.lon]);
-    var polyline = L.polyline(latlons, {color: '#2d4687', stroke: 1});
+    var polyline = L.polyline(latlons, {
+        color: '#2d4687',
+        stroke: 1,
+        pmIgnore: false
+    });
     polyline.addTo(theater_map);
+    polyline.on('pm:markerdragstart', (e) => {
+        // console.log('dragging!', e);
+    })
     return polyline;
+}
+
+function send_route_update(unit) {
+    data = {
+        'key': 'unit_route_updated',
+        'value': {
+            'id': unit.id,
+            'name': unit.name,
+            'points': unit.points.map((p) => {
+                return {
+                    'lat': p.lat, 'lon': p.lon
+                }
+            }),
+        }
+    };
+    update_ws.send(JSON.stringify(data));
 }
 
 function render_unit(unit) {
@@ -40,7 +78,43 @@ function render_unit(unit) {
     p.setContent(unit.name)
     p.marker = m;
     p.unit = unit;
-    m.bindPopup(p).openPopup();
+    //m.bindPopup(p).openPopup();
+    m.selected = false;
+    m.on('click', (event) => {
+        if (!m.selected) {
+            // not selected, so it's time to select.
+            // First deselect all markers on the map.
+            unit_markers.forEach((marker) => {
+                if (marker.selected) {
+                    marker.selected = false;
+                    if ('route_polyline' in marker) {
+                        marker.route_polyline.removeFrom(theater_map);
+                        marker.route_polyline = null;
+                    }
+                }
+            });
+            // Now select this one.
+            m.selected = true;
+            m.route_polyline = render_route(unit);
+            m.route_polyline.pm.enable({ 'allowSelfIntersection': true })
+            m.route_polyline.pm._markers[0].dragging.disable();
+            m.route_polyline.on('pm:markerdragend', (e) => {
+                unit.points.forEach((point, idx) => {
+                    var marker_pos = m.route_polyline._latlngs[idx];
+                    point.lat = marker_pos.lat;
+                    point.lon = marker_pos.lng;
+                });
+
+                send_route_update(unit);
+            });
+
+        } else {
+            m.selected = false;
+            m.route_polyline.removeFrom(theater_map);
+            delete m.route_polyline;
+        }
+    });
+    unit_markers.push(m);
     m.addTo(theater_map);
 }
 
@@ -70,53 +144,16 @@ fetch_json('game/plane_groups/blue').then(blue_plane_data => {
 });
 
 
-// fetch('game/plane_groups/blue').then(response => {
-//     return response.json();
-// }).then(blue_plane_data => {
-//     console.log(blue_plane_data);
-//     return render_plane_groups(blue_plane_data);
-// }).catch(err => {
-//     console.warn("there was an error");
-//     console.warn(err);
+// theater_map.on('popupopen', (p) => {
+//     var poly = render_route(p.popup.unit);
+//     p.popup.route_polyline = poly;
+//     poly.pm.enable({
+//         allowSelfIntersection: true,
+//     });
+
 // });
 
-// fetch('game/ships/blue').then(response => {
+// theater_map.on('popupclose', (p) => {
+//     console.log(p.popup.route_polyline);
 
-// }).then
-
-
-// L.marker([x0, y0]).addTo(theater_map)
-//     .bindPopup("<b>Hello world!</b><br />I am a popup.").openPopup();
-
-// L.circle([51.508, -0.11], 500, {
-//     color: 'red',
-//     fillColor: '#f03',
-//     fillOpacity: 0.5
-// }).addTo(theater_map).bindPopup("I am a circle.");
-
-// L.polygon([
-//     [51.509, -0.08],
-//     [51.503, -0.06],
-//     [51.51, -0.047]
-// ]).addTo(theater_map).bindPopup("I am a polygon.");
-
-
-// var popup = L.popup();
-
-// function onMapClick(e) {
-//     popup
-//         .setLatLng(e.latlng)
-//         .setContent("You clicked the map at " + e.latlng.toString())
-//         .openOn(theater_map);
-// }
-
-// theater_map.on('click', onMapClick);
-theater_map.on('popupopen', (p) => {
-    p.popup.route_polyline = render_route(p.popup.unit);
-});
-
-theater_map.on('popupclose', (p) => {
-    console.log(p.popup.route_polyline);
-    p.popup.route_polyline.removeFrom(theater_map);
-    p.popup.route_polyline = null;
-});
+// });
