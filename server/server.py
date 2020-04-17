@@ -92,7 +92,7 @@ def create_app(campaign):
 
     async def broadcast(message):
         for ws in ws_clients:
-            await ws.send(f'sent an update!!1! {message}')
+            await ws.send(message)
 
     @app.websocket('/ws/update')
     @collect_websocket
@@ -106,7 +106,11 @@ def create_app(campaign):
             async def unit_route_updated(unit_data):
                 campaign.update_unit_route(
                     unit_data['id'], unit_data['points'])
-                await broadcast('TIME TO FIX YOUR SHIT YO')
+
+                broadcast_data = {'key': 'unit_group_updated'}
+                group = campaign.lookup_unit(unit_data['id'])
+                broadcast_data['value'] = collect_basic_unit_info(group)
+                await broadcast(json.dumps(broadcast_data))
 
             dispatch_map = {
                 'unit_route_updated': unit_route_updated

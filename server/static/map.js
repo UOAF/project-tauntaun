@@ -1,21 +1,35 @@
 
-var lat0 = 43;
-var lon0 = 41;
+let lat0 = 43;
+let lon0 = 41;
 
-var theater_map = L.map('mapid').setView([lat0, lon0], 9);
+let Maybe = folktale.data.Maybe;
+
+// var Maybe = require('data.maybe');
+
+let theater_map = L.map('mapid').setView([lat0, lon0], 9);
 L.PM.initialize({ optIn: false });
 
-var unit_markers = [];
-var update_ws_url = new URL('/ws/update', window.location.href);
+let update_ws_url = new URL('/ws/update', window.location.href);
 update_ws_url.protocol = update_ws_url.protocol.replace('http', 'ws');
-var update_ws = new WebSocket(update_ws_url)
+let update_ws = new WebSocket(update_ws_url)
 update_ws.onopen = (event) => {
     console.log("OPEN!!!");
 };
 
-update_ws.onmessage = (event) => {
-    console.log("DATA", event);
-;}
+update_ws.onmessage = event => {
+    let message = JSON.parse(event.data);
+    handlers = {
+        'unit_group_updated': info => {
+            let maybe_unit = all_units.getById(info.id);
+            maybe_unit.map(unit => {
+                unit.update_info(info);
+            });
+            console.log(maybe_unit);
+        }
+    };
+    let handler = handlers[message.key];
+    handler(message.value);
+}
 
 L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoiYm9ibW9yZXR0aSIsImEiOiJjazI4amV6eWswaWF2M2JtYjh3dmowdnQ1In0.XutSpPpaRm9LZudTNgVZwQ', {
     maxZoom: 13,
@@ -26,16 +40,9 @@ L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}@2x.png?access_toke
 }).addTo(theater_map);
 
 
-
-function is_underway(unit) {
-    return unit.points[0].action == "Turning Point";
-}
-
-
-
-function render_route(unit) {
-    var latlons = unit.points.map((p) => [p.lat, p.lon]);
-    var polyline = L.polyline(latlons, {
+function render_route(unit_info) {
+    let latlons = unit_info.points.map((p) => [p.lat, p.lon]);
+    let polyline = L.polyline(latlons, {
         color: '#2d4687',
         stroke: 1,
         pmIgnore: false
@@ -43,7 +50,20 @@ function render_route(unit) {
     polyline.addTo(theater_map);
     polyline.on('pm:markerdragstart', (e) => {
         // console.log('dragging!', e);
-    })
+    });
+
+
+    polyline.pm.enable({ 'allowSelfIntersection': true });
+    polyline.pm._markers[0].dragging.disable();
+    polyline.on('pm:markerdragend', (e) => {
+        unit_info.points.forEach((point, idx) => {
+            let marker_pos = polyline._latlngs[idx];
+            point.lat = marker_pos.lat;
+            point.lon = marker_pos.lng;
+        });
+
+        send_route_update(unit_info);
+    });
     return polyline;
 }
 
@@ -63,64 +83,128 @@ function send_route_update(unit) {
     update_ws.send(JSON.stringify(data));
 }
 
-function render_unit(unit) {
-    var symbol = new ms.Symbol(unit.sidc, { size: 20 });
 
-    var icon = L.icon({
-        iconUrl: symbol.toDataURL(),
-        iconAnchor: [symbol.getAnchor().x, symbol.getAnchor().y]
-    })
 
-    var latlon = [unit.position.lat, unit.position.lon];
 
-    var m = L.marker(latlon, { icon: icon, draggable: false })
-    var p = L.popup();
-    p.setContent(unit.name)
-    p.marker = m;
-    p.unit = unit;
-    //m.bindPopup(p).openPopup();
-    m.selected = false;
-    m.on('click', (event) => {
-        if (!m.selected) {
-            // not selected, so it's time to select.
-            // First deselect all markers on the map.
-            unit_markers.forEach((marker) => {
-                if (marker.selected) {
-                    marker.selected = false;
-                    if ('route_polyline' in marker) {
-                        marker.route_polyline.removeFrom(theater_map);
-                        marker.route_polyline = null;
-                    }
-                }
-            });
-            // Now select this one.
-            m.selected = true;
-            m.route_polyline = render_route(unit);
-            m.route_polyline.pm.enable({ 'allowSelfIntersection': true })
-            m.route_polyline.pm._markers[0].dragging.disable();
-            m.route_polyline.on('pm:markerdragend', (e) => {
-                unit.points.forEach((point, idx) => {
-                    var marker_pos = m.route_polyline._latlngs[idx];
-                    point.lat = marker_pos.lat;
-                    point.lon = marker_pos.lng;
-                });
+function Unit(unit_info) {
+    this.info = unit_info;
 
-                send_route_update(unit);
-            });
+    this.is_underway = () => {
+        return unit_info.points[0].action == "Turning Point";
+    };
 
-        } else {
-            m.selected = false;
+    this.update_info = new_info => {
+        this.info = new_info;
+        this.maybe_marker.map(m => {
             m.route_polyline.removeFrom(theater_map);
-            delete m.route_polyline;
+            m.route_polyline = render_route(new_info);
+        });
+    }
+
+    this.render_marker = () => {
+        let symbol = new ms.Symbol(unit_info.sidc, { size: 20 });
+
+        let icon = L.icon({
+            iconUrl: symbol.toDataURL(),
+            iconAnchor: [symbol.getAnchor().x, symbol.getAnchor().y]
+        })
+
+        let latlon = [unit_info.position.lat, unit_info.position.lon];
+
+        let m = L.marker(latlon, { icon: icon, draggable: false })
+        let p = L.popup();
+        p.setContent(unit_info.name)
+
+        m.selected = false;
+        m.on('click', (event) => {
+            if (!m.selected) {
+                // not selected, so it's time to select.
+                // First deselect all markers on the map.
+                all_units.forEach((unit) => {
+                    console.log(unit);
+                    let maybe_marker = unit.maybe_marker;
+                    maybe_marker.map(marker => {
+                        if (marker.selected) {
+                            marker.selected = false;
+                            if ('route_polyline' in marker) {
+                                marker.route_polyline.removeFrom(theater_map);
+                                marker.route_polyline = null;
+                            }
+                        }
+                    })
+                });
+                // Now select this one.
+                m.selected = true;
+                m.route_polyline = render_route(unit_info);
+
+
+            } else {
+                m.selected = false;
+                m.route_polyline.removeFrom(theater_map);
+                delete m.route_polyline;
+            }
+        });
+        m.addTo(theater_map);
+        return m;
+    }
+
+    this.maybe_marker = this.is_underway() ? Maybe.Just(this.render_marker()) : Maybe.Nothing();
+
+};
+
+function UnitSet() {
+    this.units = {};
+
+    this.addFromInfo = unit_info => {
+        this.units[unit_info.id] = new Unit(unit_info);
+    };
+
+    this.getById = id => {
+        return Maybe.fromNullable(this.units[id]);
+    };
+
+    this.getByName = name => {
+        return Maybe.fromNullable(this.units.find(unit => unit.name === name));
+    };
+
+    this.forEach = apply_to => {
+        for (unit_id in this.units) {
+            let unit = this.units[unit_id];
+            console.log(unit);
+            apply_to(unit);
         }
-    });
-    unit_markers.push(m);
-    m.addTo(theater_map);
+    };
+
+    //    function 
+};
+
+
+let all_units = new UnitSet();
+
+function is_underway(unit) {
+    return unit.points[0].action == "Turning Point";
 }
 
 
+
+
+function add_unit(unit_info)
+{
+    console.log("HELLO");
+    console.log(all_units);
+    all_units.addFromInfo(unit_info);
+}
+
+
+
+
 function render_plane_groups(groups) {
-    groups.forEach(render_unit);
+    groups.forEach(unit => {
+        all_units.add(unit);
+        if (is_underway(unit)) {
+            render_unit(unit);
+        }
+    });
 }
 
 function fetch_json(url) {
@@ -130,30 +214,15 @@ function fetch_json(url) {
 }
 
 fetch_json('game/ships/blue').then(ships => {
-    ships.forEach(render_unit);
+    ships.forEach(add_unit);
 }).catch(err => {
     console.warn("Error rendering ships ", err);
 });
 
 fetch_json('game/plane_groups/blue').then(blue_plane_data => {
-    console.log(blue_plane_data);
-    return blue_plane_data.filter((group) => is_underway(group)).forEach(render_unit);
+    return blue_plane_data.forEach(add_unit)
 }).catch(err => {
     console.warn("there was an error");
     console.warn(err);
 });
 
-
-// theater_map.on('popupopen', (p) => {
-//     var poly = render_route(p.popup.unit);
-//     p.popup.route_polyline = poly;
-//     poly.pm.enable({
-//         allowSelfIntersection: true,
-//     });
-
-// });
-
-// theater_map.on('popupclose', (p) => {
-//     console.log(p.popup.route_polyline);
-
-// });
