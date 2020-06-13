@@ -81,7 +81,7 @@ export function CampaignMap(props: CampaignMapProps) {
         {units
           .filter(unit => isUnderway(unit))
           .map(unit => (
-            <UnitMarker key={unit.sidc} unit={unit} toggleUnitSelection={toggleUnitSelection} />
+            <UnitMarker key={unit.uiId} unit={unit} toggleUnitSelection={toggleUnitSelection} />
           ))}
         {selectedUnit && <UnitRoute unit={selectedUnit} />}
       </Map>

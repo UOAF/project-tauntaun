@@ -15,6 +15,7 @@ class GameServiceImpl implements GameService {
       const units = (await response.json()) as Unit[];
       return units.map(unit => ({
         ...unit,
+        uiId: `${type}-${unit.id}`,
         isSelected: false
       }));
     } catch (error) {
