@@ -154,7 +154,12 @@ def create_mission(campaign):
 
 
 def save_mission(m, name='pytest'):
-    mizname = os.path.join(get_dcs_dir(), "Missions", "pytest.miz")
+    dcs_dir = get_dcs_dir()
+    if not dcs_dir:
+        print("No DCS dir found. Not saving")
+        return
+
+    mizname = os.path.join(dcs_dir, "Missions", "pytest.miz")
     m.save(mizname)
     from zipfile import ZipFile
     with ZipFile(mizname) as miz:

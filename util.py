@@ -3,12 +3,14 @@ import os
 def get_saved_games_dir():
     saved_games = os.path.abspath(os.path.join(os.environ['USERPROFILE'],
                                                'Saved Games'))
-    dcs_data_dir = os.path.join(saved_games, "DCS")
-    assert(os.path.exists(dcs_data_dir))
     return saved_games
 
 def get_dcs_dir():
-    return os.path.join(get_saved_games_dir(), "DCS")
+    dcs_dir = os.path.join(get_saved_games_dir(), "DCS")
+    if not os.path.exists(dcs_dir):
+        return ""
+
+    return dcs_dir
 
 
 def knots_to_kph(knots):
