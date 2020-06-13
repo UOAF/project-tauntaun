@@ -1,3 +1,5 @@
+import 'bluebird-global';
+
 import 'leaflet';
 
 import 'leaflet.pm';

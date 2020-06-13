@@ -34,24 +34,19 @@ export function CampaignMap(props: CampaignMapProps) {
 
   useEffect(() => {
     gameService
-      .getShips('blue')
-      .then(ships => {
+      .openSocket()
+      .then(() => console.info('update socket connected'))
+      .catch(error => console.error(`couldn't connect update socket`, error));
+
+    Promise.all([gameService.getShips('blue'), gameService.getPlanes('blue')])
+      .then(([ships, planes]) => {
         setState(oldState => ({
           ...oldState,
-          ships
+          ships,
+          planes
         }));
       })
-      .catch(error => console.error(`couldn't fetch ships`, error));
-
-    gameService
-      .getPlanes('blue')
-      .then(planes =>
-        setState(oldState => ({
-          ...oldState,
-          planes
-        }))
-      )
-      .catch(error => console.error(`couldn't fetch planes`, error));
+      .catch(error => console.error(`error during gameservice startup`, error));
   }, []);
 
   const toggleUnitSelection = (unit: Unit): void => {
