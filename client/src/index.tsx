@@ -10,11 +10,14 @@ import ReactDOM from 'react-dom';
 import './index.css';
 
 import App from './components/App';
+import { AppStateContainer } from './models/appState';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <AppStateContainer.Provider>
+      <App />
+    </AppStateContainer.Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );

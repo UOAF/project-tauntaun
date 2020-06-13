@@ -1,62 +1,36 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Map, TileLayer } from 'react-leaflet';
 import { pick, without } from 'lodash';
 
 import { UnitMarker } from './UnitMarker';
 import { UnitRoute } from './UnitRoute';
 
+import { AppStateContainer } from '../models/appState';
 import { Unit } from '../models/unit';
-import { gameService } from '../services/gameService';
 
 export interface CampaignMapProps {
   tileLayerUrl: string;
   lat: number;
   lng: number;
   zoom: number;
-}
-
-export interface CampaignMapState {
-  ships: Unit[];
-  planes: Unit[];
+  units: Unit[];
 }
 
 export function CampaignMap(props: CampaignMapProps) {
+  const appState = AppStateContainer.useContainer();
+
   const isUnderway = (unit: Unit): boolean => {
     return unit.points[0].action === 'Turning Point';
   };
 
-  const [state, setState] = useState<CampaignMapState>({
-    ships: [],
-    planes: []
-  });
-
-  const units = [...state.planes, ...state.ships];
-
-  useEffect(() => {
-    gameService
-      .openSocket()
-      .then(() => console.info('update socket connected'))
-      .catch(error => console.error(`couldn't connect update socket`, error));
-
-    Promise.all([gameService.getShips('blue'), gameService.getPlanes('blue')])
-      .then(([ships, planes]) => {
-        setState(oldState => ({
-          ...oldState,
-          ships,
-          planes
-        }));
-      })
-      .catch(error => console.error(`error during gameservice startup`, error));
-  }, []);
-
+  const { units } = props;
   const toggleUnitSelection = (unit: Unit): void => {
     console.info(`selecting unit`, unit);
 
     without(units, unit).forEach(unit => (unit.isSelected = false));
     unit.isSelected = !unit.isSelected;
-    setState({
-      ...state
-    });
+
+    appState.updateUnit(unit);
   };
 
   const selectedUnit = units.find(unit => unit.isSelected);
@@ -76,7 +50,7 @@ export function CampaignMap(props: CampaignMapProps) {
         {units
           .filter(unit => isUnderway(unit))
           .map(unit => (
-            <UnitMarker key={unit.uiId} unit={unit} toggleUnitSelection={toggleUnitSelection} />
+            <UnitMarker key={unit.uniqueId} unit={unit} toggleUnitSelection={toggleUnitSelection} />
           ))}
         {selectedUnit && <UnitRoute unit={selectedUnit} />}
       </Map>

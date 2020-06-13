@@ -40,7 +40,7 @@ export type Position = {
 
 export type Unit = {
   id: number;
-  uiId: string;
+  uniqueId: string;
   name: string;
   num: number;
   points: Point[];

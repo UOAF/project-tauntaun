@@ -1,4 +1,6 @@
 import { pick } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
+
 import { Unit } from '../models/unit';
 
 export type ForceColor = 'blue' | 'red' | 'neutral';
@@ -21,7 +23,7 @@ async function getUnits(type: GetType, color: ForceColor): Promise<Unit[]> {
     const units = (await response.json()) as Unit[];
     return units.map(unit => ({
       ...unit,
-      uiId: `${type}-${unit.id}`,
+      uniqueId: uuidv4(),
       isSelected: false
     }));
   } catch (error) {
