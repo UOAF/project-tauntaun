@@ -3,8 +3,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 ## First Steps
 
 - Install Node JS (https://nodejs.org/en/download/). Any recent LTS will work.
-- Once Node and NPM are installed and in your path
-- - npm install -g yarn
+- Once Node and NPM are installed and in your path:
+- - `npm install -g yarn`
+- in the `client` directory:
+- - `yarn`
 
 This project uses yarn instead of NPM for package management various package hoisting reasons.
 
