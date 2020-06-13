@@ -1,8 +1,9 @@
 import React from 'react';
-
-import { Unit, Point } from '../models/unit';
 import { Polyline } from 'react-leaflet';
 import { LeafletEvent, Polyline as CorePolyline, LatLng } from 'leaflet';
+
+import { Unit, Point } from '../models/unit';
+import { gameService } from '../services/gameService';
 
 export type UnitRouteProps = {
   unit: Unit;
@@ -27,6 +28,7 @@ export function UnitRoute(props: UnitRouteProps) {
         return point;
       });
 
+      gameService.updateUnitRoute(unit);
       console.info(`dragged point`, unit);
     });
   };
