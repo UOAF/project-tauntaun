@@ -1,10 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import L from 'leaflet';
 
 import './App.css';
 
 import { CampaignMap } from './CampaignMap';
 
 function App() {
+  useEffect(() => {
+    (L as any).PM.initialize({ optIn: false });
+  }, []);
+
   return (
     <div className="App">
       <CampaignMap

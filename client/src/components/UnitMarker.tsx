@@ -2,7 +2,7 @@ import React from 'react';
 import ms from 'milsymbol';
 
 import { Unit } from '../models/unit';
-import { Icon } from 'leaflet';
+import { Icon, Marker as CoreMarker, LeafletEvent } from 'leaflet';
 import { Marker, Popup } from 'react-leaflet';
 
 export type UnitProps = {
@@ -27,8 +27,13 @@ export function UnitMarker(props: UnitProps) {
     iconAnchor: [anchor.x, anchor.y]
   });
 
+  const onMarkerAdded = (event: LeafletEvent) => {
+    const marker = event.target as CoreMarker;
+    marker.pm.disable();
+  };
+
   return (
-    <Marker position={{ lat, lng }} icon={icon} onClick={() => changeSelectedUnit(unit)}>
+    <Marker position={{ lat, lng }} onadd={onMarkerAdded} icon={icon} onClick={() => changeSelectedUnit(unit)}>
       <Popup>{unit.name}</Popup>
     </Marker>
   );
