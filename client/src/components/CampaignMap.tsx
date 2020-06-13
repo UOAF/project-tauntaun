@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Map, TileLayer } from 'react-leaflet';
-
 import { pick } from 'lodash';
+
+import { UnitMarker } from './UnitMarker';
+import { Unit } from '../models/unit';
+import { gameService } from '../services/gameService';
 
 export interface CampaignMapProps {
   tileLayerUrl: string;
@@ -10,7 +13,43 @@ export interface CampaignMapProps {
   zoom: number;
 }
 
+export interface CampaignMapState {
+  ships: Unit[];
+  planes: Unit[];
+}
+
 export function CampaignMap(props: CampaignMapProps) {
+  const isUnderway = (unit: Unit): boolean => {
+    return unit.points[0].action === 'Turning Point';
+  };
+
+  const [state, setState] = useState<CampaignMapState>({
+    ships: [],
+    planes: []
+  });
+
+  useEffect(() => {
+    gameService
+      .getShips('blue')
+      .then(ships => {
+        setState(oldState => ({
+          ...oldState,
+          ships
+        }));
+      })
+      .catch(error => console.error(`couldn't fetch ships`, error));
+
+    gameService
+      .getPlanes('blue')
+      .then(planes =>
+        setState(oldState => ({
+          ...oldState,
+          planes
+        }))
+      )
+      .catch(error => console.error(`couldn't fetch planes`, error));
+  }, []);
+
   return (
     <div data-testid="campaign-map">
       <Map center={pick(props, ['lat', 'lng'])} zoom={props.zoom}>
@@ -24,6 +63,11 @@ export function CampaignMap(props: CampaignMapProps) {
             'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
           }
         />
+        {[...state.planes, ...state.ships]
+          .filter(unit => isUnderway(unit))
+          .map(unit => (
+            <UnitMarker key={unit.sidc} unit={unit} />
+          ))}
       </Map>
     </div>
   );

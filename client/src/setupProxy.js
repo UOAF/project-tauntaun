@@ -7,7 +7,7 @@ module.exports = function (app) {
   app.use(
     '/game',
     createProxyMiddleware({
-      target: 'http://localhost:5000',
+      target: 'http://localhost:80',
       changeOrigin: true
     })
   );

@@ -22,5 +22,7 @@ module.exports = {
     'plugin:prettier/recommended'
   ],
 
-  rules: {}
+  rules: {
+    'arrow-parens': ['warn', 'as-needed']
+  }
 };
