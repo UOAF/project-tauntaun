@@ -45,4 +45,5 @@ export type Unit = {
   points: Point[];
   position: Position;
   sidc: string;
+  isSelected: boolean;
 };

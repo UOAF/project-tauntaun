@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Map, TileLayer } from 'react-leaflet';
-import { pick } from 'lodash';
+import { pick, without } from 'lodash';
 
 import { UnitMarker } from './UnitMarker';
+import { UnitRoute } from './UnitRoute';
+
 import { Unit } from '../models/unit';
 import { gameService } from '../services/gameService';
 
@@ -28,6 +30,8 @@ export function CampaignMap(props: CampaignMapProps) {
     planes: []
   });
 
+  const units = [...state.planes, ...state.ships];
+
   useEffect(() => {
     gameService
       .getShips('blue')
@@ -50,6 +54,17 @@ export function CampaignMap(props: CampaignMapProps) {
       .catch(error => console.error(`couldn't fetch planes`, error));
   }, []);
 
+  const toggleUnitSelection = (unit: Unit): void => {
+    console.info(`selecting unit`, unit);
+
+    without(units, unit).forEach(unit => (unit.isSelected = false));
+    unit.isSelected = !unit.isSelected;
+    setState({
+      ...state
+    });
+  };
+
+  const selectedUnit = units.find(unit => unit.isSelected);
   return (
     <div data-testid="campaign-map">
       <Map center={pick(props, ['lat', 'lng'])} zoom={props.zoom}>
@@ -63,11 +78,12 @@ export function CampaignMap(props: CampaignMapProps) {
             'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
           }
         />
-        {[...state.planes, ...state.ships]
+        {units
           .filter(unit => isUnderway(unit))
           .map(unit => (
-            <UnitMarker key={unit.sidc} unit={unit} />
+            <UnitMarker key={unit.sidc} unit={unit} toggleUnitSelection={toggleUnitSelection} />
           ))}
+        {selectedUnit && <UnitRoute unit={selectedUnit} />}
       </Map>
     </div>
   );

@@ -7,9 +7,16 @@ import { Marker, Popup } from 'react-leaflet';
 
 export type UnitProps = {
   unit: Unit;
+  toggleUnitSelection?: (unit: Unit) => void;
 };
 
 export function UnitMarker(props: UnitProps) {
+  const changeSelectedUnit = (unit: Unit) => {
+    if (props.toggleUnitSelection) {
+      props.toggleUnitSelection(unit);
+    }
+  };
+
   const { unit } = props;
 
   const { lat, lon: lng } = unit.position;
@@ -21,7 +28,7 @@ export function UnitMarker(props: UnitProps) {
   });
 
   return (
-    <Marker position={{ lat, lng }} icon={icon}>
+    <Marker position={{ lat, lng }} icon={icon} onClick={() => changeSelectedUnit(unit)}>
       <Popup>{unit.name}</Popup>
     </Marker>
   );

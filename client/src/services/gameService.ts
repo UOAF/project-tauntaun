@@ -1,6 +1,7 @@
 import { Unit } from '../models/unit';
 
 export type ForceColor = 'blue' | 'red';
+export type GetType = 'ships' | 'plane_groups';
 
 export interface GameService {
   getShips(color: string): Promise<Unit[]>;
@@ -8,24 +9,26 @@ export interface GameService {
 }
 
 class GameServiceImpl implements GameService {
-  public async getShips(color: ForceColor): Promise<Unit[]> {
+  private static async getUnits(type: GetType, color: ForceColor): Promise<Unit[]> {
     try {
-      const response = await fetch(`/game/ships/${color}`);
-      return await response.json();
-    } catch (error) {
-      console.error(`couldn't fetch ships`, error);
-      return [];
-    }
-  }
-
-  public async getPlanes(color: ForceColor): Promise<Unit[]> {
-    try {
-      const response = await fetch(`/game/plane_groups/${color}`);
-      return await response.json();
+      const response = await fetch(`/game/${type}/${color}`);
+      const units = (await response.json()) as Unit[];
+      return units.map(unit => ({
+        ...unit,
+        isSelected: false
+      }));
     } catch (error) {
       console.error(`couldn't fetch planes`, error);
       return [];
     }
+  }
+
+  public async getShips(color: ForceColor): Promise<Unit[]> {
+    return GameServiceImpl.getUnits('ships', color);
+  }
+
+  public async getPlanes(color: ForceColor): Promise<Unit[]> {
+    return GameServiceImpl.getUnits('plane_groups', color);
   }
 }
 
