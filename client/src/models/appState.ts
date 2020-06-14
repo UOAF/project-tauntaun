@@ -29,17 +29,22 @@ function useAppState(initialState = defaultState) {
   };
 
   const onUnitUpdate = (updatedUnit: Unit) => {
-    const updates = state.units.filter(u => u.id === updatedUnit.id && u.name === updatedUnit.name);
-    setState(state => ({
-      ...state,
-      units: [
-        ...without(state.units, ...updates),
-        {
-          ...updatedUnit,
-          uniqueId: uuidv4()
-        }
-      ]
-    }));
+    setState(state => {
+      const oldUnit = state.units.find(u => u.id === updatedUnit.id && u.name === updatedUnit.name);
+      const units = oldUnit ? without(state.units, oldUnit) : state.units;
+
+      return {
+        ...state,
+        units: [
+          ...units,
+          {
+            ...updatedUnit,
+            uniqueId: oldUnit ? oldUnit.uniqueId : uuidv4(),
+            isSelected: oldUnit ? oldUnit.isSelected : false
+          }
+        ]
+      };
+    });
 
     console.info(`got unit update`, updatedUnit);
   };
