@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 
 import './App.css';
 
-import { CampaignMap } from './CampaignMap';
-import { AppStateContainer } from '../models/appState';
+import { CampaignMap } from './';
+import { AppStateContainer } from '../models';
 
-function App() {
+export function App() {
   const appState = AppStateContainer.useContainer();
 
   useEffect(() => {
@@ -24,5 +24,3 @@ function App() {
     </div>
   );
 }
-
-export default App;

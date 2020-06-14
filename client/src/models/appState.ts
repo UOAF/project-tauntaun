@@ -4,8 +4,8 @@ import { createContainer } from 'unstated-next';
 import { without } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Unit } from './unit';
-import { gameService } from '../services/gameService';
+import { Unit } from './';
+import { gameService } from '../services';
 
 export interface AppState {
   isInitialized: boolean;

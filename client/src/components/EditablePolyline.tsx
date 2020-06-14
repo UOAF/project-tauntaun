@@ -3,8 +3,8 @@ import { Polyline as CorePolyline, LeafletEvent, LatLng } from 'leaflet';
 import { Polyline, PolylineProps } from 'react-leaflet';
 import { omit } from 'lodash';
 
-import { Unit, Point } from '../models/unit';
-import { gameService } from '../services/gameService';
+import { Unit, Point } from '../models';
+import { gameService } from '../services';
 
 export type EditablePolylineProps = PolylineProps & {
   unit: Unit;

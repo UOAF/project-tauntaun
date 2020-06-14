@@ -1,7 +1,7 @@
 import React from 'react';
 
-import { EditablePolyline } from './EditablePolyline';
-import { Unit } from '../models/unit';
+import { EditablePolyline } from './';
+import { Unit } from '../models';
 
 export type UnitRouteProps = {
   unit: Unit;

@@ -2,11 +2,8 @@ import React from 'react';
 import { Map, TileLayer } from 'react-leaflet';
 import { pick, without } from 'lodash';
 
-import { UnitMarker } from './UnitMarker';
-import { UnitRoute } from './UnitRoute';
-
-import { AppStateContainer } from '../models/appState';
-import { Unit } from '../models/unit';
+import { UnitMarker, UnitRoute } from './';
+import { Unit, AppStateContainer } from '../models';
 
 export interface CampaignMapProps {
   tileLayerUrl: string;

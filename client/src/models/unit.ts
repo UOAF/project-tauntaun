@@ -1,4 +1,4 @@
-import { Dictionary } from './util';
+import { Dictionary } from './';
 
 export type TaskParam = {
   auto: boolean;

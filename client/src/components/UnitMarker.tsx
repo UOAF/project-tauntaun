@@ -1,9 +1,9 @@
 import React from 'react';
 import ms from 'milsymbol';
-
-import { Unit } from '../models/unit';
 import { Icon, Marker as CoreMarker, LeafletEvent } from 'leaflet';
 import { Marker, Popup } from 'react-leaflet';
+
+import { Unit } from '../models';
 
 export type UnitProps = {
   unit: Unit;

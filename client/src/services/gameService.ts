@@ -1,8 +1,7 @@
 import { pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Unit, Point } from '../models/unit';
-import { Dictionary } from '../models/util';
+import { Unit, Dictionary } from '../models';
 
 export type ForceColor = 'blue' | 'red' | 'neutral';
 export type GetType = 'ships' | 'plane_groups';

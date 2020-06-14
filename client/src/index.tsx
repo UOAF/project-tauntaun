@@ -9,8 +9,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-import App from './components/App';
-import { AppStateContainer } from './models/appState';
+import { App } from './components';
+import { AppStateContainer } from './models';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
