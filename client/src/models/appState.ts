@@ -1,6 +1,8 @@
 import L from 'leaflet';
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
+import { without } from 'lodash';
+import { v4 as uuidv4 } from 'uuid';
 
 import { Unit } from './unit';
 import { gameService } from '../services/gameService';
@@ -20,14 +22,25 @@ function useAppState(initialState = defaultState) {
 
   const refreshUnits = async (): Promise<void> => {
     const [ships, planes] = await Promise.all([gameService.getShips('blue'), gameService.getPlanes('blue')]);
-    setState({
+    setState(state => ({
       ...state,
-      units: [...ships, ...planes],
-      isInitialized: true
-    });
+      units: [...ships, ...planes]
+    }));
   };
 
   const onUnitUpdate = (updatedUnit: Unit) => {
+    const updates = state.units.filter(u => u.id === updatedUnit.id && u.name === updatedUnit.name);
+    setState(state => ({
+      ...state,
+      units: [
+        ...without(state.units, ...updates),
+        {
+          ...updatedUnit,
+          uniqueId: uuidv4()
+        }
+      ]
+    }));
+
     console.info(`got unit update`, updatedUnit);
   };
 
@@ -44,6 +57,10 @@ function useAppState(initialState = defaultState) {
       console.info('update socket connected');
 
       await refreshUnits();
+      setState(state => ({
+        ...state,
+        isInitialized: true
+      }));
       console.info('app state initialized');
     } catch (error) {
       console.error(`couldn't initialize appState`, error);
@@ -53,10 +70,10 @@ function useAppState(initialState = defaultState) {
 
   const updateUnit = (unit: Unit) => {
     const units = state.units.filter(u => u.uniqueId !== unit.uniqueId);
-    setState({
+    setState(state => ({
       ...state,
       units: [...units, unit]
-    });
+    }));
   };
 
   return { ...state, initialize, refreshUnits, updateUnit };
