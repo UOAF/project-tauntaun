@@ -1,10 +1,13 @@
 import { pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Unit } from '../models/unit';
+import { Unit, Point } from '../models/unit';
+import { Dictionary } from '../models/util';
 
 export type ForceColor = 'blue' | 'red' | 'neutral';
 export type GetType = 'ships' | 'plane_groups';
+
+export type UnitUpdateListener = (updatedUnit: Unit) => void;
 
 export interface GameService {
   openSocket(): Promise<void>;
@@ -13,9 +16,13 @@ export interface GameService {
 
   getShips(color: string): Promise<Unit[]>;
   getPlanes(color: string): Promise<Unit[]>;
+
+  registerForUnitUpdates(listener: UnitUpdateListener): string;
+  unregisterUnitUpdateListener(id: string): void;
 }
 
 let socket: WebSocket | null = null;
+const updateListeners: Dictionary<UnitUpdateListener> = {};
 
 async function getUnits(type: GetType, color: ForceColor): Promise<Unit[]> {
   try {
@@ -32,6 +39,15 @@ async function getUnits(type: GetType, color: ForceColor): Promise<Unit[]> {
   }
 }
 
+function receiveUpdateMessage(event: any) {
+  const message = JSON.parse(event.data);
+  if (message.key !== 'unit_group_updated') {
+    return;
+  }
+
+  Object.keys(updateListeners).forEach(key => updateListeners[key](message.value));
+}
+
 async function openSocket(): Promise<void> {
   return new Promise((resolve, reject) => {
     try {
@@ -40,6 +56,7 @@ async function openSocket(): Promise<void> {
       url.port = '80';
       socket = new WebSocket(url.toString());
       socket.onopen = () => resolve();
+      socket.onmessage = receiveUpdateMessage;
     } catch (error) {
       reject(error);
     }
@@ -71,9 +88,23 @@ async function getPlanes(color: ForceColor): Promise<Unit[]> {
   return getUnits('plane_groups', color);
 }
 
+function registerForUnitUpdates(listener: UnitUpdateListener): string {
+  const id = uuidv4();
+  updateListeners[id] = listener;
+  return id;
+}
+
+function unregisterUnitUpdateListener(id: string): void {
+  if (updateListeners[id]) {
+    delete updateListeners[id];
+  }
+}
+
 export const gameService: GameService = {
   openSocket,
   updateUnitRoute,
   getShips,
-  getPlanes
+  getPlanes,
+  registerForUnitUpdates,
+  unregisterUnitUpdateListener
 };

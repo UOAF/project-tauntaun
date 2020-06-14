@@ -7,9 +7,10 @@ p {
   font-family: sans-serif;
   text-align: center;
 }
+
 .leaflet-container {
-  height: 650px;
-  width: 80%;
+  height: 1000px;
+  width: 95%;
   margin: 0 auto;
 }
 

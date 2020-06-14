@@ -18,6 +18,19 @@ const defaultState: AppState = {
 function useAppState(initialState = defaultState) {
   const [state, setState] = useState(initialState);
 
+  const refreshUnits = async (): Promise<void> => {
+    const [ships, planes] = await Promise.all([gameService.getShips('blue'), gameService.getPlanes('blue')]);
+    setState({
+      ...state,
+      units: [...ships, ...planes],
+      isInitialized: true
+    });
+  };
+
+  const onUnitUpdate = (updatedUnit: Unit) => {
+    console.info(`got unit update`, updatedUnit);
+  };
+
   const initialize = async (): Promise<void> => {
     try {
       if (state.isInitialized) {
@@ -26,16 +39,11 @@ function useAppState(initialState = defaultState) {
 
       (L as any).PM.initialize({ optIn: false });
 
+      gameService.registerForUnitUpdates(onUnitUpdate);
       await gameService.openSocket();
       console.info('update socket connected');
 
-      const [ships, planes] = await Promise.all([gameService.getShips('blue'), gameService.getPlanes('blue')]);
-      setState({
-        ...state,
-        units: [...ships, ...planes],
-        isInitialized: true
-      });
-
+      await refreshUnits();
       console.info('app state initialized');
     } catch (error) {
       console.error(`couldn't initialize appState`, error);
@@ -51,7 +59,7 @@ function useAppState(initialState = defaultState) {
     });
   };
 
-  return { ...state, initialize, updateUnit };
+  return { ...state, initialize, refreshUnits, updateUnit };
 }
 
 export const AppStateContainer = createContainer(useAppState);
