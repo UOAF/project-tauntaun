@@ -352,9 +352,9 @@ class CoordInterpolator(object):
     def LatLonToUTMXY (self, lat, lon, zone):
         xy = self.MapLatLonToXY(lat, lon, self.UTMCentralMeridian(zone))
 
-        #/* Adjust easting and northing for UTM system. */
-        xy[0] = xy[0] * self.UTMScaleFactor + 500000.0
-        xy[1] = xy[1] * self.UTMScaleFactor
+        #/* Adjust easting and northing for UTM system // WITH ED's weird numbers. */
+        xy[0] = xy[0] * self.UTMScaleFactor + 499600
+        xy[1] = xy[1] * self.UTMScaleFactor + -1800
         if xy[1] < 0.0:
             xy[1] = xy[1] + 10000000.0
 
@@ -383,14 +383,15 @@ class CoordInterpolator(object):
     *
     */"""
     def UTMXYToLatLon (self, x, y, zone, southhemi):
-        x -= 500000.0
+        x -= 499600
         x /= self.UTMScaleFactor
         	
         #/* If in southern hemisphere, adjust y accordingly. */
         if southhemi:
             y -= 10000000.0
-        		
-        y /= self.UTMScaleFactor
+
+        y -= -1800	
+        y /= self.UTMScaleFactor 
         
         cmeridian = self.UTMCentralMeridian (zone)
         latlon = self.MapXYToLatLon (x, y, cmeridian)
@@ -403,9 +404,10 @@ class CoordInterpolator(object):
 
 
     def lat_lon_to_xz(self, lat, lon):
-        zone = np.floor ((lon + 180.0) / 6) + 1
-        xy, zone = self.LatLonToUTMXY(np.deg2rad(lat), np.deg2rad(lon), zone)
-        return xy[1]-599517, xy[2]-4998115
+        zone = 36 #caucasus hardcoded zone 36?? save for later np.floor ((lon + 180.0) / 6) + 1
+        utmxy, zone = self.LatLonToUTMXY(np.deg2rad(lat), np.deg2rad(lon), zone)
+
+        return utmxy[1]-4998115, utmxy[0]-599517
 
     def xz_to_lat_lon(self, x, z):
         zone = 36
