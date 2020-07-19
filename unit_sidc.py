@@ -1,4 +1,3 @@
-
 from dcs import ships, planes
 
 sidc_map ={
