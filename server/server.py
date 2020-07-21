@@ -147,7 +147,7 @@ def run(campaign, port=80):
     signal.signal(signal.SIGTERM, _signal_handler)
 
     config = Config()
-    config.bind = ["0.0.0.0:80"]  # As an example configuration setting
+    config.bind = ["0.0.0.0:" + str(port)]  # As an example configuration setting
 
     loop.run_until_complete(
         serve(app, config, shutdown_trigger=shutdown_event.wait),
