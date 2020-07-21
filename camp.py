@@ -1,5 +1,5 @@
 from util import get_dcs_dir, point_along_route
-from dcs import mission, terrain
+from dcs import terrain
 from dcs.mission import StartType
 from dcs import ships, planes
 from dcs.task import ActivateBeaconCommand, ActivateICLSCommand, EPLRS
@@ -18,6 +18,8 @@ from util import feet_to_meters, knots_to_kph
 from enum import Enum
 from templates import make_sa2_site
 
+def is_posix():
+    return os.name == 'posix'
 
 class Coalition(Enum):
     NEUTRAL = 'NEWTRAL'
@@ -154,10 +156,15 @@ def create_mission(campaign):
 
 
 def save_mission(m, name='pytest'):
-    dcs_dir = get_dcs_dir()
-    if not dcs_dir:
-        print("No DCS dir found. Not saving")
-        return
+    dcs_dir = '.'
+    if is_posix:
+        if not os.path.exists('Missions'):
+            os.makedirs('Missions')
+    else:
+        dcs_dir = get_dcs_dir()
+        if not dcs_dir:
+            print("No DCS dir found. Not saving")
+            return
 
     mizname = os.path.join(dcs_dir, "Missions", "pytest.miz")
     m.save(mizname)
@@ -173,7 +180,10 @@ def main():
     c = Campaign()
     m = create_mission(c)
     save_mission(m)
-    server.run(c)
+    if is_posix():
+        server.run(c, 8080)
+    else:
+        server.run(c)
 
 
 if __name__ == '__main__':
