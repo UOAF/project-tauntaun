@@ -72,15 +72,63 @@ class Campaign():
                 return group
 
     def update_unit_route(self, unit_id, points):
+        def convert_point(p):
+            lat = float(p['lat'])
+            lon = float(p['lon'])
+            x, z = lat_lon_to_xz(lat, lon)
+            return mapping.Point(x, z)
+        
+        def is_same_point(a, b):
+            # For now the position uniquely identifies the waypoint
+            coord_drift_threshold = 1  # meter
+            return a.distance_to_point(b) < coord_drift_threshold
+        
         group = self.lookup_unit(unit_id)
         if group is None:
             raise ValueError(f"no group found with id {unit_id}")
-        for point, new_pos in zip(group.points, points):
-            lat = float(new_pos['lat'])
-            lon = float(new_pos['lon'])
-            x, z = lat_lon_to_xz(lat, lon)
-            point.position = mapping.Point(x, z)
 
+        converted_points = [convert_point(p) for p in points]
+
+        id_map = {}
+        for index, new_pos in enumerate(converted_points):
+            id_map[index] = [u_index for u_index, u in enumerate(group.points) if is_same_point(u.position, new_pos)]
+
+        reverse_id_map = {}
+        for index, unit_pos in enumerate(group.points):
+            reverse_id_map[index] = [p_index for p_index, p in enumerate(converted_points) if is_same_point(unit_pos.position, p)]
+
+        id_map_not_found = [_ for _ in filter(lambda a: not id_map[a], id_map)]
+        id_map_not_found_count = len(id_map_not_found)
+        reverse_id_map_not_found = [_ for _ in filter(lambda a: not reverse_id_map[a], reverse_id_map)]
+        reverse_id_map_not_found_count = len(reverse_id_map_not_found)
+
+        # No change in positions
+        if id_map_not_found_count == reverse_id_map_not_found_count and id_map_not_found_count == 0 \
+                and id_map == reverse_id_map:
+            print("Waypoint positions not changed, not implemented.") # TODO
+            return
+
+        # Point position modified
+        if id_map_not_found_count == reverse_id_map_not_found_count and id_map_not_found_count == 1\
+                and id_map == reverse_id_map:
+            wp_index = next(iter(id_map_not_found))
+            print("Waypoint position", wp_index, "changed")
+            group.points[wp_index].position = converted_points[wp_index]
+            return
+
+        # Point inserted
+        if reverse_id_map_not_found_count == 0 and id_map_not_found_count == 1:
+            wp_index = next(iter(id_map_not_found))
+            print("New waypoint added at position ", wp_index)
+            wp = group.add_waypoint(converted_points[wp_index])
+            group.points.pop()
+            group.points.insert(wp_index, wp)
+            return
+
+        # Point removed
+        # TODO
+
+        print("Invalid change, dropping request!")
 
 
 def create_mission(campaign):

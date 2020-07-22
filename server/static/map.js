@@ -57,11 +57,53 @@ function render_route(unit_info) {
   polyline.pm.enable({ allowSelfIntersection: true });
   polyline.pm._markers[0].dragging.disable();
   polyline.on("pm:markerdragend", (e) => {
-    unit_info.points.forEach((point, idx) => {
-      let marker_pos = polyline._latlngs[idx];
-      point.lat = marker_pos.lat;
-      point.lon = marker_pos.lng;
-    });
+    let num_of_points_changed = polyline._latlngs.length != unit_info.points.length;
+
+    if (num_of_points_changed) {
+        const is_same_point = (poly_point, unit_point) => poly_point.lat == unit_point.lat && poly_point.lng == unit_point.lon;        
+
+        if (polyline._latlngs.length > unit_info.points.length)
+        {
+            console.log("New point created.");
+
+            const is_new_point = point => unit_info.points.some(unit_point => is_same_point(point, unit_point)) == false;
+
+            let new_point = polyline._latlngs.filter(poly_point => is_new_point(poly_point));
+            if (new_point.length != 1) {
+              console.error("Invalid new_point.length");
+              return;
+            }
+            new_point = new_point[0];
+
+            const new_point_index = polyline._latlngs.findIndex(poly_point => poly_point.lat == new_point.lat && poly_point.lng == new_point.lng);            
+
+            const prev_index = new_point_index - 1;
+            if (prev_index == -1) {
+              console.error("Illegal event: not possible to insert new waypoint before the first one!");
+              return;
+            }
+
+            // TODO Temporary solution, copy the previous point                
+            let clone = JSON.parse(JSON.stringify(unit_info.points[prev_index]));
+            clone.lat = new_point.lat;
+            clone.lon = new_point.lng;
+            // TODO alt
+            const new_index = prev_index + 1;
+            unit_info.points.splice(new_index, 0, clone);            
+        }
+        else
+        {
+            console.log("Point removed, not implemented.");   
+        }
+    } else {
+        console.log("Point changed");
+        unit_info.points.forEach((point, idx) => {
+           let marker_pos = polyline._latlngs[idx];
+           point.lat = marker_pos.lat;
+           point.lon = marker_pos.lng;
+           // TODO alt
+        });
+    }
 
     send_route_update(unit_info);
   });
