@@ -33,12 +33,76 @@ class Airport():
     airport_pydcs: dcs.terrain.Airport
     coalition: Coalition
 
+class Unit_route_request_handler:
+    def __init__(self, campaign):
+        self.campaign = campaign
+
+    @staticmethod
+    def _convert_point(p):
+        lat = float(p['lat'])
+        lon = float(p['lon'])
+        x, z = lat_lon_to_xz(lat, lon)
+        return mapping.Point(x, z)
+
+    @staticmethod
+    def _is_same_point(a, b):
+        # For now the position uniquely identifies the waypoint
+        coord_drift_threshold = 1  # meter
+        return a.distance_to_point(b) < coord_drift_threshold
+
+    def remove(self, unit_id, wp):
+        group = self.campaign.lookup_unit(unit_id)
+        if group is None:
+            raise ValueError(f"no group found with id {unit_id}")
+
+        converted_wp = self._convert_point(wp)
+        wp_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_wp)]
+
+        if wp_index:
+            print("Removing waypoint", wp_index)
+            group.points.pop(wp_index[0])
+        else:
+            print("Failed to remove waypoint")
+
+    def insert_at(self, unit_id, new_wp, at_wp):
+        group = self.campaign.lookup_unit(unit_id)
+        if group is None:
+            raise ValueError(f"no group found with id {unit_id}")
+
+        converted_at_wp = self._convert_point(at_wp)
+        at_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_at_wp)]
+
+        if at_index:
+            converted_new_wp = self._convert_point(new_wp)
+            at_index = at_index[0]
+            print("New waypoint added at position", at_index)
+            wp = group.add_waypoint(converted_new_wp)
+            group.points.pop()
+            group.points.insert(at_index, wp)
+        else:
+            print("Failed to add new waypoint")
+
+    def modify(self, unit_id, old_wp, new_wp):
+        group = self.campaign.lookup_unit(unit_id)
+        if group is None:
+            raise ValueError(f"no group found with id {unit_id}")
+
+        converted_old_wp = self._convert_point(old_wp)
+        old_wp_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_old_wp)]
+
+        if old_wp_index:
+            print("Waypoint", old_wp_index, "modified")
+            wp = group.points[old_wp_index[0]]
+            wp.position = self._convert_point(new_wp)
+        else:
+            print("Failed to modify waypoint")
 
 class Campaign():
     def __init__(self, terrain=dcs.terrain.Caucasus, savefile=None):
         self.terrain = terrain()
         if savefile is None:
             self.init_fresh_campaign()
+        self.unit_route_request_handler = Unit_route_request_handler(self)
 
     def init_fresh_campaign(self):
         # For each pydcs airport, create one in the campaign model
@@ -72,18 +136,6 @@ class Campaign():
         for group in self.get_ship_groups('blue'):
             if unit_id == group.id:
                 return group
-
-    def update_unit_route(self, unit_id, points):
-        group = self.lookup_unit(unit_id)
-        if group is None:
-            raise ValueError(f"no group found with id {unit_id}")
-        for point, new_pos in zip(group.points, points):
-            lat = float(new_pos['lat'])
-            lon = float(new_pos['lon'])
-            x, z = lat_lon_to_xz(lat, lon)
-            point.position = mapping.Point(x, z)
-
-
 
 def create_mission(campaign):
     m = dcs.Mission(terrain.Caucasus())
