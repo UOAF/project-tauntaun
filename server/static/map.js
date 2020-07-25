@@ -2,7 +2,6 @@ let lat0 = 43;
 let lon0 = 41;
 
 let Maybe = folktale.data.Maybe;
-
 // var Maybe = require('data.maybe');
 
 let theater_map = L.map("mapid").setView([lat0, lon0], 9);

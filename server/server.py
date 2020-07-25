@@ -128,11 +128,17 @@ def create_app(campaign):
 
                 broadcast_update(unit_data['id'])
 
+            async def save_mission(unit_data):
+                campaign.save_mission()
+
             dispatch_map = {
                 'unit_route_add_after': unit_route_insert_at,
                 'unit_route_remove': unit_route_remove,
-                'unit_route_modify': unit_route_modify
+                'unit_route_modify': unit_route_modify,
+                'save_mission': save_mission
             }
+
+
 
             try:
                 await dispatch_map[update_type](data['value'])

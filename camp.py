@@ -100,6 +100,7 @@ class Unit_route_request_handler:
 class Campaign():
     def __init__(self, terrain=dcs.terrain.Caucasus, savefile=None):
         self.terrain = terrain()
+        self.mission = None
         if savefile is None:
             self.init_fresh_campaign()
         self.unit_route_request_handler = Unit_route_request_handler(self)
@@ -136,6 +137,33 @@ class Campaign():
         for group in self.get_ship_groups('blue'):
             if unit_id == group.id:
                 return group
+
+    def update_unit_route(self, unit_id, points):
+        group = self.lookup_unit(unit_id)
+        if group is None:
+            raise ValueError(f"no group found with id {unit_id}")
+        for point, new_pos in zip(group.points, points):
+            lat = float(new_pos['lat'])
+            lon = float(new_pos['lon'])
+            x, z = lat_lon_to_xz(lat, lon)
+            point.position = mapping.Point(x, z)
+
+    def save_mission(self, name='pytest'):
+        dcs_dir = '.'
+        if is_posix:
+            if not os.path.exists('Missions'):
+                os.makedirs('Missions')
+        else:
+            dcs_dir = get_dcs_dir()
+            if not dcs_dir:
+                print("No DCS dir found. Not saving")
+                return
+
+        mizname = os.path.join(dcs_dir, "Missions", name + ".miz")
+        self.mission.save(mizname)
+        print("Mission saved to", mizname)
+
+
 
 def create_mission(campaign):
     m = dcs.Mission(terrain.Caucasus())
@@ -206,7 +234,6 @@ def create_mission(campaign):
     campaign.mission = m
     return m
 
-
 def save_mission(m, name='pytest'):
     dcs_dir = '.'
     if is_posix:
@@ -218,7 +245,7 @@ def save_mission(m, name='pytest'):
             print("No DCS dir found. Not saving")
             return
 
-    mizname = os.path.join(dcs_dir, "Missions", "pytest.miz")
+    mizname = os.path.join(dcs_dir, "Missions",  name + ".miz")
     m.save(mizname)
     from zipfile import ZipFile
     with ZipFile(mizname) as miz:
@@ -227,16 +254,14 @@ def save_mission(m, name='pytest'):
         os.remove('mission.lua')
     os.rename('mission', 'mission.lua')
 
-
 def main():
     c = Campaign()
-    m = create_mission(c)
-    save_mission(m)
+    create_mission(c)
+    c.save_mission()
     if is_posix():
         server.run(c, 8080)
     else:
         server.run(c)
-
 
 if __name__ == '__main__':
     main()
