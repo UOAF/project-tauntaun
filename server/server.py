@@ -114,25 +114,25 @@ def create_app(campaign):
                 unit_route_request_handler.insert_at(
                     unit_data['id'], unit_data['new'], unit_data['at'])
 
-                broadcast_update(unit_data['id'])
+                await broadcast_update(unit_data['id'])
 
             async def unit_route_remove(unit_data):
                 unit_route_request_handler.remove(
                     unit_data['id'], unit_data['point'])
 
-                broadcast_update(unit_data['id'])
+                await broadcast_update(unit_data['id'])
 
             async def unit_route_modify(unit_data):
                 unit_route_request_handler.modify(
                     unit_data['id'], unit_data['old'], unit_data['new'])
 
-                broadcast_update(unit_data['id'])
+                await broadcast_update(unit_data['id'])
 
             async def save_mission(unit_data):
                 campaign.save_mission()
 
             dispatch_map = {
-                'unit_route_add_after': unit_route_insert_at,
+                'unit_route_insert_at': unit_route_insert_at,
                 'unit_route_remove': unit_route_remove,
                 'unit_route_modify': unit_route_modify,
                 'save_mission': save_mission

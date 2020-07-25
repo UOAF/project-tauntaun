@@ -74,8 +74,8 @@ class Unit_route_request_handler:
 
         if at_index:
             converted_new_wp = self._convert_point(new_wp)
-            at_index = at_index[0]
             print("New waypoint added at position", at_index)
+            at_index = at_index[0]
             wp = group.add_waypoint(converted_new_wp)
             group.points.pop()
             group.points.insert(at_index, wp)
@@ -150,7 +150,7 @@ class Campaign():
 
     def save_mission(self, name='pytest'):
         dcs_dir = '.'
-        if is_posix:
+        if is_posix():
             if not os.path.exists('Missions'):
                 os.makedirs('Missions')
         else:

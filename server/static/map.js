@@ -178,7 +178,7 @@ function send_route_update(unit) {
 
 function send_route_insert_at(unit, new_wp, at_wp) { 
   data = {
-    key: "unit_route_add_after",
+    key: "unit_route_insert_at",
     value: {
       id: unit.id,
       name: unit.name,
