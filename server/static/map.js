@@ -2,7 +2,6 @@ let lat0 = 43;
 let lon0 = 41;
 
 let Maybe = folktale.data.Maybe;
-
 // var Maybe = require('data.maybe');
 
 let theater_map = L.map("mapid").setView([lat0, lon0], 9);
@@ -43,27 +42,119 @@ L.tileLayer(
 ).addTo(theater_map);
 
 function render_route(unit_info) {
+  function redraw_polyline() {
+    let maybe_unit = all_units.getById(unit_info.id);
+    maybe_unit.map((unit) => {
+      unit.update_info(unit.info);
+    });    
+  }
+  function is_same_point (poly_point, unit_point) {
+    return poly_point.lat == unit_point.lat && poly_point.lng == unit_point.lon;
+  }
+  function handle_point_removed() { 
+    if (polyline._latlngs.length == 0) {
+      // Note: Temporary limitation, UI can't add new WP without polyline now
+      console.log("Last WP cannot be removed!");            
+      redraw_polyline();
+      return;
+    }
+    
+    const polyline_contains = point => polyline._latlngs.some(poly_point => is_same_point(poly_point, point));
+    let new_point = unit_info.points.filter(unit_point => polyline_contains(unit_point) == false);
+    if (new_point === undefined || new_point.length != 1) {
+      console.error("Invalid new_point.length");
+      return;
+    }
+    new_point = new_point[0];
+
+    const new_point_index = unit_info.points.findIndex(unit_point => new_point.lat == unit_point.lat && new_point.lon == unit_point.lon);
+
+    unit_info.points.splice(new_point_index, 1);
+    send_route_remove(unit_info, new_point);
+    
+    console.log("Point removed");       
+  }
+  function handle_point_added() { 
+    const is_new_point = point => unit_info.points.some(unit_point => is_same_point(point, unit_point)) == false;
+    let new_point = polyline._latlngs.filter(poly_point => is_new_point(poly_point));
+    if (new_point === undefined || new_point.length != 1) {
+      console.error("Invalid new_point.length");
+      return;
+    }
+    new_point = new_point[0];
+
+    const new_point_index = polyline._latlngs.findIndex(poly_point => poly_point.lat == new_point.lat && poly_point.lng == new_point.lng);            
+
+    // TODO Temporary solution, copy the previous point
+    let at = JSON.parse(JSON.stringify(unit_info.points[new_point_index]));
+    let new_unit_point = JSON.parse(JSON.stringify(unit_info.points[new_point_index - 1]));    
+    new_unit_point.lat = new_point.lat;
+    new_unit_point.lon = new_point.lng;
+    // TODO alt
+
+    unit_info.points.splice(new_point_index, 0, new_unit_point);
+    send_route_insert_at(unit_info, new_unit_point, at);
+
+    console.log("New point created.");      
+  };
+  function handle_point_modified() {      
+    const is_modified = point => unit_info.points.some(unit_point => is_same_point(point, unit_point)) == false;
+
+    let modified_poly_point = polyline._latlngs.filter(poly_point => is_modified(poly_point));
+    if (modified_poly_point === undefined || modified_poly_point.length != 1) {
+      console.error("Invalid modified_poly_point.length");
+      return;
+    }
+    modified_poly_point = modified_poly_point[0];
+
+    let modified_unit_point = unit_info.points.filter(unit_point => polyline._latlngs.some(poly_point => is_same_point(poly_point, unit_point)) == false);
+    if (modified_unit_point === undefined || modified_unit_point.length != 1) {
+      console.error("Invalid modified_unit_point.length");
+      return;
+    }
+    modified_unit_point = modified_unit_point[0];
+
+    const modified_unit_point_index = unit_info.points.findIndex(unit_point => unit_point.lat == modified_unit_point.lat && unit_point.lon == modified_unit_point.lon);            
+
+    let old_point = JSON.parse(JSON.stringify(unit_info.points[modified_unit_point_index]));  
+    unit_info.points[modified_unit_point_index].lat = modified_poly_point.lat;
+    unit_info.points[modified_unit_point_index].lon = modified_poly_point.lng;
+    // TODO alt
+    send_route_modify(unit_info, old_point, modified_poly_point);
+
+    console.log("Point modified.");
+  };
+
   let latlons = unit_info.points.map((p) => [p.lat, p.lon]);
   let polyline = L.polyline(latlons, {
     color: "#2d4687",
     stroke: 1,
     pmIgnore: false,
   });
+
   polyline.addTo(theater_map);
   polyline.on("pm:markerdragstart", (e) => {
     // console.log('dragging!', e);
   });
 
-  polyline.pm.enable({ allowSelfIntersection: true });
+  polyline.pm.enable({ allowSelfIntersection: true });  
   polyline.pm._markers[0].dragging.disable();
-  polyline.on("pm:markerdragend", (e) => {
-    unit_info.points.forEach((point, idx) => {
-      let marker_pos = polyline._latlngs[idx];
-      point.lat = marker_pos.lat;
-      point.lon = marker_pos.lng;
-    });
+  polyline.on("pm:edit", (e) => {    
+    if (polyline._latlngs.length < unit_info.points.length) {
+      handle_point_removed();
+    }       
+  });
 
-    send_route_update(unit_info);
+  polyline.on("pm:markerdragend", (e) => {
+    let num_of_points_changed = polyline._latlngs.length != unit_info.points.length;
+
+    if (num_of_points_changed) {
+      if (polyline._latlngs.length > unit_info.points.length) {
+        handle_point_added();
+      } 
+    } else {
+      handle_point_modified();
+    }
   });
   return polyline;
 }
@@ -80,6 +171,44 @@ function send_route_update(unit) {
           lon: p.lon,
         };
       }),
+    },
+  };
+  update_ws.send(JSON.stringify(data));
+}
+
+function send_route_insert_at(unit, new_wp, at_wp) { 
+  data = {
+    key: "unit_route_insert_at",
+    value: {
+      id: unit.id,
+      name: unit.name,
+      new: {lat: new_wp.lat, lon: new_wp.lon},
+      at: {lat: at_wp.lat, lon: at_wp.lon},
+    },
+  };
+  update_ws.send(JSON.stringify(data));
+}
+
+function send_route_remove(unit, wp) {
+  data = {
+    key: "unit_route_remove",
+    value: {
+      id: unit.id,
+      name: unit.name,
+      point: {lat: wp.lat, lon: wp.lon}
+    },
+  };
+  update_ws.send(JSON.stringify(data));
+}
+
+function send_route_modify(unit, old_wp, new_wp) {
+  data = {
+    key: "unit_route_modify",
+    value: {
+      id: unit.id,
+      name: unit.name,
+      old: {lat: old_wp.lat, lon: old_wp.lon},
+      new: {lat: new_wp.lat, lon: new_wp.lng}
     },
   };
   update_ws.send(JSON.stringify(data));

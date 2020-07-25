@@ -102,19 +102,43 @@ def create_app(campaign):
             print(data)
             data = json.loads(data)
             update_type = data['key']
+            unit_route_request_handler = campaign.unit_route_request_handler
 
-            async def unit_route_updated(unit_data):
-                campaign.update_unit_route(
-                    unit_data['id'], unit_data['points'])
-
+            async def broadcast_update(id):
                 broadcast_data = {'key': 'unit_group_updated'}
-                group = campaign.lookup_unit(unit_data['id'])
+                group = campaign.lookup_unit(id)
                 broadcast_data['value'] = collect_basic_unit_info(group)
                 await broadcast(json.dumps(broadcast_data))
 
+            async def unit_route_insert_at(unit_data):
+                unit_route_request_handler.insert_at(
+                    unit_data['id'], unit_data['new'], unit_data['at'])
+
+                await broadcast_update(unit_data['id'])
+
+            async def unit_route_remove(unit_data):
+                unit_route_request_handler.remove(
+                    unit_data['id'], unit_data['point'])
+
+                await broadcast_update(unit_data['id'])
+
+            async def unit_route_modify(unit_data):
+                unit_route_request_handler.modify(
+                    unit_data['id'], unit_data['old'], unit_data['new'])
+
+                await broadcast_update(unit_data['id'])
+
+            async def save_mission(unit_data):
+                campaign.save_mission()
+
             dispatch_map = {
-                'unit_route_updated': unit_route_updated
+                'unit_route_insert_at': unit_route_insert_at,
+                'unit_route_remove': unit_route_remove,
+                'unit_route_modify': unit_route_modify,
+                'save_mission': save_mission
             }
+
+
 
             try:
                 await dispatch_map[update_type](data['value'])
@@ -147,7 +171,7 @@ def run(campaign, port=80):
     signal.signal(signal.SIGTERM, _signal_handler)
 
     config = Config()
-    config.bind = ["0.0.0.0:80"]  # As an example configuration setting
+    config.bind = ["0.0.0.0:" + str(port)]  # As an example configuration setting
 
     loop.run_until_complete(
         serve(app, config, shutdown_trigger=shutdown_event.wait),
