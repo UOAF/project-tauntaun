@@ -2,6 +2,9 @@
 
 Project Tauntaun is browser based collaborative mission planning tool.
 
+## Discord
+https://discord.gg/ZkXCK3y
+
 ## Usage
 
 ```bash
