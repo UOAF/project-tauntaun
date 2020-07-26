@@ -76,7 +76,11 @@ class Unit_route_request_handler:
             converted_new_wp = self._convert_point(new_wp)
             print("New waypoint added at position", at_index)
             at_index = at_index[0]
-            wp = group.add_waypoint(converted_new_wp)
+            if issubclass(group.__class__, dcs.unitgroup.FlyingGroup):
+                prev_waypoints_altitude = group.points[at_index - 1].alt
+                wp = group.add_waypoint(converted_new_wp, altitude=prev_waypoints_altitude)
+            else:
+                wp = group.add_waypoint(converted_new_wp)
             group.points.pop()
             group.points.insert(at_index, wp)
         else:
