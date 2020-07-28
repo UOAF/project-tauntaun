@@ -158,7 +158,7 @@ async function getPlanes(color: ForceColor): Promise<Unit[]> {
   return getUnits('plane_groups', color);
 }
 
-function registerForUnitUpdates(listener: UnitUpdateListener): string {
+function registerForUnitUpdates(listener: UnitUpdateListener): string {  
   const id = uuidv4();
   updateListeners[id] = listener;
   return id;

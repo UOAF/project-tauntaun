@@ -28,7 +28,7 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
-  const onUnitUpdate = (updatedUnit: Unit) => {
+  const onUnitUpdate = (updatedUnit: Unit) => {    
     setState(state => {
       const oldUnit = state.units.find(u => u.id === updatedUnit.id && u.name === updatedUnit.name);
       const units = oldUnit ? without(state.units, oldUnit) : state.units;

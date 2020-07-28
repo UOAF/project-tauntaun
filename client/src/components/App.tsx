@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import './App.css';
 
 import { CampaignMap } from './';
+import { MenuBar } from './';
 import { AppStateContainer } from '../models';
 
 export function App() {
@@ -14,6 +15,7 @@ export function App() {
 
   return (
     <div className="App">
+      <MenuBar/>
       <CampaignMap
         lat={43}
         lng={41}
