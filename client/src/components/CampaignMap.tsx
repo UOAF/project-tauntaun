@@ -22,12 +22,13 @@ export function CampaignMap(props: CampaignMapProps) {
 
   const { units } = props;
   const toggleUnitSelection = (unit: Unit): void => {
+    
     console.info(`selecting unit`, unit);
-
-    without(units, unit).forEach(unit => (unit.isSelected = false));
+    
+    without(units, unit).filter(unit => unit.isSelected === true).forEach(unit => { unit.isSelected = false; appState.updateUnit(unit) } );
     unit.isSelected = !unit.isSelected;
 
-    appState.updateUnit(unit);
+    appState.updateUnit(unit);    
   };
 
   const selectedUnit = units.find(unit => unit.isSelected);

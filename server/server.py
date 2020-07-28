@@ -164,6 +164,7 @@ def run(campaign, port=80):
     shutdown_event = asyncio.Event()
 
     def _signal_handler(*_):
+        quit() # TODO not nice but the graceful shutdown is not working
         shutdown_event.set()
 
     loop = asyncio.get_event_loop()
@@ -174,6 +175,5 @@ def run(campaign, port=80):
     config.bind = ["0.0.0.0:" + str(port)]  # As an example configuration setting
 
     loop.run_until_complete(
-        serve(app, config, shutdown_trigger=shutdown_event.wait),
+        serve(app, config, shutdown_trigger=shutdown_event.wait)
     )
-

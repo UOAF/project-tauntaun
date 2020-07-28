@@ -261,11 +261,7 @@ def save_mission(m, name='pytest'):
 def main():
     c = Campaign()
     create_mission(c)
-    c.save_mission()
-    if is_posix():
-        server.run(c, 8080)
-    else:
-        server.run(c)
+    server.run(c, 8080)
 
 if __name__ == '__main__':
     main()
