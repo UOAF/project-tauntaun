@@ -54,13 +54,7 @@ def collect_basic_unit_info(group):
 
 
 def create_app(campaign):
-    app = Quart(__name__, static_folder='static',
-                template_folder='static')
-
-    @app.route('/', defaults={'path': 'map.html'})
-    @app.route('/static/<path:path>')
-    async def send_static(path):
-        return await send_from_directory('server/static', path)
+    app = Quart(__name__)
 
     def validate_coalition(c):
         if not c in campaign.mission.coalition:
