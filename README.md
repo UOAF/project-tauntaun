@@ -27,8 +27,14 @@ pip install -r requirements.txt
 py camp.py
 ```
 **Open client**  
-Windows: Open localhost in browser  
-Linux: Open localhost:8080 in browser  
+In a new terminal go to the client dir, read README for initial setup.
+```bash
+cd client
+yarn start
+```
+
+**Open old client - obsolete**  
+Open localhost:8080 in browser  
 
 **When done leave virtual env**
 ```bash
