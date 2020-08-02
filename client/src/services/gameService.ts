@@ -1,50 +1,44 @@
 import { pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Unit, Dictionary, Point } from '../models';
+import { Dictionary, Point, Mission, Group } from '../models';
 
 export type ForceColor = 'blue' | 'red' | 'neutral';
 export type GetType = 'ships' | 'plane_groups';
 
-export type UnitUpdateListener = (updatedUnit: Unit) => void;
+export type MissionUpdateListener = (updatedMission: Mission) => void;
 
 export interface GameService {
   openSocket(): Promise<void>;
 
-  sendRouteUpdate(unit: Unit): void;
-  sendRouteInsertAt(unit: Unit, newWp: Point, atWp: Point): void;
-  sendRouteRemove(unit: Unit, wp: Point): void;
-  sendRouteModify(unit: Unit, oldWp: Point, newWp: Point): void;
+  sendRouteInsertAt(group: Group, newWp: Point, atWp: Point): void;
+  sendRouteRemove(group: Group, wp: Point): void;
+  sendRouteModify(group: Group, oldWp: Point, newWp: Point): void;
   sendSaveMission(): void;
 
-  getShips(color: string): Promise<Unit[]>;
-  getPlanes(color: string): Promise<Unit[]>;
+  getMission(): Promise<Mission>;
 
-  registerForUnitUpdates(listener: UnitUpdateListener): string;
-  unregisterUnitUpdateListener(id: string): void;
+  registerForMissionUpdates(listener: MissionUpdateListener): string;
+  unregisterMissionUpdateListener(id: string): void;
 }
 
 let socket: WebSocket | null = null;
-const updateListeners: Dictionary<UnitUpdateListener> = {};
+const updateListeners: Dictionary<MissionUpdateListener> = {};
 
-async function getUnits(type: GetType, color: ForceColor): Promise<Unit[]> {
+async function getMission(): Promise<Mission> {
   try {
-    const response = await fetch(`/game/${type}/${color}`);
-    const units = (await response.json()) as Unit[];
-    return units.map(unit => ({
-      ...unit,
-      uniqueId: uuidv4(),
-      isSelected: false
-    }));
+    const response = await fetch('/game/mission');
+    const mission = (await response.json()) as Mission;
+    return mission;    
   } catch (error) {
-    console.error(`couldn't fetch planes`, error);
-    return [];
+    console.error(`Couldn't fetch mission`, error);
+    return { coalition: {}};
   }
 }
 
 function receiveUpdateMessage(event: any) {
   const message = JSON.parse(event.data);
-  if (message.key !== 'unit_group_updated') {
+  if (message.key !== 'mission_updated') {
     return;
   }
 
@@ -66,7 +60,7 @@ async function openSocket(): Promise<void> {
   });
 }
 
-function sendRouteUpdate(unit: Unit): void {
+function sendRouteInsertAt(group: Group, newWp: Point, atWp: Point): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
@@ -74,26 +68,9 @@ function sendRouteUpdate(unit: Unit): void {
 
   socket.send(
     JSON.stringify({
-      key: 'unit_route_update',
+      key: 'group_route_insert_at',
       value: {
-        ...pick(unit, ['id', 'name']),
-        points: unit.points.map(point => pick(point, ['lat', 'lon']))
-      }
-    })
-  );
-}
-
-function sendRouteInsertAt(unit: Unit, newWp: Point, atWp: Point): void {
-  if (!socket || socket.readyState !== WebSocket.OPEN) {
-    console.error('socket not open');
-    return;
-  }  
-
-  socket.send(
-    JSON.stringify({
-      key: 'unit_route_insert_at',
-      value: {
-        ...pick(unit, ['id', 'name']),
+        ...pick(group, ['id']),
         new: pick(newWp, ['lat', 'lon']),
         at: pick(atWp, ['lat', 'lon'])
       }
@@ -101,7 +78,7 @@ function sendRouteInsertAt(unit: Unit, newWp: Point, atWp: Point): void {
   );
 }
 
-function sendRouteRemove(unit: Unit, wp: Point): void {
+function sendRouteRemove(group: Group, wp: Point): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
@@ -109,16 +86,16 @@ function sendRouteRemove(unit: Unit, wp: Point): void {
 
   socket.send(
     JSON.stringify({
-      key: 'unit_route_remove',
+      key: 'group_route_remove',
       value: {
-        ...pick(unit, ['id', 'name']),
+        ...pick(group, ['id']),
         point: pick(wp, ['lat', 'lon'])
       }
     })
   );
 }
 
-function sendRouteModify(unit: Unit, oldWp: Point, newWp: Point): void {
+function sendRouteModify(group: Group, oldWp: Point, newWp: Point): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
@@ -126,9 +103,9 @@ function sendRouteModify(unit: Unit, oldWp: Point, newWp: Point): void {
 
   socket.send(
     JSON.stringify({
-      key: 'unit_route_modify',
+      key: 'group_route_modify',
       value: {
-        ...pick(unit, ['id', 'name']),
+        ...pick(group, ['id']),
         old: pick(oldWp, ['lat', 'lon']),
         new: pick(newWp, ['lat', 'lon'])
       }
@@ -150,21 +127,13 @@ function sendSaveMission(): void {
   );
 }
 
-async function getShips(color: ForceColor): Promise<Unit[]> {
-  return getUnits('ships', color);
-}
-
-async function getPlanes(color: ForceColor): Promise<Unit[]> {
-  return getUnits('plane_groups', color);
-}
-
-function registerForUnitUpdates(listener: UnitUpdateListener): string {  
+function registerForMissionUpdates(listener: MissionUpdateListener): string {  
   const id = uuidv4();
   updateListeners[id] = listener;
   return id;
 }
 
-function unregisterUnitUpdateListener(id: string): void {
+function unregisterMissionUpdateListener(id: string): void {
   if (updateListeners[id]) {
     delete updateListeners[id];
   }
@@ -172,13 +141,11 @@ function unregisterUnitUpdateListener(id: string): void {
 
 export const gameService: GameService = {
   openSocket,
-  sendRouteUpdate,  
   sendRouteInsertAt,
   sendRouteRemove,
   sendRouteModify,
   sendSaveMission,
-  getShips,
-  getPlanes,
-  registerForUnitUpdates,
-  unregisterUnitUpdateListener
+  getMission,  
+  registerForMissionUpdates,
+  unregisterMissionUpdateListener
 };

@@ -1,52 +1,43 @@
 import L from 'leaflet';
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
-import { without } from 'lodash';
-import { v4 as uuidv4 } from 'uuid';
 
-import { Unit } from './';
+import { Mission, Group } from './';
 import { gameService } from '../services';
+import { without } from 'lodash';
 
 export interface AppState {
   isInitialized: boolean;
-  units: Unit[];
+  mission: Mission;
+  selectedGroupId: number | undefined;
 }
 
 const defaultState: AppState = {
   isInitialized: false,
-  units: []
+  mission: { coalition: {}},
+  selectedGroupId: undefined
 };
 
 function useAppState(initialState = defaultState) {
   const [state, setState] = useState(initialState);
 
-  const refreshUnits = async (): Promise<void> => {
-    const [ships, planes] = await Promise.all([gameService.getShips('blue'), gameService.getPlanes('blue')]);
+  const refreshMission = async (): Promise<void> => {
+    const mission = await gameService.getMission()
     setState(state => ({
       ...state,
-      units: [...ships, ...planes]
+      mission: mission
     }));
   };
 
-  const onUnitUpdate = (updatedUnit: Unit) => {    
+  const onMissionUpdate = (updatedMission: Mission) => {    
     setState(state => {
-      const oldUnit = state.units.find(u => u.id === updatedUnit.id && u.name === updatedUnit.name);
-      const units = oldUnit ? without(state.units, oldUnit) : state.units;
-
       return {
         ...state,
-        units: [
-          ...units,
-          {
-            ...updatedUnit,
-            uniqueId: oldUnit ? oldUnit.uniqueId : uuidv4(),
-            isSelected: oldUnit ? oldUnit.isSelected : false
-          }
-        ]
+        mission: updatedMission          
       };
     });
 
-    console.info(`got unit update`, updatedUnit);
+    console.info(`got mission update`);
   };
 
   const initialize = async (): Promise<void> => {
@@ -57,11 +48,11 @@ function useAppState(initialState = defaultState) {
 
       (L as any).PM.initialize({ optIn: false });
 
-      gameService.registerForUnitUpdates(onUnitUpdate);
+      gameService.registerForMissionUpdates(onMissionUpdate);
       await gameService.openSocket();
       console.info('update socket connected');
 
-      await refreshUnits();
+      await refreshMission();
       setState(state => ({
         ...state,
         isInitialized: true
@@ -72,16 +63,80 @@ function useAppState(initialState = defaultState) {
       throw error;
     }
   };
+  
+  const updateGroup = (group: Group) => {    
+    // Note: Group id is unique per mission
+    setState(state => {
+      const findGroupLocation = () => {
+        let coalitionKey = "";
+        let countryKey = "";
+        let groupType = "";
 
-  const updateUnit = (unit: Unit) => {
-    const units = state.units.filter(u => u.uniqueId !== unit.uniqueId);
-    setState(state => ({
+        for (coalitionKey in state.mission.coalition) {        
+          const coalition = state.mission.coalition[coalitionKey];
+          for (countryKey in coalition.countries) {
+            const country = coalition.countries[countryKey];
+    
+            const possibleGroupCategories = ["helicopter_group", "plane_group", "ship_group", "vehicle_group", "static_group"];
+            for (const groupCategoryIndex in possibleGroupCategories) {
+              const groupCategoryName = possibleGroupCategories[groupCategoryIndex];
+              const groupCategory = country[groupCategoryName] as Array<Group>;
+              if (groupCategory && groupCategory.find(g => g.id === group.id)) {
+                groupType = groupCategoryName;
+                return [coalitionKey, countryKey, groupType];
+              }
+            };
+          }
+        }
+
+        return [coalitionKey, countryKey, groupType] ;
+      };
+
+      const [coalitionKey, countryKey, groupType] = findGroupLocation();
+
+      if (coalitionKey === "" || countryKey === "" || groupType === "") {
+        console.error("updateGroup failed, group not found, Coalition: "  + coalitionKey + ", Country: " + countryKey + ", Group category: " + groupType);
+        console.log(group);
+        return {...state};
+      }
+  
+      const groups = state.mission.coalition[coalitionKey].countries[countryKey][groupType] as Array<Group>;
+      const oldUnit = groups.find(u => u.id === group.id);
+      const groupsWithout = oldUnit ? without(groups, oldUnit) : groups;
+      
+      return {
       ...state,
-      units: [...units, unit]
-    }));
+      mission: {
+        ...state.mission,
+        coalition: {
+          ...state.mission.coalition,
+          [coalitionKey]: {
+            ...state.mission.coalition[coalitionKey],
+            countries: {
+              ...state.mission.coalition[coalitionKey].countries,
+              [countryKey]: {
+                ...state.mission.coalition[coalitionKey].countries[countryKey],
+                [groupType]: [
+                  ...groupsWithout,
+                  group
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+    });
   };
 
-  return { ...state, initialize, refreshUnits, updateUnit };
+  const selectGroup = (group: Group | undefined) => {
+    setState(state => ({
+      ...state,
+      selectedGroupId: group?.id
+    }));
+  }
+
+  return { ...state, initialize, refreshMission, updateGroup, selectGroup };
 }
 
 export const AppStateContainer = createContainer(useAppState);
