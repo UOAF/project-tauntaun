@@ -12,6 +12,7 @@ p {
   height: 1000px;
   width: 95%;
   margin: 0 auto;
+  z-index: 0;
 }
 
 .App {

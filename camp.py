@@ -7,7 +7,6 @@ import dcs
 import dcs.mapping as mapping
 import os
 import os.path
-from dataclasses import dataclass
 from namegen import namegen
 from random import random
 import server
@@ -15,27 +14,15 @@ import itertools
 from coord import lat_lon_to_xz
 from util import feet_to_meters, knots_to_kph
 
-from enum import Enum
 from templates import make_sa2_site
 
 def is_posix():
     return os.name == 'posix'
 
-class Coalition(Enum):
-    NEUTRAL = 'NEWTRAL'
-    RED = 'RED'
-    BLUE = 'BLUE'
-
-
-@dataclass
-class Airport():
-    name: str
-    airport_pydcs: dcs.terrain.Airport
-    coalition: Coalition
-
-class Group_route_request_handler:
+class GameService:
     def __init__(self, campaign):
         self.campaign = campaign
+        self.group_route_request_handler = GameService.GroupRouteRequestHandler(campaign)
 
     @staticmethod
     def _convert_point(p):
@@ -44,80 +31,99 @@ class Group_route_request_handler:
         x, z = lat_lon_to_xz(lat, lon)
         return mapping.Point(x, z)
 
-    @staticmethod
-    def _is_same_point(a, b):
-        # For now the position uniquely identifies the waypoint
-        coord_drift_threshold = 1  # meter
-        return a.distance_to_point(b) < coord_drift_threshold
+    def add_flight(self, location, airport, plane, number_of_planes):
+        print("add_flight", location, airport, plane, number_of_planes)
 
-    def remove(self, group_id, wp):
-        group = self.campaign.lookup_unit(group_id)
-        if group is None:
-            raise ValueError(f"no group found with id {group_id}")
+        location = self._convert_point(location)
+        country = self.campaign.get_countries('blue')["USA"]
 
-        converted_wp = self._convert_point(wp)
-        wp_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_wp)]
+        airport = self.campaign.terrain.airport_by_id(airport)
+        if not airport:
+            print("add_flight airport not found")
+            return
 
-        if wp_index:
-            print("Removing waypoint", wp_index)
-            group.points.pop(wp_index[0])
-        else:
-            print("Failed to remove waypoint")
+        planeFinder = (p for p in country.planes if p.id == plane)
+        try:
+            plane = next(iter(planeFinder))
+        except StopIteration:
+            print("add_flight plane not found")
+            return
 
-    def insert_at(self, group_id, new_wp, at_wp):
-        group = self.campaign.lookup_unit(group_id)
-        if group is None:
-            raise ValueError(f"no group found with id {group_id}")
+        new_flight = self.campaign.mission.flight_group_from_airport(country,
+                                                                     'DefaultName',
+                                                                     aircraft_type=plane,
+                                                                     airport=airport,
+                                                                     group_size=number_of_planes)
+        new_flight.add_waypoint(location, altitude=5000)
 
-        converted_at_wp = self._convert_point(at_wp)
-        at_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_at_wp)]
+        print("add_flight", "success")
 
-        if at_index:
-            converted_new_wp = self._convert_point(new_wp)
-            print("New waypoint added at position", at_index)
-            at_index = at_index[0]
-            if issubclass(group.__class__, dcs.unitgroup.FlyingGroup):
-                prev_waypoints_altitude = group.points[at_index - 1].alt
-                wp = group.add_waypoint(converted_new_wp, altitude=prev_waypoints_altitude)
+    class GroupRouteRequestHandler:
+        def __init__(self, campaign):
+            self.campaign = campaign
+
+        @staticmethod
+        def _is_same_point(a, b):
+            # For now the position uniquely identifies the waypoint
+            coord_drift_threshold = 1  # meter
+            return a.distance_to_point(b) < coord_drift_threshold
+
+        def remove(self, group_id, wp):
+            group = self.campaign.lookup_unit(group_id)
+            if group is None:
+                raise ValueError(f"no group found with id {group_id}")
+
+            converted_wp = GameService._convert_point(wp)
+            wp_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_wp)]
+
+            if wp_index:
+                print("Removing waypoint", wp_index)
+                group.points.pop(wp_index[0])
             else:
-                wp = group.add_waypoint(converted_new_wp)
-            group.points.pop()
-            group.points.insert(at_index, wp)
-        else:
-            print("Failed to add new waypoint")
+                print("Failed to remove waypoint")
 
-    def modify(self, group_id, old_wp, new_wp):
-        group = self.campaign.lookup_unit(group_id)
-        if group is None:
-            raise ValueError(f"no group found with id {group_id}")
+        def insert_at(self, group_id, new_wp, at_wp):
+            group = self.campaign.lookup_unit(group_id)
+            if group is None:
+                raise ValueError(f"no group found with id {group_id}")
 
-        converted_old_wp = self._convert_point(old_wp)
-        old_wp_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_old_wp)]
+            converted_at_wp = GameService._convert_point(at_wp)
+            at_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_at_wp)]
 
-        if old_wp_index:
-            print("Waypoint", old_wp_index, "modified")
-            wp = group.points[old_wp_index[0]]
-            wp.position = self._convert_point(new_wp)
-        else:
-            print("Failed to modify waypoint")
+            if at_index:
+                converted_new_wp = GameService._convert_point(new_wp)
+                print("New waypoint added at position", at_index)
+                at_index = at_index[0]
+                if issubclass(group.__class__, dcs.unitgroup.FlyingGroup):
+                    prev_waypoints_altitude = group.points[at_index - 1].alt
+                    wp = group.add_waypoint(converted_new_wp, altitude=prev_waypoints_altitude)
+                else:
+                    wp = group.add_waypoint(converted_new_wp)
+                group.points.pop()
+                group.points.insert(at_index, wp)
+            else:
+                print("Failed to add new waypoint")
+
+        def modify(self, group_id, old_wp, new_wp):
+            group = self.campaign.lookup_unit(group_id)
+            if group is None:
+                raise ValueError(f"no group found with id {group_id}")
+
+            converted_old_wp = GameService._convert_point(old_wp)
+            old_wp_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_old_wp)]
+
+            if old_wp_index:
+                print("Waypoint", old_wp_index, "modified")
+                wp = group.points[old_wp_index[0]]
+                wp.position = GameService._convert_point(new_wp)
+            else:
+                print("Failed to modify waypoint")
 
 class Campaign():
-    def __init__(self, terrain=dcs.terrain.Caucasus, savefile=None):
+    def __init__(self, terrain=dcs.terrain.Caucasus):
         self.terrain = terrain()
         self.mission = None
-        if savefile is None:
-            self.init_fresh_campaign()
-        self.group_route_request_handler = Group_route_request_handler(self)
-
-    def init_fresh_campaign(self):
-        # For each pydcs airport, create one in the campaign model
-        def make_airport(airport_pydcs):
-            a = airport_pydcs
-            return Airport(name=a.name,
-                           airport_pydcs=airport_pydcs,
-                           coalition=Coalition.RED)
-        self.airports = {name: make_airport(a) for
-                         name, a in self.terrain.airports.items()}
+        self.game_service = GameService(self)
 
     def get_countries(self, side):
         return self.mission.coalition[side].countries
@@ -127,7 +133,7 @@ class Campaign():
         return itertools.chain(*(countries[cname].plane_group for cname in countries))
 
     def get_airport(self, name):
-        return self.airports[name]
+        return self.terrain.airport[name]
 
     def get_ship_groups(self, side):
         countries = self.get_countries(side)
@@ -170,17 +176,14 @@ class Campaign():
 def create_mission(campaign):
     m = dcs.Mission(terrain.Caucasus())
     # setup airports
-    for name, airport in campaign.airports.items():
-        coal_name = airport.coalition.value
-        print(coal_name)
+    for name, airport in campaign.terrain.airports.items():
+        coal_name = airport.coalition
         assert(m.terrain.airports[name].set_coalition(coal_name))
 
     usa = m.country("USA")
     russia = m.country("Russia")
     sochi = m.terrain.sochi_adler()
     ship_pos = sochi.position - dcs.Point(50000, 50000)
-    print(f"{sochi.position=}")
-    print(f"{ship_pos=}")
     cvbg = m.ship_group(
         country=usa,
         name="CVN 74 Stennis",

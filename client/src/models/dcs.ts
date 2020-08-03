@@ -1,5 +1,21 @@
 import { Dictionary } from './';
 
+export type PlaneType = {
+    id: string
+}
+
+export type Airport = {
+    id: number,
+    name: string,
+    position: Point,
+    coalition: string
+}
+
+export type Terrain = {
+    name: string,
+    airports: Dictionary<Airport>
+}
+
 export type Point = {
    lat: number,
    lon: number    
@@ -37,7 +53,8 @@ export type Country = {
     plane_group: Array<Group>,
     helicopter_group: Array<Group>,
     static_group: Array<Group>,    
-    [key: string]: Array<Group> | number | string;    
+    planes: Array<PlaneType>
+    [key: string]: Array<Group> | number | string | Array<PlaneType>;    
 }
 
 
@@ -47,5 +64,11 @@ export type Coalition = {
 }
 
 export type Mission = {
+    terrain: Terrain,
     coalition: Dictionary<Coalition>
+}
+
+export const emptyMission: Mission = {
+     terrain: { name: "", airports: {} },
+      coalition: {}
 }

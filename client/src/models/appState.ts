@@ -1,21 +1,21 @@
-import L from 'leaflet';
+import L, { LatLng } from 'leaflet';
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
 
-import { Mission, Group } from './';
+import { Mission, Group, emptyMission, MasterMode, defaultEditGroupMode, EditGroupMode, AddFlightMode } from './';
 import { gameService } from '../services';
 import { without } from 'lodash';
 
 export interface AppState {
   isInitialized: boolean;
   mission: Mission;
-  selectedGroupId: number | undefined;
+  masterMode: MasterMode;
 }
 
 const defaultState: AppState = {
   isInitialized: false,
-  mission: { coalition: {}},
-  selectedGroupId: undefined
+  mission: emptyMission,
+  masterMode: defaultEditGroupMode
 };
 
 function useAppState(initialState = defaultState) {
@@ -127,16 +127,37 @@ function useAppState(initialState = defaultState) {
       }
     }
     });
-  };
+  }; 
+
+  const setMasterMode = (masterMode: MasterMode) => {
+    setState(state => ({
+      ...state,
+      masterMode: masterMode
+    }));
+  }
 
   const selectGroup = (group: Group | undefined) => {
     setState(state => ({
       ...state,
-      selectedGroupId: group?.id
+      masterMode: {
+        ...state.masterMode,        
+        selectedGroupId: group?.id                
+      } as EditGroupMode     
     }));
   }
 
-  return { ...state, initialize, refreshMission, updateGroup, selectGroup };
+  const setLocation = (location: LatLng | undefined) => {
+    setState(state => ({
+      ...state,
+      masterMode: {
+        ...state.masterMode,        
+        location: location
+      } as AddFlightMode 
+    }));
+  }
+
+  return { ...state, initialize, refreshMission, updateGroup, setMasterMode, selectGroup, setLocation }; 
 }
 
 export const AppStateContainer = createContainer(useAppState);
+export type AppStateContainerType = ReturnType<typeof AppStateContainer.useContainer>;

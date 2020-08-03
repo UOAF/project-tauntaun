@@ -3,14 +3,15 @@ import json
 from dcs import Mission, Point
 from dcs.coalition import Coalition
 from dcs.country import Country
+from dcs.planes import PlaneType
 from dcs.point import StaticPoint, PointAction
+from dcs.terrain import Terrain, Airport
 from dcs.translation import String
 from dcs.unit import Unit
 from dcs.unitgroup import Group
 
 from coord import xz_to_lat_lon
 from unit_sidc import sidc_map
-
 
 class MissionEncoder(json.JSONEncoder):
     def __init__(self, convert_coords=False, add_sidc=False, *args, **kws):
@@ -20,6 +21,7 @@ class MissionEncoder(json.JSONEncoder):
 
     def mission(self, obj):
         return {
+            'terrain': self.default(obj.terrain),
             'coalition': self.default(obj.coalition)
         }
 
@@ -37,7 +39,8 @@ class MissionEncoder(json.JSONEncoder):
             'ship_group': self.default(obj.ship_group),
             'plane_group': self.default(obj.plane_group),
             'helicopter_group': self.default(obj.helicopter_group),
-            'static_group': self.default(obj.static_group)
+            'static_group': self.default(obj.static_group),
+            'planes': self.default(obj.planes)
         }
 
     def group(self, obj):
@@ -87,6 +90,25 @@ class MissionEncoder(json.JSONEncoder):
     def point_action(self, obj):
         return str(obj)
 
+    def terrain(self, obj):
+        return {
+            'name': obj.name,
+            'airports': self.default(obj.airports)
+        }
+
+    def airport(self, obj):
+        return {
+            'id': obj.id,
+            'name': obj.name,
+            'position': self.default(obj.position),
+            'coalition': obj.coalition,
+        }
+
+    def plane_type(self, obj):
+        return {
+            'id': obj.id
+        }
+
     def default(self, obj):
         if isinstance(obj, dict):
             return {k: self.default(v) for k, v in obj.items()}
@@ -120,5 +142,14 @@ class MissionEncoder(json.JSONEncoder):
 
         if isinstance(obj, PointAction):
             return self.point_action(obj)
+
+        if isinstance(obj, Terrain):
+            return self.terrain(obj)
+
+        if isinstance(obj, Airport):
+            return self.airport(obj)
+
+        if issubclass(obj, PlaneType):
+            return self.plane_type(obj)
 
         return json.JSONEncoder.default(self, obj)

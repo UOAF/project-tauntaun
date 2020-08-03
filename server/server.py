@@ -51,11 +51,11 @@ def create_app(campaign):
             print(data)
             data = json.loads(data)
             update_type = data['key']
-            group_route_request_handler = campaign.group_route_request_handler
+            game_service = campaign.game_service
+            group_route_request_handler = game_service.group_route_request_handler
 
             async def broadcast_update():
-                broadcast_data = {'key': 'mission_updated'}
-                broadcast_data['value'] = campaign.mission
+                broadcast_data = {'key': 'mission_updated', 'value': campaign.mission}
                 await broadcast(json.dumps(broadcast_data, convert_coords=True, add_sidc=True, cls=MissionEncoder))
 
             async def group_route_insert_at(group_data):
@@ -76,6 +76,12 @@ def create_app(campaign):
 
                 await broadcast_update()
 
+            async def add_flight(group_data):
+                game_service.add_flight(
+                    group_data['location'], group_data['airport'], group_data['plane'], group_data['number_of_planes'])
+
+                await broadcast_update()
+
             async def save_mission(group_data):
                 campaign.save_mission()
 
@@ -83,7 +89,8 @@ def create_app(campaign):
                 'group_route_insert_at': group_route_insert_at,
                 'group_route_remove': group_route_remove,
                 'group_route_modify': group_route_modify,
-                'save_mission': save_mission
+                'save_mission': save_mission,
+                'add_flight': add_flight
             }
 
             try:

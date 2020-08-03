@@ -1,18 +1,35 @@
 import React from "react";
 import { gameService } from "../services";
+import { AppStateContainer, defaultEditGroupMode, defaultAddFlightMode } from "../models";
 
-export class MenuBar extends React.Component {
-    handleClick() {
-        console.log("Saving mission.");
-        gameService.sendSaveMission();
-    }
+export function MenuBar() {
+  const appState = AppStateContainer.useContainer();
 
-    render() {
-      return (
-        <button onClick={this.handleClick}>
-            Save mission
-        </button>
-      );
-    }  
+  const saveOnClick = () => {
+    console.log("Saving mission.");
+    gameService.sendSaveMission();
+  }
+
+  const addFlightOnClick = () => {
+    appState.setMasterMode(defaultAddFlightMode);
+  }
+
+  const editGroupOnClick = () => {
+    appState.setMasterMode(defaultEditGroupMode);
+  }
+
+  return (    
+    <div>
+      {appState.masterMode?.name}
+      <button onClick={saveOnClick}>
+        Save mission
+    </button>
+      <button onClick={addFlightOnClick}>
+        Add flight
+    </button>
+      <button onClick={editGroupOnClick}>
+        Edit group
+    </button>
+    </div>
+  );
 };
-  

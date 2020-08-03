@@ -1,7 +1,8 @@
 import { pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Dictionary, Point, Mission, Group } from '../models';
+import { Dictionary, Point, Mission, Group, emptyMission } from '../models';
+import { LatLng } from 'leaflet';
 
 export type ForceColor = 'blue' | 'red' | 'neutral';
 export type GetType = 'ships' | 'plane_groups';
@@ -15,6 +16,7 @@ export interface GameService {
   sendRouteRemove(group: Group, wp: Point): void;
   sendRouteModify(group: Group, oldWp: Point, newWp: Point): void;
   sendSaveMission(): void;
+  sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void;
 
   getMission(): Promise<Mission>;
 
@@ -32,7 +34,7 @@ async function getMission(): Promise<Mission> {
     return mission;    
   } catch (error) {
     console.error(`Couldn't fetch mission`, error);
-    return { coalition: {}};
+    return emptyMission;
   }
 }
 
@@ -127,6 +129,25 @@ function sendSaveMission(): void {
   );
 }
 
+function sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void {
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    console.error('socket not open');
+    return;
+  }  
+
+  socket.send(
+    JSON.stringify({
+      key: 'add_flight',
+      value: {
+        location: {lat: location.lat, lon: location.lng},
+        airport: airport,
+        plane: plane,
+        number_of_planes: numberOfPlanes
+      }
+    })
+  );
+}
+
 function registerForMissionUpdates(listener: MissionUpdateListener): string {  
   const id = uuidv4();
   updateListeners[id] = listener;
@@ -145,6 +166,7 @@ export const gameService: GameService = {
   sendRouteRemove,
   sendRouteModify,
   sendSaveMission,
+  sendAddFlight,
   getMission,  
   registerForMissionUpdates,
   unregisterMissionUpdateListener
