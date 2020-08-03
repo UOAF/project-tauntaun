@@ -85,7 +85,12 @@ class MissionEncoder(json.JSONEncoder):
         return {'x': obj.x, 'y': obj.y}
 
     def translation_string(self, obj):
-        return str(obj)
+        lang = "DEFAULT"
+        if obj.translation is not None and obj.id in obj.translation.strings[lang]:
+            return obj.str(lang)
+        else:
+            # TODO possible missing data, introduced in pydcs 0.9.9
+            return ""
 
     def point_action(self, obj):
         return str(obj)

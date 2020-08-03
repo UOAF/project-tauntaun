@@ -85,11 +85,17 @@ def create_app(campaign):
             async def save_mission(group_data):
                 campaign.save_mission()
 
+            async def load_mission(group_data):
+                campaign.load_mission()
+
+                await broadcast_update()
+
             dispatch_map = {
                 'group_route_insert_at': group_route_insert_at,
                 'group_route_remove': group_route_remove,
                 'group_route_modify': group_route_modify,
                 'save_mission': save_mission,
+                'load_mission': load_mission,
                 'add_flight': add_flight
             }
 

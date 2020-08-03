@@ -8,6 +8,11 @@ export function MenuBar() {
   const saveOnClick = () => {
     console.log("Saving mission.");
     gameService.sendSaveMission();
+}
+
+  const loadOnClick = () => {
+    console.log("Loading mission.");
+    gameService.sendLoadMission();
   }
 
   const addFlightOnClick = () => {
@@ -21,6 +26,9 @@ export function MenuBar() {
   return (    
     <div>
       {appState.masterMode?.name}
+      <button onClick={loadOnClick}>
+            Load mission
+        </button>       
       <button onClick={saveOnClick}>
         Save mission
     </button>

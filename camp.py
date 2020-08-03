@@ -158,7 +158,7 @@ class Campaign():
             x, z = lat_lon_to_xz(lat, lon)
             point.position = mapping.Point(x, z)
 
-    def save_mission(self, name='pytest'):
+    def _get_miz_path(self, name='tauntaun'):
         dcs_dir = '.'
         if is_posix():
             if not os.path.exists('Missions'):
@@ -169,9 +169,17 @@ class Campaign():
                 print("No DCS dir found. Not saving")
                 return
 
-        mizname = os.path.join(dcs_dir, "Missions", name + ".miz")
+        return os.path.join(dcs_dir, "Missions", name + ".miz")
+
+    def save_mission(self):
+        mizname = self._get_miz_path()
         self.mission.save(mizname)
         print("Mission saved to", mizname)
+
+    def load_mission(self):
+        mizname = self._get_miz_path()
+        self.mission.load_file(mizname)
+        print("Mission loaded from", mizname)
 
 def create_mission(campaign):
     m = dcs.Mission(terrain.Caucasus())

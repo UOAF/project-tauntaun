@@ -16,6 +16,7 @@ export interface GameService {
   sendRouteRemove(group: Group, wp: Point): void;
   sendRouteModify(group: Group, oldWp: Point, newWp: Point): void;
   sendSaveMission(): void;
+  sendLoadMission(): void;
   sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void;
 
   getMission(): Promise<Mission>;
@@ -129,11 +130,12 @@ function sendSaveMission(): void {
   );
 }
 
+
 function sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
-  }  
+  }    
 
   socket.send(
     JSON.stringify({
@@ -144,6 +146,19 @@ function sendAddFlight(location: LatLng, airport: number, plane: string, numberO
         plane: plane,
         number_of_planes: numberOfPlanes
       }
+    })
+  );  
+}
+function sendLoadMission(): void {
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    console.error('socket not open');
+    return;
+  }  
+
+  socket.send(
+    JSON.stringify({
+      key: 'load_mission',
+      value: ''
     })
   );
 }
@@ -166,6 +181,7 @@ export const gameService: GameService = {
   sendRouteRemove,
   sendRouteModify,
   sendSaveMission,
+  sendLoadMission,
   sendAddFlight,
   getMission,  
   registerForMissionUpdates,
