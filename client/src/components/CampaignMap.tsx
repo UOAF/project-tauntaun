@@ -1,37 +1,22 @@
 import React from 'react';
 import { Map, TileLayer } from 'react-leaflet';
-import { pick, without } from 'lodash';
+import { pick } from 'lodash';
 
-import { UnitMarker, UnitRoute } from './';
-import { Unit, AppStateContainer } from '../models';
+import { Mission } from '../models';
+import { CoalitionLayer } from './CoalitionLayer';
 
 export interface CampaignMapProps {
   tileLayerUrl: string;
   lat: number;
   lng: number;
   zoom: number;
-  units: Unit[];
+  mission: Mission;
+  selectedGroupId: number | undefined;
 }
 
 export function CampaignMap(props: CampaignMapProps) {
-  const appState = AppStateContainer.useContainer();
+  const { mission, selectedGroupId } = props;
 
-  const isUnderway = (unit: Unit): boolean => {
-    return unit.points[0].action === 'Turning Point';
-  };
-
-  const { units } = props;
-  const toggleUnitSelection = (unit: Unit): void => {
-    
-    console.info(`selecting unit`, unit);
-    
-    without(units, unit).filter(unit => unit.isSelected === true).forEach(unit => { unit.isSelected = false; appState.updateUnit(unit) } );
-    unit.isSelected = !unit.isSelected;
-
-    appState.updateUnit(unit);    
-  };
-
-  const selectedUnit = units.find(unit => unit.isSelected);
   return (
     <div data-testid="campaign-map">
       <Map center={pick(props, ['lat', 'lng'])} zoom={props.zoom}>
@@ -45,12 +30,9 @@ export function CampaignMap(props: CampaignMapProps) {
             'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
           }
         />
-        {units
-          .filter(unit => isUnderway(unit))
-          .map(unit => (
-            <UnitMarker key={unit.uniqueId} unit={unit} toggleUnitSelection={toggleUnitSelection} />
-          ))}
-        {selectedUnit && <UnitRoute unit={selectedUnit} />}
+        {Object.keys(mission.coalition).map(key => (
+        <CoalitionLayer key={key} coalition={mission.coalition[key]} selectedGroupId={selectedGroupId} />
+        ))} 
       </Map>
     </div>
   );

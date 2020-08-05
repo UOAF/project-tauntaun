@@ -1,19 +1,15 @@
-from quart import Quart, render_template, send_from_directory, make_response, jsonify, abort
+from quart import Quart, make_response
 from quart import websocket
 from functools import wraps
-from secrets import compare_digest
 
-from unit_sidc import sidc_map
+from server.mission_encoder import MissionEncoder
 
-from util import fixup_jsonlike
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
 import asyncio
 
 import signal
 import json
-from coord import xz_to_lat_lon
-
 
 import logging
 logger = logging.basicConfig(level=logging.DEBUG)
@@ -24,53 +20,12 @@ def plain_text_response(x):
     resp.headers["Content-Type"] = "text/plain; charset=utf-8"
     return resp
 
-
-def collect_basic_unit_info(group):
-    g = group
-    pos = g.units[0].position
-    lat, lon = xz_to_lat_lon(pos.x, pos.y)
-    pos = {
-        'lat': lat,
-        'lon': lon
-    }
-
-    def to_latlon(p):
-        lat, lon = xz_to_lat_lon(p['x'], p['y'])
-        p['lat'] = lat
-        p['lon'] = lon
-        return p
-
-    points = [to_latlon(fixup_jsonlike(p.dict())) for p in g.points]
-
-    data = {
-        'id': g.id,
-        'name': str(g.name),
-        'num': len(g.units),
-        'sidc': sidc_map[g.units[0].type],
-        'position': pos,
-        'points': points,
-    }
-    return data
-
-
 def create_app(campaign):
     app = Quart(__name__)
 
-    def validate_coalition(c):
-        if not c in campaign.mission.coalition:
-            abort(404)
-
-    @app.route('/game/plane_groups/<string:coalition>')
-    async def render_plane_groups(coalition):
-        validate_coalition(coalition)
-        groups = campaign.get_plane_groups(side=coalition)
-
-        def render_plane_group(g):
-            unit_data = collect_basic_unit_info(g)
-            unit_data['callsign'] = g.units[0].callsign_dict['name'][:-1]
-            return unit_data
-
-        return jsonify([render_plane_group(g) for g in groups])
+    @app.route('/game/mission')
+    async def render_mission():
+        return json.dumps(campaign.mission, convert_coords=True, add_sidc=True, cls=MissionEncoder)
 
     ws_clients = set()
     def collect_websocket(func):
@@ -85,7 +40,7 @@ def create_app(campaign):
         return wrapper
 
     async def broadcast(message):
-        for ws in ws_clients:
+         for ws in ws_clients:
             await ws.send(message)
 
     @app.websocket('/ws/update')
@@ -96,56 +51,46 @@ def create_app(campaign):
             print(data)
             data = json.loads(data)
             update_type = data['key']
-            unit_route_request_handler = campaign.unit_route_request_handler
+            group_route_request_handler = campaign.group_route_request_handler
 
-            async def broadcast_update(id):
-                broadcast_data = {'key': 'unit_group_updated'}
-                group = campaign.lookup_unit(id)
-                broadcast_data['value'] = collect_basic_unit_info(group)
-                await broadcast(json.dumps(broadcast_data))
+            async def broadcast_update():
+                broadcast_data = {'key': 'mission_updated'}
+                broadcast_data['value'] = campaign.mission
+                await broadcast(json.dumps(broadcast_data, convert_coords=True, add_sidc=True, cls=MissionEncoder))
 
-            async def unit_route_insert_at(unit_data):
-                unit_route_request_handler.insert_at(
-                    unit_data['id'], unit_data['new'], unit_data['at'])
+            async def group_route_insert_at(group_data):
+                group_route_request_handler.insert_at(
+                    group_data['id'], group_data['new'], group_data['at'])
 
-                await broadcast_update(unit_data['id'])
+                await broadcast_update()
 
-            async def unit_route_remove(unit_data):
-                unit_route_request_handler.remove(
-                    unit_data['id'], unit_data['point'])
+            async def group_route_remove(group_data):
+                group_route_request_handler.remove(
+                    group_data['id'], group_data['point'])
 
-                await broadcast_update(unit_data['id'])
+                await broadcast_update()
 
-            async def unit_route_modify(unit_data):
-                unit_route_request_handler.modify(
-                    unit_data['id'], unit_data['old'], unit_data['new'])
+            async def group_route_modify(group_data):
+                group_route_request_handler.modify(
+                    group_data['id'], group_data['old'], group_data['new'])
 
-                await broadcast_update(unit_data['id'])
+                await broadcast_update()
 
-            async def save_mission(unit_data):
+            async def save_mission(group_data):
                 campaign.save_mission()
 
             dispatch_map = {
-                'unit_route_insert_at': unit_route_insert_at,
-                'unit_route_remove': unit_route_remove,
-                'unit_route_modify': unit_route_modify,
+                'group_route_insert_at': group_route_insert_at,
+                'group_route_remove': group_route_remove,
+                'group_route_modify': group_route_modify,
                 'save_mission': save_mission
             }
-
-
 
             try:
                 await dispatch_map[update_type](data['value'])
             except KeyError():
                 # TODO log error
                 pass
-
-
-    @app.route('/game/ships/<string:coalition>')
-    async def render_ship_groups(coalition):
-        validate_coalition(coalition)
-        groups = campaign.get_ship_groups(side=coalition)
-        return jsonify([collect_basic_unit_info(g) for g in groups])
 
     return app
 
