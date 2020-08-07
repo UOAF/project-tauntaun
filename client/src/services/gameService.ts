@@ -12,7 +12,7 @@ export type MissionUpdateListener = (updatedMission: Mission) => void;
 export interface GameService {
   openSocket(): Promise<void>;
 
-  sendRouteInsertAt(group: Group, newWp: Point, atWp: Point): void;
+  sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void;
   sendRouteRemove(group: Group, wp: Point): void;
   sendRouteModify(group: Group, oldWp: Point, newWp: Point): void;
   sendSaveMission(): void;
@@ -63,7 +63,7 @@ async function openSocket(): Promise<void> {
   });
 }
 
-function sendRouteInsertAt(group: Group, newWp: Point, atWp: Point): void {
+function sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;

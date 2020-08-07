@@ -6,7 +6,7 @@ import dcs
 from server.mission_encoder import MissionEncoder
 
 
-class MissionEditorTestCase(unittest.TestCase):
+class MissionEncoderTestCase(unittest.TestCase):
     def create_mission(self):
         m = dcs.Mission(dcs.terrain.Caucasus())
 
