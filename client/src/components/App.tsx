@@ -43,7 +43,7 @@ export function App() {
   };
 
   return (
-    <div className="App">
+    <div>
         <MenuBar />
         {masterModeName === "AddFlightMode" && location && <AddFlightForm location={location} />}
         <CampaignMap

@@ -65,7 +65,7 @@ export function AddFlightForm(props: AddFlightFormProps) {
   }
 
   return (
-    <div>
+    <div className="Popup">
       <p>Location: {location.lat} {location.lng}</p>
       <p>Airport</p><Select options={airportsOptions} onChange={onAirportChange} />
       <p>Plane</p><Select options={planeOptions} onChange={onPlaneChange} />

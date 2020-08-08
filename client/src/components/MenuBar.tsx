@@ -24,7 +24,7 @@ export function MenuBar() {
   }
 
   return (    
-    <div>
+    <div className="Menubar">
       {appState.masterMode?.name}
       <button onClick={loadOnClick}>
             Load mission
