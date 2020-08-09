@@ -1,7 +1,7 @@
 import { pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Dictionary, Point, Mission, Group, emptyMission } from '../models';
+import { Dictionary, Point, Mission, Group, emptyMission, StaticPoint } from '../models';
 import { LatLng } from 'leaflet';
 
 export type ForceColor = 'blue' | 'red' | 'neutral';
@@ -14,7 +14,7 @@ export interface GameService {
 
   sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void;
   sendRouteRemove(group: Group, wp: Point): void;
-  sendRouteModify(group: Group, oldWp: Point, newWp: Point): void;
+  sendRouteModify(group: Group, oldWp: Point, newWp: StaticPoint): void;
   sendSaveMission(): void;
   sendLoadMission(): void;
   sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void;
@@ -98,7 +98,7 @@ function sendRouteRemove(group: Group, wp: Point): void {
   );
 }
 
-function sendRouteModify(group: Group, oldWp: Point, newWp: Point): void {
+function sendRouteModify(group: Group, oldWp: Point, newWp: StaticPoint): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
@@ -110,7 +110,7 @@ function sendRouteModify(group: Group, oldWp: Point, newWp: Point): void {
       value: {
         ...pick(group, ['id']),
         old: pick(oldWp, ['lat', 'lon']),
-        new: pick(newWp, ['lat', 'lon'])
+        new: newWp
       }
     })
   );

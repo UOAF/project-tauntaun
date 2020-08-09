@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Polyline as CorePolyline, LeafletEvent, LatLng } from 'leaflet';
+import { Polyline as CorePolyline, LeafletEvent, LatLng, Marker } from 'leaflet';
 import { Polyline, PolylineProps } from 'react-leaflet';
 import { omit } from 'lodash';
 
@@ -7,6 +7,7 @@ type EditablePolylineCallbacks = {
   onPositionInserted?: (index: number, pos: LatLng) => void;
   onPositionModified?: (index: number, pos: LatLng) => void;
   onPositionRemoved?: (index: number) => void;
+  onPositionClicked?: (index: number) => void;
 };
 
 export type EditablePolylineProps = EditablePolylineCallbacks & PolylineProps;
@@ -45,6 +46,15 @@ class LeafletPolylineEventHandler {
     }
   };
 
+  onClick = (event: LeafletEvent) => {
+    const marker = event.target as Marker;
+    const markerLatLng = marker.getLatLng();
+    const index = this.positions.findIndex(p => p.equals(markerLatLng));
+    if (this.callbacks.onPositionClicked) {
+      this.callbacks.onPositionClicked(index);
+    }
+  };
+
   onMarkerDragEnd = (event: LeafletEvent) => {
     const line = event.target as CorePolyline;
     const newPositions = [...(line.getLatLngs() as LatLng[])];
@@ -78,13 +88,13 @@ class LeafletPolylineEventHandler {
     const modifiedPosition = modifiedPositions[0];
 
     const index = positions.findIndex(pos => modifiedPosition.equals(pos));
-    console.assert(index !== -1); // TODO
+    console.assert(index !== -1);
     return index;
   };
 }
 
 export function EditablePolyline(props: EditablePolylineProps) {
-  const { onPositionInserted, onPositionModified, onPositionRemoved } = props;
+  const { onPositionInserted, onPositionModified, onPositionRemoved, onPositionClicked } = props;
   const positions = props.positions as LatLng[];
 
   // Note: There is a bug(?) in Polyline it will not update the markers on change,
@@ -101,22 +111,25 @@ export function EditablePolyline(props: EditablePolylineProps) {
   const onPolylineAdded = (event: LeafletEvent) => {
     const line = event.target as CorePolyline;
 
-    line.pm.enable({
-      allowSelfIntersections: true
-    });
-
-    line.pm._markers[0].dragging.disable();
-
     const polyLineEventHandler = new LeafletPolylineEventHandler(
       positions,
       {
         onPositionInserted: onPositionInserted,
         onPositionModified: onPositionModified,
-        onPositionRemoved: onPositionRemoved
+        onPositionRemoved: onPositionRemoved,
+        onPositionClicked: onPositionClicked
       },
       redraw
     );
 
+    line.pm.enable({
+      allowSelfIntersections: true
+    });
+
+    line.pm._markers[0].dragging.disable();
+    line.pm._markers.forEach(m => m.on('click', polyLineEventHandler.onClick));
+
+    // https://github.com/geoman-io/leaflet-geoman
     line.on('pm:edit', polyLineEventHandler.onEdit);
     line.on('pm:markerdragend', polyLineEventHandler.onMarkerDragEnd);
   };

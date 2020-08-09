@@ -1,3 +1,5 @@
+from dcs.point import PointAction
+
 from util import get_dcs_dir, point_along_route
 from dcs import terrain
 from dcs.mission import StartType
@@ -115,7 +117,12 @@ class GameService:
             if old_wp_index:
                 print("Waypoint", old_wp_index, "modified")
                 wp = group.points[old_wp_index[0]]
-                wp.position = GameService._convert_point(new_wp)
+                wp.alt = new_wp['alt']
+                wp.type = new_wp['type']
+                #wp.name.set(new_wp['name']) # TODO Missing translation, ignore name for now
+                wp.position = GameService._convert_point(new_wp['position'])
+                wp.speed = new_wp['speed']
+                wp.action = PointAction[new_wp['action']]
             else:
                 print("Failed to modify waypoint")
 

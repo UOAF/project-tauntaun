@@ -156,6 +156,16 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
+  const selectWaypoint = (id: number | undefined) => {
+    setState(state => ({
+      ...state,
+      masterMode: {
+        ...state.masterMode,
+        selectedWaypoint: id
+      } as EditGroupMode
+    }));
+  };
+
   const setLocation = (location: LatLng | undefined) => {
     setState(state => ({
       ...state,
@@ -166,7 +176,7 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
-  return { ...state, initialize, refreshMission, updateGroup, setMasterMode, selectGroup, setLocation };
+  return { ...state, initialize, refreshMission, updateGroup, setMasterMode, selectGroup, selectWaypoint, setLocation };
 }
 
 export const AppStateContainer = createContainer(useAppState);

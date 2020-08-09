@@ -93,7 +93,7 @@ class MissionEncoder(json.JSONEncoder):
             return ""
 
     def point_action(self, obj):
-        return str(obj)
+        return str(obj).replace('PointAction.', '')
 
     def terrain(self, obj):
         return {

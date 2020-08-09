@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { EditablePolyline } from '.';
-import { Group } from '../models';
+import { Group, AppStateContainer } from '../models';
 import { LatLng } from 'leaflet';
 import { gameService } from '../services';
 
@@ -10,6 +10,8 @@ export type GroupRouteProps = {
 };
 
 export function GroupRoute(props: GroupRouteProps) {
+  const appState = AppStateContainer.useContainer();
+
   const { group } = props;
   const positions = group.points.map(point => new LatLng(point.position.lat, point.position.lon));
 
@@ -28,8 +30,11 @@ export function GroupRoute(props: GroupRouteProps) {
     const oldPoint = group.points[index];
 
     gameService.sendRouteModify(group, oldPoint.position, {
-      lat: pos.lat,
-      lon: pos.lng
+      ...oldPoint,
+      position: {
+        lat: pos.lat,
+        lon: pos.lng
+      }
     });
 
     console.log('Point modified.');
@@ -43,6 +48,14 @@ export function GroupRoute(props: GroupRouteProps) {
     console.log('Point removed.');
   };
 
+  const handlePositionClicked = (index: number) => {
+    if (appState.masterMode && appState.masterMode.name === 'EditGroupMode') {
+      appState.selectWaypoint(index);
+    }
+
+    console.log('Point clicked.', index);
+  };
+
   return (
     <EditablePolyline
       positions={positions}
@@ -51,6 +64,7 @@ export function GroupRoute(props: GroupRouteProps) {
       onPositionInserted={handlePositionInserted}
       onPositionModified={handlePositionModified}
       onPositionRemoved={handlePositionRemoved}
+      onPositionClicked={handlePositionClicked}
     />
   );
 }
