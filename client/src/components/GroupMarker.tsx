@@ -7,10 +7,10 @@ import { Group } from '../models';
 
 export type GroupProps = {
   group: Group;
-  groupMarkerOnClick?: (group: Group) => void
+  groupMarkerOnClick?: (group: Group) => void;
 };
 
-export function GroupMarker(props: GroupProps) {  
+export function GroupMarker(props: GroupProps) {
   const { group, groupMarkerOnClick } = props;
 
   const { lat, lon: lng } = group.units[0].position;
@@ -30,12 +30,11 @@ export function GroupMarker(props: GroupProps) {
     if (groupMarkerOnClick) {
       groupMarkerOnClick(group);
     }
-  }
+  };
 
-  return (  
+  return (
     <Marker position={{ lat, lng }} onadd={onMarkerAdded} icon={icon} onClick={onClick}>
       <Popup>{group.name}</Popup>
     </Marker>
-
   );
 }

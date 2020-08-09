@@ -5,7 +5,6 @@ import { Group } from '../models';
 import { LatLng } from 'leaflet';
 import { gameService } from '../services';
 
-
 export type GroupRouteProps = {
   group: Group;
 };
@@ -22,7 +21,7 @@ export function GroupRoute(props: GroupRouteProps) {
       lon: pos.lng
     });
 
-    console.log("Point inserted.");
+    console.log('Point inserted.');
   };
 
   const handlePositionModified = (index: number, pos: LatLng) => {
@@ -33,7 +32,7 @@ export function GroupRoute(props: GroupRouteProps) {
       lon: pos.lng
     });
 
-    console.log("Point modified.");
+    console.log('Point modified.');
   };
 
   const handlePositionRemoved = (index: number) => {
@@ -41,13 +40,17 @@ export function GroupRoute(props: GroupRouteProps) {
 
     gameService.sendRouteRemove(group, oldPoint.position);
 
-    console.log("Point removed.");
+    console.log('Point removed.');
   };
 
-  return <EditablePolyline positions={positions}
-    color="#2d4687"
-    stroke={true}
-    onPositionInserted={handlePositionInserted}
-    onPositionModified={handlePositionModified}
-    onPositionRemoved={handlePositionRemoved} />;
+  return (
+    <EditablePolyline
+      positions={positions}
+      color="#2d4687"
+      stroke={true}
+      onPositionInserted={handlePositionInserted}
+      onPositionModified={handlePositionModified}
+      onPositionRemoved={handlePositionRemoved}
+    />
+  );
 }

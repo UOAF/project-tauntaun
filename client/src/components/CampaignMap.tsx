@@ -34,8 +34,13 @@ export function CampaignMap(props: CampaignMapProps) {
           }
         />
         {Object.keys(mission.coalition).map(key => (
-        <CoalitionLayer key={key} coalition={mission.coalition[key]} selectedGroupId={selectedGroupId} groupMarkerOnClick={groupMarkerOnClick} />
-        ))} 
+          <CoalitionLayer
+            key={key}
+            coalition={mission.coalition[key]}
+            selectedGroupId={selectedGroupId}
+            groupMarkerOnClick={groupMarkerOnClick}
+          />
+        ))}
       </Map>
     </div>
   );

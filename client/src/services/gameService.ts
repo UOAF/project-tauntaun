@@ -32,7 +32,7 @@ async function getMission(): Promise<Mission> {
   try {
     const response = await fetch('/game/mission');
     const mission = (await response.json()) as Mission;
-    return mission;    
+    return mission;
   } catch (error) {
     console.error(`Couldn't fetch mission`, error);
     return emptyMission;
@@ -67,7 +67,7 @@ function sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
-  }  
+  }
 
   socket.send(
     JSON.stringify({
@@ -85,7 +85,7 @@ function sendRouteRemove(group: Group, wp: Point): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
-  }  
+  }
 
   socket.send(
     JSON.stringify({
@@ -102,7 +102,7 @@ function sendRouteModify(group: Group, oldWp: Point, newWp: Point): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
-  }  
+  }
 
   socket.send(
     JSON.stringify({
@@ -120,7 +120,7 @@ function sendSaveMission(): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
-  }  
+  }
 
   socket.send(
     JSON.stringify({
@@ -130,30 +130,29 @@ function sendSaveMission(): void {
   );
 }
 
-
 function sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
-  }    
+  }
 
   socket.send(
     JSON.stringify({
       key: 'add_flight',
       value: {
-        location: {lat: location.lat, lon: location.lng},
+        location: { lat: location.lat, lon: location.lng },
         airport: airport,
         plane: plane,
         number_of_planes: numberOfPlanes
       }
     })
-  );  
+  );
 }
 function sendLoadMission(): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
-  }  
+  }
 
   socket.send(
     JSON.stringify({
@@ -163,7 +162,7 @@ function sendLoadMission(): void {
   );
 }
 
-function registerForMissionUpdates(listener: MissionUpdateListener): string {  
+function registerForMissionUpdates(listener: MissionUpdateListener): string {
   const id = uuidv4();
   updateListeners[id] = listener;
   return id;
@@ -183,7 +182,7 @@ export const gameService: GameService = {
   sendSaveMission,
   sendLoadMission,
   sendAddFlight,
-  getMission,  
+  getMission,
   registerForMissionUpdates,
   unregisterMissionUpdateListener
 };

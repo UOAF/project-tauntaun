@@ -4,13 +4,12 @@ import { Polyline, PolylineProps } from 'react-leaflet';
 import { omit } from 'lodash';
 
 type EditablePolylineCallbacks = {
-  onPositionInserted?: (index: number, pos: LatLng) => void
-  onPositionModified?: (index: number, pos: LatLng) => void
-  onPositionRemoved?: (index: number) => void
-}
-
-export type EditablePolylineProps = EditablePolylineCallbacks & PolylineProps & {
+  onPositionInserted?: (index: number, pos: LatLng) => void;
+  onPositionModified?: (index: number, pos: LatLng) => void;
+  onPositionRemoved?: (index: number) => void;
 };
+
+export type EditablePolylineProps = EditablePolylineCallbacks & PolylineProps;
 
 class LeafletPolylineEventHandler {
   positions: LatLng[];
@@ -18,11 +17,7 @@ class LeafletPolylineEventHandler {
   redraw: () => void;
   minimumLenght: number;
 
-  constructor(positions: LatLng[],
-    callbacks: EditablePolylineCallbacks,
-    redraw: () => void,
-    minimumLenght: number = 1
-  ) {
+  constructor(positions: LatLng[], callbacks: EditablePolylineCallbacks, redraw: () => void, minimumLenght = 1) {
     this.positions = positions;
     this.callbacks = callbacks;
     this.redraw = redraw;
@@ -36,7 +31,7 @@ class LeafletPolylineEventHandler {
 
     if (newPositions.length < oldPositions.length) {
       if (newPositions.length < this.minimumLenght) {
-        console.log("Cannot remove position, minimum lenght is " + this.minimumLenght);
+        console.log('Cannot remove position, minimum lenght is ' + this.minimumLenght);
         this.redraw();
         return;
       }
@@ -48,7 +43,7 @@ class LeafletPolylineEventHandler {
 
       this.positions = newPositions;
     }
-  }
+  };
 
   onMarkerDragEnd = (event: LeafletEvent) => {
     const line = event.target as CorePolyline;
@@ -70,14 +65,14 @@ class LeafletPolylineEventHandler {
 
       this.positions = newPositions;
     }
-  }
+  };
 
   private findChangedPositionIndex = (positions: LatLng[], oldPositions: LatLng[]): number => {
     const isModified = (pos: LatLng) => oldPositions.some(oldPos => pos.equals(oldPos)) === false;
 
     const modifiedPositions = positions.filter(newPos => isModified(newPos));
     if (modifiedPositions === undefined || modifiedPositions.length !== 1) {
-      console.error("Invalid change: 0 or more than one element changed!");
+      console.error('Invalid change: 0 or more than one element changed!');
       return -1;
     }
     const modifiedPosition = modifiedPositions[0];
@@ -85,7 +80,7 @@ class LeafletPolylineEventHandler {
     const index = positions.findIndex(pos => modifiedPosition.equals(pos));
     console.assert(index !== -1); // TODO
     return index;
-  }
+  };
 }
 
 export function EditablePolyline(props: EditablePolylineProps) {
@@ -101,10 +96,10 @@ export function EditablePolyline(props: EditablePolylineProps) {
 
   const redraw = () => {
     setRequestRedraw(true);
-  }
+  };
 
   const onPolylineAdded = (event: LeafletEvent) => {
-    const line = event.target as CorePolyline;    
+    const line = event.target as CorePolyline;
 
     line.pm.enable({
       allowSelfIntersections: true
@@ -112,15 +107,19 @@ export function EditablePolyline(props: EditablePolylineProps) {
 
     line.pm._markers[0].dragging.disable();
 
-    const polyLineEventHandler = new LeafletPolylineEventHandler(positions, {
-      onPositionInserted: onPositionInserted,
-      onPositionModified: onPositionModified,
-      onPositionRemoved: onPositionRemoved
-    }, redraw);
+    const polyLineEventHandler = new LeafletPolylineEventHandler(
+      positions,
+      {
+        onPositionInserted: onPositionInserted,
+        onPositionModified: onPositionModified,
+        onPositionRemoved: onPositionRemoved
+      },
+      redraw
+    );
 
     line.on('pm:edit', polyLineEventHandler.onEdit);
     line.on('pm:markerdragend', polyLineEventHandler.onMarkerDragEnd);
-  }
+  };
 
   // Only redraw when positions change
   if (positions !== savedPositions) {
@@ -133,10 +132,8 @@ export function EditablePolyline(props: EditablePolylineProps) {
   }, [requestRedraw]);
 
   if (requestRedraw) {
-    return (<div></div>);
+    return <div></div>;
   } else {
-    return (
-      <Polyline {...omit(props, 'onadd')} onadd={onPolylineAdded} />
-    );
+    return <Polyline {...omit(props, 'onadd')} onadd={onPolylineAdded} />;
   }
 }
