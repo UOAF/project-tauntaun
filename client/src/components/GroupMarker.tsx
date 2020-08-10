@@ -7,17 +7,11 @@ import { Group } from '../models';
 
 export type GroupProps = {
   group: Group;
-  toggleGroupSelection?: (group: Group) => void;
+  groupMarkerOnClick?: (group: Group) => void;
 };
 
 export function GroupMarker(props: GroupProps) {
-  const changeSelectedUnit = (group: Group) => {
-    if (props.toggleGroupSelection) {
-      props.toggleGroupSelection(group);
-    }
-  };
-
-  const { group } = props;
+  const { group, groupMarkerOnClick } = props;
 
   const { lat, lon: lng } = group.units[0].position;
   const symbol = new ms.Symbol(group.units[0].sidc, { size: 20 });
@@ -32,8 +26,14 @@ export function GroupMarker(props: GroupProps) {
     marker.pm.disable();
   };
 
+  const onClick = () => {
+    if (groupMarkerOnClick) {
+      groupMarkerOnClick(group);
+    }
+  };
+
   return (
-    <Marker position={{ lat, lng }} onadd={onMarkerAdded} icon={icon} onClick={() => changeSelectedUnit(group)}>
+    <Marker position={{ lat, lng }} onadd={onMarkerAdded} icon={icon} onClick={onClick}>
       <Popup>{group.name}</Popup>
     </Marker>
   );

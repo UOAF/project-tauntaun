@@ -1,39 +1,39 @@
-import L from 'leaflet';
+import L, { LatLng } from 'leaflet';
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
 
-import { Mission, Group } from './';
+import { Mission, Group, emptyMission, MasterMode, defaultEditGroupMode, EditGroupMode, AddFlightMode } from './';
 import { gameService } from '../services';
 import { without } from 'lodash';
 
 export interface AppState {
   isInitialized: boolean;
   mission: Mission;
-  selectedGroupId: number | undefined;
+  masterMode: MasterMode;
 }
 
 const defaultState: AppState = {
   isInitialized: false,
-  mission: { coalition: {}},
-  selectedGroupId: undefined
+  mission: emptyMission,
+  masterMode: defaultEditGroupMode
 };
 
 function useAppState(initialState = defaultState) {
   const [state, setState] = useState(initialState);
 
   const refreshMission = async (): Promise<void> => {
-    const mission = await gameService.getMission()
+    const mission = await gameService.getMission();
     setState(state => ({
       ...state,
       mission: mission
     }));
   };
 
-  const onMissionUpdate = (updatedMission: Mission) => {    
+  const onMissionUpdate = (updatedMission: Mission) => {
     setState(state => {
       return {
         ...state,
-        mission: updatedMission          
+        mission: updatedMission
       };
     });
 
@@ -63,21 +63,27 @@ function useAppState(initialState = defaultState) {
       throw error;
     }
   };
-  
-  const updateGroup = (group: Group) => {    
+
+  const updateGroup = (group: Group) => {
     // Note: Group id is unique per mission
     setState(state => {
       const findGroupLocation = () => {
-        let coalitionKey = "";
-        let countryKey = "";
-        let groupType = "";
+        let coalitionKey = '';
+        let countryKey = '';
+        let groupType = '';
 
-        for (coalitionKey in state.mission.coalition) {        
+        for (coalitionKey in state.mission.coalition) {
           const coalition = state.mission.coalition[coalitionKey];
           for (countryKey in coalition.countries) {
             const country = coalition.countries[countryKey];
-    
-            const possibleGroupCategories = ["helicopter_group", "plane_group", "ship_group", "vehicle_group", "static_group"];
+
+            const possibleGroupCategories = [
+              'helicopter_group',
+              'plane_group',
+              'ship_group',
+              'vehicle_group',
+              'static_group'
+            ];
             for (const groupCategoryIndex in possibleGroupCategories) {
               const groupCategoryName = possibleGroupCategories[groupCategoryIndex];
               const groupCategory = country[groupCategoryName] as Array<Group>;
@@ -85,58 +91,93 @@ function useAppState(initialState = defaultState) {
                 groupType = groupCategoryName;
                 return [coalitionKey, countryKey, groupType];
               }
-            };
+            }
           }
         }
 
-        return [coalitionKey, countryKey, groupType] ;
+        return [coalitionKey, countryKey, groupType];
       };
 
       const [coalitionKey, countryKey, groupType] = findGroupLocation();
 
-      if (coalitionKey === "" || countryKey === "" || groupType === "") {
-        console.error("updateGroup failed, group not found, Coalition: "  + coalitionKey + ", Country: " + countryKey + ", Group category: " + groupType);
+      if (coalitionKey === '' || countryKey === '' || groupType === '') {
+        console.error(
+          'updateGroup failed, group not found, Coalition: ' +
+            coalitionKey +
+            ', Country: ' +
+            countryKey +
+            ', Group category: ' +
+            groupType
+        );
         console.log(group);
-        return {...state};
+        return { ...state };
       }
-  
+
       const groups = state.mission.coalition[coalitionKey].countries[countryKey][groupType] as Array<Group>;
       const oldUnit = groups.find(u => u.id === group.id);
       const groupsWithout = oldUnit ? without(groups, oldUnit) : groups;
-      
+
       return {
-      ...state,
-      mission: {
-        ...state.mission,
-        coalition: {
-          ...state.mission.coalition,
-          [coalitionKey]: {
-            ...state.mission.coalition[coalitionKey],
-            countries: {
-              ...state.mission.coalition[coalitionKey].countries,
-              [countryKey]: {
-                ...state.mission.coalition[coalitionKey].countries[countryKey],
-                [groupType]: [
-                  ...groupsWithout,
-                  group
-                ]
+        ...state,
+        mission: {
+          ...state.mission,
+          coalition: {
+            ...state.mission.coalition,
+            [coalitionKey]: {
+              ...state.mission.coalition[coalitionKey],
+              countries: {
+                ...state.mission.coalition[coalitionKey].countries,
+                [countryKey]: {
+                  ...state.mission.coalition[coalitionKey].countries[countryKey],
+                  [groupType]: [...groupsWithout, group]
+                }
               }
             }
           }
         }
-      }
-    }
+      };
     });
+  };
+
+  const setMasterMode = (masterMode: MasterMode) => {
+    setState(state => ({
+      ...state,
+      masterMode: masterMode
+    }));
   };
 
   const selectGroup = (group: Group | undefined) => {
     setState(state => ({
       ...state,
-      selectedGroupId: group?.id
+      masterMode: {
+        ...state.masterMode,
+        selectedGroupId: group?.id
+      } as EditGroupMode
     }));
-  }
+  };
 
-  return { ...state, initialize, refreshMission, updateGroup, selectGroup };
+  const selectWaypoint = (id: number | undefined) => {
+    setState(state => ({
+      ...state,
+      masterMode: {
+        ...state.masterMode,
+        selectedWaypoint: id
+      } as EditGroupMode
+    }));
+  };
+
+  const setLocation = (location: LatLng | undefined) => {
+    setState(state => ({
+      ...state,
+      masterMode: {
+        ...state.masterMode,
+        location: location
+      } as AddFlightMode
+    }));
+  };
+
+  return { ...state, initialize, refreshMission, updateGroup, setMasterMode, selectGroup, selectWaypoint, setLocation };
 }
 
 export const AppStateContainer = createContainer(useAppState);
+export type AppStateContainerType = ReturnType<typeof AppStateContainer.useContainer>;

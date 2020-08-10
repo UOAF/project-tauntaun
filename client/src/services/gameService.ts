@@ -1,7 +1,8 @@
 import { pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Dictionary, Point, Mission, Group } from '../models';
+import { Dictionary, Point, Mission, Group, emptyMission, StaticPoint } from '../models';
+import { LatLng } from 'leaflet';
 
 export type ForceColor = 'blue' | 'red' | 'neutral';
 export type GetType = 'ships' | 'plane_groups';
@@ -11,10 +12,12 @@ export type MissionUpdateListener = (updatedMission: Mission) => void;
 export interface GameService {
   openSocket(): Promise<void>;
 
-  sendRouteInsertAt(group: Group, newWp: Point, atWp: Point): void;
+  sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void;
   sendRouteRemove(group: Group, wp: Point): void;
-  sendRouteModify(group: Group, oldWp: Point, newWp: Point): void;
+  sendRouteModify(group: Group, oldWp: Point, newWp: StaticPoint): void;
   sendSaveMission(): void;
+  sendLoadMission(): void;
+  sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void;
 
   getMission(): Promise<Mission>;
 
@@ -29,10 +32,10 @@ async function getMission(): Promise<Mission> {
   try {
     const response = await fetch('/game/mission');
     const mission = (await response.json()) as Mission;
-    return mission;    
+    return mission;
   } catch (error) {
     console.error(`Couldn't fetch mission`, error);
-    return { coalition: {}};
+    return emptyMission;
   }
 }
 
@@ -60,11 +63,11 @@ async function openSocket(): Promise<void> {
   });
 }
 
-function sendRouteInsertAt(group: Group, newWp: Point, atWp: Point): void {
+function sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
-  }  
+  }
 
   socket.send(
     JSON.stringify({
@@ -82,7 +85,7 @@ function sendRouteRemove(group: Group, wp: Point): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
-  }  
+  }
 
   socket.send(
     JSON.stringify({
@@ -95,11 +98,11 @@ function sendRouteRemove(group: Group, wp: Point): void {
   );
 }
 
-function sendRouteModify(group: Group, oldWp: Point, newWp: Point): void {
+function sendRouteModify(group: Group, oldWp: Point, newWp: StaticPoint): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
-  }  
+  }
 
   socket.send(
     JSON.stringify({
@@ -107,7 +110,7 @@ function sendRouteModify(group: Group, oldWp: Point, newWp: Point): void {
       value: {
         ...pick(group, ['id']),
         old: pick(oldWp, ['lat', 'lon']),
-        new: pick(newWp, ['lat', 'lon'])
+        new: newWp
       }
     })
   );
@@ -117,7 +120,7 @@ function sendSaveMission(): void {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
-  }  
+  }
 
   socket.send(
     JSON.stringify({
@@ -127,7 +130,39 @@ function sendSaveMission(): void {
   );
 }
 
-function registerForMissionUpdates(listener: MissionUpdateListener): string {  
+function sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void {
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    console.error('socket not open');
+    return;
+  }
+
+  socket.send(
+    JSON.stringify({
+      key: 'add_flight',
+      value: {
+        location: { lat: location.lat, lon: location.lng },
+        airport: airport,
+        plane: plane,
+        number_of_planes: numberOfPlanes
+      }
+    })
+  );
+}
+function sendLoadMission(): void {
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    console.error('socket not open');
+    return;
+  }
+
+  socket.send(
+    JSON.stringify({
+      key: 'load_mission',
+      value: ''
+    })
+  );
+}
+
+function registerForMissionUpdates(listener: MissionUpdateListener): string {
   const id = uuidv4();
   updateListeners[id] = listener;
   return id;
@@ -145,7 +180,9 @@ export const gameService: GameService = {
   sendRouteRemove,
   sendRouteModify,
   sendSaveMission,
-  getMission,  
+  sendLoadMission,
+  sendAddFlight,
+  getMission,
   registerForMissionUpdates,
   unregisterMissionUpdateListener
 };

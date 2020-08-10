@@ -4,4 +4,6 @@ export * from './GroupRoute';
 export * from './GroupMarker';
 export * from './CampaignMap';
 export * from './MenuBar';
+export * from './AddFlightForm';
+export * from './EditWaypointForm';
 export * from './App';
