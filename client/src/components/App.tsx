@@ -8,6 +8,7 @@ import { AppStateContainer, AddFlightMode, EditGroupMode, Group } from '../model
 import { AddFlightForm } from './AddFlightForm';
 import { LeafletMouseEvent } from 'leaflet';
 import { findGroupById } from '../models/dcs_util';
+import { LoadoutEditor } from './LoadoutEditor';
 
 export function App() {
   const appState = AppStateContainer.useContainer();
@@ -24,6 +25,9 @@ export function App() {
   const location = addFlightMode.location;
   const selectedWaypoint = editGroupMode.selectedWaypoint;
   const selectedGroupId = editGroupMode.selectedGroupId;
+  const selectedUnitId = editGroupMode.selectedUnitId;
+  const group = selectedGroupId ? findGroupById(appState.mission, selectedGroupId) : undefined;
+  const unit = group && selectedUnitId ? group.units.find(u => u.id === selectedUnitId) : undefined;
 
   const mapOnClick = (e: LeafletMouseEvent) => {
     if (masterModeName === 'AddFlightMode') {
@@ -47,8 +51,7 @@ export function App() {
   };
 
   const renderEditWaypointForm = () => {
-    if (masterModeName === 'EditGroupMode' && selectedGroupId && selectedWaypoint) {
-      const group = findGroupById(appState.mission, selectedGroupId);
+    if (masterModeName === 'EditGroupMode' && selectedGroupId && selectedWaypoint) {      
       if (group) {
         return <EditWaypointForm group={group} pointIndex={selectedWaypoint} />;
       }
@@ -61,7 +64,8 @@ export function App() {
     <div>
       <MenuBar />
       {masterModeName === 'AddFlightMode' && location && <AddFlightForm location={location} />}
-      {renderEditWaypointForm()};
+      {renderEditWaypointForm()}
+      {unit && <LoadoutEditor unit={unit} />}
       <CampaignMap
         lat={43}
         lng={41}

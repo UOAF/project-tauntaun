@@ -30,6 +30,17 @@ export type StaticPoint = {
   action: string;
 };
 
+export type FlyingUnit = Unit & {
+  flare: number;
+  chaff: number;
+  fuel: number;
+  gun: number;
+  pylons: Dictionary<any>;
+  radio: any; // TODO
+  hardpoint_racks: boolean;
+  [key: string]: boolean | number | string | Dictionary<any>;
+};
+
 export type Unit = {
   id: number;
   name: string;
@@ -41,7 +52,7 @@ export type Unit = {
 export type Group = {
   id: number;
   name: string;
-  units: Array<Unit>;
+  units: Array<Unit | FlyingUnit>;
   points: Array<StaticPoint>;
 };
 

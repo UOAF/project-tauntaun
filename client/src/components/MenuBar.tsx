@@ -1,6 +1,8 @@
 import React from 'react';
 import { gameService } from '../services';
 import { AppStateContainer, defaultEditGroupMode, defaultAddFlightMode } from '../models';
+import { EditGroupMode } from '../models/modes';
+import { findGroupById } from '../models/dcs_util';
 
 export function MenuBar() {
   const appState = AppStateContainer.useContainer();
@@ -23,6 +25,17 @@ export function MenuBar() {
     appState.setMasterMode(defaultEditGroupMode);
   };
 
+  const editLoadoutOnClick = () => {
+    if (appState.masterMode && appState.masterMode.name === 'EditGroupMode') {
+      const editGroupMode = appState.masterMode as EditGroupMode;
+      const selectedGroupId = editGroupMode.selectedGroupId;
+      const group = selectedGroupId ? findGroupById(appState.mission, selectedGroupId) : undefined;
+      if (group) {
+        appState.selectUnit(editGroupMode.selectedUnitId ? undefined : group.units[0]);
+      }
+    }
+  };
+
   return (
     <div className="Menubar">
       {appState.masterMode?.name}
@@ -30,6 +43,7 @@ export function MenuBar() {
       <button onClick={saveOnClick}>Save mission</button>
       <button onClick={addFlightOnClick}>Add flight</button>
       <button onClick={editGroupOnClick}>Edit group</button>
+      <button onClick={editLoadoutOnClick}>Edit loadout</button>
     </div>
   );
 }

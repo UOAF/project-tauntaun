@@ -2,16 +2,12 @@ import React, { useState } from 'react';
 import Select from 'react-select';
 import { Group, AppStateContainer, PointAction } from '../models';
 import { gameService } from '../services';
+import { SelectOptionType } from '../types/material_ui';
 
 export interface EditWaypointFormProps {
   group: Group;
   pointIndex: number;
 }
-
-type SelectValueType = {
-  value: string;
-  label: string;
-};
 
 export function EditWaypointForm(props: EditWaypointFormProps) {
   const appState = AppStateContainer.useContainer();
@@ -43,7 +39,7 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
     appState.selectWaypoint(undefined);
   };
 
-  const onActionChange = (v: SelectValueType) => {
+  const onActionChange = (v: SelectOptionType) => {
     setType(PointAction[v.value]);
     setAction(v.value);
   };

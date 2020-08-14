@@ -4,3 +4,5 @@ __pycache__/
 Missions
 env
 mission.lua
+data/dcs_static.json
+client/src/data/dcs_static.json

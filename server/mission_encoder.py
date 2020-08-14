@@ -3,6 +3,7 @@ import json
 from dcs import Mission, Point
 from dcs.coalition import Coalition
 from dcs.country import Country
+from dcs.flyingunit import FlyingUnit
 from dcs.planes import PlaneType
 from dcs.point import StaticPoint, PointAction
 from dcs.terrain import Terrain, Airport
@@ -50,6 +51,21 @@ class MissionEncoder(json.JSONEncoder):
             'points': self.default(obj.points),
             'name': self.default(obj.name)
         }
+
+    def flying_unit(self, obj):
+        result = {
+            **self.unit(obj),
+            'flare': obj.flare,
+            'chaff': obj.chaff,
+            'fuel': obj.fuel,
+            'gun': obj.gun,
+            'pylons': obj.pylons,
+            'radio': obj.radio if obj.radio is not None else "",
+            'hardpoint_racks': obj.hardpoint_racks
+        }
+
+        return result
+
 
     def unit(self, obj):
         result = {
@@ -132,6 +148,9 @@ class MissionEncoder(json.JSONEncoder):
 
         if isinstance(obj, Group):
             return self.group(obj)
+
+        if isinstance(obj, FlyingUnit):
+            return self.flying_unit(obj)
 
         if isinstance(obj, Unit):
             return self.unit(obj)

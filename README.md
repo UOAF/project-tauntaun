@@ -22,6 +22,12 @@ env\Scripts\activate
 ```bash
 pip install -r requirements.txt
 ```
+**Generate dcs_static.json**
+```
+cd data
+python gen_dcs_static.py
+copy dcs_static.json to client/src/data/dcs_static.json
+```
 **Run server**
 ```bash
 py camp.py
@@ -32,10 +38,6 @@ In a new terminal go to the client dir, read README for initial setup.
 cd client
 yarn start
 ```
-
-**Open old client - obsolete**  
-Open localhost:8080 in browser  
-
 **When done leave virtual env**
 ```bash
 deactivate

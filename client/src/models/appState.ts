@@ -2,7 +2,7 @@ import L, { LatLng } from 'leaflet';
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
 
-import { Mission, Group, emptyMission, MasterMode, defaultEditGroupMode, EditGroupMode, AddFlightMode } from './';
+import { Mission, Group, emptyMission, MasterMode, defaultEditGroupMode, EditGroupMode, AddFlightMode, Unit } from './';
 import { gameService } from '../services';
 import { without } from 'lodash';
 
@@ -156,6 +156,16 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
+  const selectUnit = (unit: Unit | undefined) => {
+    setState(state => ({
+      ...state,
+      masterMode: {
+        ...state.masterMode,
+        selectedUnitId: unit?.id
+      } as EditGroupMode
+    }));
+  };
+
   const selectWaypoint = (id: number | undefined) => {
     setState(state => ({
       ...state,
@@ -176,7 +186,17 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
-  return { ...state, initialize, refreshMission, updateGroup, setMasterMode, selectGroup, selectWaypoint, setLocation };
+  return {
+    ...state,
+    initialize,
+    refreshMission,
+    updateGroup,
+    setMasterMode,
+    selectGroup,
+    selectWaypoint,
+    setLocation,
+    selectUnit
+  };
 }
 
 export const AppStateContainer = createContainer(useAppState);

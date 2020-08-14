@@ -11,6 +11,7 @@ export type AddFlightMode = BaseMasterMode & {
 export type EditGroupMode = BaseMasterMode & {
   selectedGroupId: number | undefined;
   selectedWaypoint: number | undefined;
+  selectedUnitId: number | undefined;
 };
 
 export type MasterMode = undefined | AddFlightMode | EditGroupMode;
@@ -23,5 +24,6 @@ export const defaultAddFlightMode: AddFlightMode = {
 export const defaultEditGroupMode: EditGroupMode = {
   name: 'EditGroupMode',
   selectedGroupId: undefined,
-  selectedWaypoint: undefined
+  selectedWaypoint: undefined,
+  selectedUnitId: undefined
 };

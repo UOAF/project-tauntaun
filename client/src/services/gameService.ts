@@ -1,8 +1,10 @@
 import { pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Dictionary, Point, Mission, Group, emptyMission, StaticPoint } from '../models';
+import { Dictionary, Point, Mission, Group, emptyMission, StaticPoint, Unit } from '../models';
 import { LatLng } from 'leaflet';
+
+import * as DcsStaticRawJson from '../data/dcs_static.json';
 
 export type ForceColor = 'blue' | 'red' | 'neutral';
 export type GetType = 'ships' | 'plane_groups';
@@ -18,6 +20,14 @@ export interface GameService {
   sendSaveMission(): void;
   sendLoadMission(): void;
   sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void;
+  sendUnitLoadoutUpdate(
+    unit: Unit,
+    pylons: Dictionary<string>,
+    chaff: number,
+    flare: number,
+    fuel: number,
+    gun: number
+  ): void;
 
   getMission(): Promise<Mission>;
 
@@ -27,6 +37,15 @@ export interface GameService {
 
 let socket: WebSocket | null = null;
 const updateListeners: Dictionary<MissionUpdateListener> = {};
+
+function sendMessage(name: string, value: any) {
+  if (!socket || socket.readyState !== WebSocket.OPEN) {
+    console.error('socket not open');
+    return;
+  }
+
+  socket.send(JSON.stringify({ key: name, value: value }));
+}
 
 async function getMission(): Promise<Mission> {
   try {
@@ -64,102 +83,66 @@ async function openSocket(): Promise<void> {
 }
 
 function sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void {
-  if (!socket || socket.readyState !== WebSocket.OPEN) {
-    console.error('socket not open');
-    return;
-  }
-
-  socket.send(
-    JSON.stringify({
-      key: 'group_route_insert_at',
-      value: {
-        ...pick(group, ['id']),
-        new: pick(newWp, ['lat', 'lon']),
-        at: pick(atWp, ['lat', 'lon'])
-      }
-    })
-  );
+  sendMessage('group_route_insert_at', {
+    ...pick(group, ['id']),
+    new: pick(newWp, ['lat', 'lon']),
+    at: pick(atWp, ['lat', 'lon'])
+  });
 }
 
 function sendRouteRemove(group: Group, wp: Point): void {
-  if (!socket || socket.readyState !== WebSocket.OPEN) {
-    console.error('socket not open');
-    return;
-  }
-
-  socket.send(
-    JSON.stringify({
-      key: 'group_route_remove',
-      value: {
-        ...pick(group, ['id']),
-        point: pick(wp, ['lat', 'lon'])
-      }
-    })
-  );
+  sendMessage('group_route_remove', {
+    ...pick(group, ['id']),
+    point: pick(wp, ['lat', 'lon'])
+  });
 }
 
 function sendRouteModify(group: Group, oldWp: Point, newWp: StaticPoint): void {
-  if (!socket || socket.readyState !== WebSocket.OPEN) {
-    console.error('socket not open');
-    return;
-  }
-
-  socket.send(
-    JSON.stringify({
-      key: 'group_route_modify',
-      value: {
-        ...pick(group, ['id']),
-        old: pick(oldWp, ['lat', 'lon']),
-        new: newWp
-      }
-    })
-  );
+  sendMessage('group_route_modify', {
+    ...pick(group, ['id']),
+    old: pick(oldWp, ['lat', 'lon']),
+    new: newWp
+  });
 }
 
 function sendSaveMission(): void {
-  if (!socket || socket.readyState !== WebSocket.OPEN) {
-    console.error('socket not open');
-    return;
-  }
-
-  socket.send(
-    JSON.stringify({
-      key: 'save_mission',
-      value: ''
-    })
-  );
+  sendMessage('save_mission', '');
 }
 
 function sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void {
-  if (!socket || socket.readyState !== WebSocket.OPEN) {
-    console.error('socket not open');
-    return;
-  }
-
-  socket.send(
-    JSON.stringify({
-      key: 'add_flight',
-      value: {
-        location: { lat: location.lat, lon: location.lng },
-        airport: airport,
-        plane: plane,
-        number_of_planes: numberOfPlanes
-      }
-    })
-  );
+  sendMessage('add_flight', {
+    location: { lat: location.lat, lon: location.lng },
+    airport: airport,
+    plane: plane,
+    number_of_planes: numberOfPlanes
+  });
 }
 function sendLoadMission(): void {
-  if (!socket || socket.readyState !== WebSocket.OPEN) {
-    console.error('socket not open');
-    return;
-  }
+  sendMessage('load_mission', '');
+}
 
-  socket.send(
-    JSON.stringify({
-      key: 'load_mission',
-      value: ''
-    })
-  );
+function sendUnitLoadoutUpdate(
+  unit: Unit,
+  pylons: Dictionary<string>,
+  chaff: number,
+  flare: number,
+  fuel: number,
+  gun: number
+): void {
+  const weaponsData = (DcsStaticRawJson as any).default.weapons;
+  sendMessage('unit_loadout_update', {
+    id: unit.id,
+    pylons: Object.keys(pylons).map(k => {
+        return { [k]: weaponsData[pylons[k]].weapon_id };
+      })
+      .reduce((a, c) => {
+        return { ...a, ...c };
+      }, {}),
+    chaff: chaff,
+    flare: flare,
+    gun: gun,
+    fuel: fuel
+  });
 }
 
 function registerForMissionUpdates(listener: MissionUpdateListener): string {
@@ -179,6 +162,7 @@ export const gameService: GameService = {
   sendRouteInsertAt,
   sendRouteRemove,
   sendRouteModify,
+  sendUnitLoadoutUpdate,
   sendSaveMission,
   sendLoadMission,
   sendAddFlight,
