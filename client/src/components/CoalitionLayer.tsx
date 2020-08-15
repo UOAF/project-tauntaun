@@ -1,27 +1,25 @@
-import React from 'react';
+import React, { createContext } from 'react';
 
-import { Coalition, Group } from '../models';
+import { Coalition } from '../models';
 import { CountryLayer } from './CountryLayer';
 
 export type CoalitionLayerProps = {
   coalition: Coalition;
-  selectedGroupId: number | undefined;
-  groupMarkerOnClick?: (group: Group) => void;
 };
 
+export const CoalitionContext = createContext('');
+
 export function CoalitionLayer(props: CoalitionLayerProps) {
-  const { coalition, selectedGroupId, groupMarkerOnClick } = props;
+  const { coalition } = props;
 
   return (
-    <div>
+    <CoalitionContext.Provider value={coalition.name}>
       {Object.keys(coalition.countries).map(countryKey => (
         <CountryLayer
           key={countryKey}
           country={coalition.countries[countryKey]}
-          selectedGroupId={selectedGroupId}
-          groupMarkerOnClick={groupMarkerOnClick}
         />
       ))}
-    </div>
+    </CoalitionContext.Provider>
   );
 }

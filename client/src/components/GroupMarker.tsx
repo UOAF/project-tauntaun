@@ -4,17 +4,27 @@ import { Icon, Marker as CoreMarker, LeafletEvent } from 'leaflet';
 import { Marker, Popup } from 'react-leaflet';
 
 import { Group } from '../models';
+import { CoalitionContext } from './CoalitionLayer';
 
 export type GroupProps = {
   group: Group;
-  groupMarkerOnClick?: (group: Group) => void;
+  groupMarkerOnClick?: (group: Group, event: any) => void;
 };
 
 export function GroupMarker(props: GroupProps) {
   const { group, groupMarkerOnClick } = props;
 
+  const coalition = React.useContext(CoalitionContext);
+
+  const getSidc = () => {
+    // https://spatialillusions.com/unitgenerator/
+    const sidc = group.units[0].sidc;
+    const firendlyChar = coalition === 'blue' ? 'F' : coalition === 'red' ? 'H' : 'N';
+    return sidc[0] + firendlyChar + sidc.substr(2);    
+  }
+
   const { lat, lon: lng } = group.units[0].position;
-  const symbol = new ms.Symbol(group.units[0].sidc, { size: 20 });
+  const symbol = new ms.Symbol(getSidc(), { size: 20 });
   const anchor = symbol.getAnchor();
   const icon = new Icon({
     iconUrl: symbol.toDataURL(),
@@ -28,7 +38,7 @@ export function GroupMarker(props: GroupProps) {
 
   const onClick = () => {
     if (groupMarkerOnClick) {
-      groupMarkerOnClick(group);
+      groupMarkerOnClick(group, {coalition: coalition});
     }
   };
 
