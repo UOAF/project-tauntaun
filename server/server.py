@@ -82,11 +82,17 @@ def create_app(campaign):
 
                 await broadcast_update()
 
-            async def save_mission(group_data):
+            async def save_mission(data):
                 campaign.save_mission()
 
-            async def load_mission(group_data):
+            async def load_mission(data):
                 campaign.load_mission()
+
+                await broadcast_update()
+
+            async def unit_loadout_update(unit_data):
+                game_service.update_unit_loadout(
+                    unit_data['id'], unit_data['pylons'], unit_data['chaff'], unit_data['flare'], unit_data['gun'], unit_data['fuel'])
 
                 await broadcast_update()
 
@@ -96,7 +102,8 @@ def create_app(campaign):
                 'group_route_modify': group_route_modify,
                 'save_mission': save_mission,
                 'load_mission': load_mission,
-                'add_flight': add_flight
+                'add_flight': add_flight,
+                'unit_loadout_update': unit_loadout_update
             }
 
             try:

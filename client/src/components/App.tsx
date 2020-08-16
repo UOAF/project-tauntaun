@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, createContext } from 'react';
 
 import './App.css';
 
@@ -8,6 +8,14 @@ import { AppStateContainer, AddFlightMode, EditGroupMode, Group } from '../model
 import { AddFlightForm } from './AddFlightForm';
 import { LeafletMouseEvent } from 'leaflet';
 import { findGroupById } from '../models/dcs_util';
+import { LoadoutEditor } from './LoadoutEditor';
+
+type ModeContextType = {
+    groupMarkerOnClick?: (group: Group, event: any) => void;  
+    selectedGroupId?: number;
+}
+
+export const ModeContext = createContext({} as ModeContextType);
 
 export function App() {
   const appState = AppStateContainer.useContainer();
@@ -24,6 +32,9 @@ export function App() {
   const location = addFlightMode.location;
   const selectedWaypoint = editGroupMode.selectedWaypoint;
   const selectedGroupId = editGroupMode.selectedGroupId;
+  const selectedUnitId = editGroupMode.selectedUnitId;
+  const group = selectedGroupId ? findGroupById(appState.mission, selectedGroupId) : undefined;
+  const unit = group && selectedUnitId ? group.units.find(u => u.id === selectedUnitId) : undefined;
 
   const mapOnClick = (e: LeafletMouseEvent) => {
     if (masterModeName === 'AddFlightMode') {
@@ -31,8 +42,10 @@ export function App() {
     }
   };
 
-  const groupMarkerOnClick = (group: Group): void => {
+  const groupMarkerOnClick = (group: Group, event: any): void => {
     if (masterModeName !== 'EditGroupMode') return;
+
+    if (event && event.coalition !== 'blue') return;
 
     console.info(`selecting group`, group);
 
@@ -47,8 +60,7 @@ export function App() {
   };
 
   const renderEditWaypointForm = () => {
-    if (masterModeName === 'EditGroupMode' && selectedGroupId && selectedWaypoint) {
-      const group = findGroupById(appState.mission, selectedGroupId);
+    if (masterModeName === 'EditGroupMode' && selectedGroupId && selectedWaypoint) {      
       if (group) {
         return <EditWaypointForm group={group} pointIndex={selectedWaypoint} />;
       }
@@ -56,22 +68,23 @@ export function App() {
 
     return;
   };
-
+  
   return (
     <div>
       <MenuBar />
       {masterModeName === 'AddFlightMode' && location && <AddFlightForm location={location} />}
-      {renderEditWaypointForm()};
-      <CampaignMap
-        lat={43}
-        lng={41}
-        zoom={9}
-        tileLayerUrl="https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoiYm9ibW9yZXR0aSIsImEiOiJjazI4amV6eWswaWF2M2JtYjh3dmowdnQ1In0.XutSpPpaRm9LZudTNgVZwQ"
-        mission={appState.mission}
-        selectedGroupId={masterModeName === 'EditGroupMode' ? editGroupMode.selectedGroupId : undefined}
-        onMapClick={mapOnClick}
-        groupMarkerOnClick={groupMarkerOnClick}
-      />
+      {renderEditWaypointForm()}
+      {unit && <LoadoutEditor unit={unit} />}
+      <ModeContext.Provider value={ {groupMarkerOnClick: groupMarkerOnClick, selectedGroupId: masterModeName === 'EditGroupMode' ? editGroupMode.selectedGroupId : undefined} }>
+        <CampaignMap
+          lat={43}
+          lng={41}
+          zoom={9}
+          tileLayerUrl="https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoiYm9ibW9yZXR0aSIsImEiOiJjazI4amV6eWswaWF2M2JtYjh3dmowdnQ1In0.XutSpPpaRm9LZudTNgVZwQ"
+          mission={appState.mission}
+          onMapClick={mapOnClick}
+        />
+      </ModeContext.Provider>
     </div>
   );
 }

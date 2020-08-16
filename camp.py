@@ -1,4 +1,6 @@
+from dcs.flyingunit import FlyingUnit
 from dcs.point import PointAction
+from dcs.weapons_data import Weapons, weapon_ids
 
 from util import get_dcs_dir, point_along_route
 from dcs import terrain
@@ -23,7 +25,7 @@ def is_posix():
 
 class GameService:
     def __init__(self, campaign):
-        self.campaign = campaign
+        self.campaign: Campaign = campaign
         self.group_route_request_handler = GameService.GroupRouteRequestHandler(campaign)
 
     @staticmethod
@@ -60,6 +62,34 @@ class GameService:
 
         print("add_flight", "success")
 
+    def update_unit_loadout(self, unit_id, pylons, chaff, flare, gun, fuel):
+        print("update_unit_loadout", unit_id, pylons, chaff, flare, gun, fuel)
+
+        # TODO Add proper validation as this function will "hard overwrite"
+        # unit attributes and can corrupt the mission file
+        # ("good enough for mvp" :tm:)
+
+        unit: FlyingUnit = self.campaign.lookup_unit(unit_id)
+
+        mapped_pylons = {}
+        for k in pylons:
+            clsid = weapon_ids[pylons[k]]['clsid']
+            assert(clsid is not None)
+            mapped_pylons[int(k)] = {
+                'CLSID': clsid
+           }
+        unit.pylons = mapped_pylons
+
+        # TODO validate chaff/flare
+        unit.chaff = chaff
+        unit.flare = flare
+        assert(0 <= gun <= 100)
+        unit.gun = gun
+        # TODO validate fuel
+        unit.fuel = fuel
+
+        print("update_unit_loadout", "success")
+
     class GroupRouteRequestHandler:
         def __init__(self, campaign):
             self.campaign = campaign
@@ -71,7 +101,7 @@ class GameService:
             return a.distance_to_point(b) < coord_drift_threshold
 
         def remove(self, group_id, wp):
-            group = self.campaign.lookup_unit(group_id)
+            group = self.campaign.lookup_group(group_id)
             if group is None:
                 raise ValueError(f"no group found with id {group_id}")
 
@@ -85,7 +115,7 @@ class GameService:
                 print("Failed to remove waypoint")
 
         def insert_at(self, group_id, new_wp, at_wp):
-            group = self.campaign.lookup_unit(group_id)
+            group = self.campaign.lookup_group(group_id)
             if group is None:
                 raise ValueError(f"no group found with id {group_id}")
 
@@ -107,7 +137,7 @@ class GameService:
                 print("Failed to add new waypoint")
 
         def modify(self, group_id, old_wp, new_wp):
-            group = self.campaign.lookup_unit(group_id)
+            group = self.campaign.lookup_group(group_id)
             if group is None:
                 raise ValueError(f"no group found with id {group_id}")
 
@@ -129,7 +159,7 @@ class GameService:
 class Campaign():
     def __init__(self, terrain=dcs.terrain.Caucasus):
         self.terrain = terrain()
-        self.mission = None
+        self.mission: dcs.Mission = None
         self.game_service = GameService(self)
 
     def get_countries(self, side):
@@ -139,6 +169,9 @@ class Campaign():
         countries = self.get_countries(side)
         return itertools.chain(*(countries[cname].plane_group for cname in countries))
 
+    def get_plane_group_units(self, side):
+        return itertools.chain(*(group.units for group in self.get_plane_groups(side)))
+
     def get_airport(self, name):
         return self.terrain.airport[name]
 
@@ -147,16 +180,21 @@ class Campaign():
         return itertools.chain(*(countries[cname].ship_group for cname in countries))
 
     def lookup_unit(self, unit_id):
+        for unit in self.get_plane_group_units('blue'):
+            if unit_id == unit.id:
+                return unit
+
+    def lookup_group(self, group_id):
         for group in self.get_plane_groups('blue'):
-            if unit_id == group.id:
+            if group_id == group.id:
                 return group
 
         for group in self.get_ship_groups('blue'):
-            if unit_id == group.id:
+            if group_id == group.id:
                 return group
 
     def update_unit_route(self, unit_id, points):
-        group = self.lookup_unit(unit_id)
+        group = self.lookup_group(unit_id)
         if group is None:
             raise ValueError(f"no group found with id {unit_id}")
         for point, new_pos in zip(group.points, points):
@@ -226,6 +264,7 @@ def create_mission(campaign):
                                   start_type=StartType.Warm,
                                   pad_group=cvbg,
                                   group_size=4)
+    fg.load_pylon(planes.FA_18C_hornet.Pylon1.AN_ASQ_T50_TCTS_Pod, 1)
     fg.set_client()
 
     offset = dcs.Point(random()*1000.0, random()*1000.0)

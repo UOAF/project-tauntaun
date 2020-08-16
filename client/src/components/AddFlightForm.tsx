@@ -4,15 +4,11 @@ import Select from 'react-select';
 import { LatLng } from 'leaflet';
 import { AppStateContainer } from '../models';
 import { gameService } from '../services';
+import { SelectOptionType } from '../types/material_ui';
 
 export interface AddFlightFormProps {
   location: LatLng;
 }
-
-type SelectValueType = {
-  value: string;
-  label: string;
-};
 
 export function AddFlightForm(props: AddFlightFormProps) {
   const appState = AppStateContainer.useContainer();
@@ -59,11 +55,11 @@ export function AddFlightForm(props: AddFlightFormProps) {
     appState.setLocation(undefined);
   };
 
-  const onAirportChange = (v: SelectValueType) => {
+  const onAirportChange = (v: SelectOptionType) => {
     setSelectedAirport(+v.value);
   };
 
-  const onPlaneChange = (v: SelectValueType) => {
+  const onPlaneChange = (v: SelectOptionType) => {
     setSelectedPlane(v.value);
   };
 

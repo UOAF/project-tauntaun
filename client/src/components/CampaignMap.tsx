@@ -2,7 +2,7 @@ import React from 'react';
 import { Map, TileLayer } from 'react-leaflet';
 import { pick } from 'lodash';
 
-import { Mission, Group } from '../models';
+import { Mission } from '../models';
 import { CoalitionLayer } from './CoalitionLayer';
 import { LeafletMouseEvent } from 'leaflet';
 
@@ -12,13 +12,11 @@ export interface CampaignMapProps {
   lng: number;
   zoom: number;
   mission: Mission;
-  selectedGroupId: number | undefined;
   onMapClick?: (e: LeafletMouseEvent) => void;
-  groupMarkerOnClick?: (group: Group) => void;
 }
 
 export function CampaignMap(props: CampaignMapProps) {
-  const { mission, selectedGroupId, groupMarkerOnClick } = props;
+  const { mission } = props;
 
   return (
     <div data-testid="campaign-map">
@@ -37,8 +35,6 @@ export function CampaignMap(props: CampaignMapProps) {
           <CoalitionLayer
             key={key}
             coalition={mission.coalition[key]}
-            selectedGroupId={selectedGroupId}
-            groupMarkerOnClick={groupMarkerOnClick}
           />
         ))}
       </Map>

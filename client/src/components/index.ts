@@ -6,4 +6,5 @@ export * from './CampaignMap';
 export * from './MenuBar';
 export * from './AddFlightForm';
 export * from './EditWaypointForm';
+export * from './LoadoutEditor';
 export * from './App';
