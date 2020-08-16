@@ -25,7 +25,7 @@ pip install -r requirements.txt
 **Generate dcs_static.json**
 ```
 cd data
-python gen_dcs_static.py
+python gen_client_data.py
 copy dcs_static.json to client/src/data/dcs_static.json
 ```
 **Run server**
