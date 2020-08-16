@@ -22,7 +22,7 @@
     "http-proxy-middleware": "^1.0.4",
     "leaflet": "^1.6.0",
     "leaflet.pm": "^2.2.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "milsymbol": "^2.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
