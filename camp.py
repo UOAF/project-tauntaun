@@ -236,6 +236,7 @@ def create_mission(campaign):
     usa = m.country("USA")
     russia = m.country("Russia")
     sochi = m.terrain.sochi_adler()
+    sochi.set_red()
     ship_pos = sochi.position - dcs.Point(50000, 50000)
     cvbg = m.ship_group(
         country=usa,

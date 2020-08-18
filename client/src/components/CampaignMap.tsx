@@ -5,6 +5,7 @@ import { pick } from 'lodash';
 import { Mission } from '../models';
 import { CoalitionLayer } from './CoalitionLayer';
 import { LeafletMouseEvent } from 'leaflet';
+import { AirportLayer } from './AirportLayer';
 
 export interface CampaignMapProps {
   tileLayerUrl: string;
@@ -31,12 +32,13 @@ export function CampaignMap(props: CampaignMapProps) {
             'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
           }
         />
+        <AirportLayer airports={mission.terrain.airports}/>
         {Object.keys(mission.coalition).map(key => (
           <CoalitionLayer
             key={key}
             coalition={mission.coalition[key]}
           />
-        ))}
+        ))}        
       </Map>
     </div>
   );

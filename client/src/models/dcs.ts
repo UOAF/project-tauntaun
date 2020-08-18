@@ -46,7 +46,6 @@ export type Unit = {
   name: string;
   type: string;
   position: Point;
-  sidc: string;
 };
 
 export type Group = {

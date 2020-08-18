@@ -3,6 +3,10 @@ import json
 import sys
 import dcs
 
+sidc_overrides = {
+    'E-3A': 'SFAPMFRW--*****',
+    'Stennis': 'SFSPCLCV--****'
+}
 
 def map_planes():
     result = {}
@@ -58,12 +62,49 @@ def map_weapons():
 
     return weapons
 
+def generate_sidc():
+    sidc_map = {}
+
+    # Ships
+    for id in dcs.ships.ship_map:
+        sidc_map[id] = 'SFSP--------'
+
+    # Planes
+    for id in dcs.planes.plane_map:
+        sidc_map[id] = 'SFAPMFF---*****1'
+
+    # Helicopters
+    for id in dcs.helicopters.helicopter_map:
+        sidc_map[id] = 'SFAPMH------'
+
+    # Vehicles
+    for id in dcs.vehicles.vehicle_map:
+        sidc_map[id] = 'SFGPU-------'
+
+    # Statics
+    for id in dcs.statics.warehouse_map:
+        sidc_map[id] = 'SFGPI-----H-'
+
+    for id in dcs.statics.cargo_map:
+        sidc_map[id] = 'SFGPI-----H-'
+
+    for id in dcs.statics.fortification_map:
+        sidc_map[id] = 'SFGPI-----H-'
+
+    for id in dcs.statics.groundobject_map:
+        sidc_map[id] = 'SFGPI-----H-'
+
+    return {**sidc_map, **sidc_overrides}
+
 if __name__ == '__main__':
     planes = map_planes()
     weapons = map_weapons()
+    sidc = generate_sidc()
+
     static_data = {
         'planes': planes,
-        'weapons': weapons
+        'weapons': weapons,
+        'sidc': sidc
     }
 
     filename = "dcs_static.json"

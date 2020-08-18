@@ -1,6 +1,6 @@
 import { Mission, Group } from '.';
 
-export const findGroupById = (mission: Mission, groupId: number): Group | undefined => {
+export function findGroupById(mission: Mission, groupId: number): Group | undefined {
   for (const coalitionKey in mission.coalition) {
     const coalition = mission.coalition[coalitionKey];
     for (const countryKey in coalition.countries) {
@@ -26,4 +26,10 @@ export const findGroupById = (mission: Mission, groupId: number): Group | undefi
   }
 
   return undefined;
+};
+
+export function changeSidcCoalition(sidc: string, coalition: string): string {
+  const lcCoalition = coalition.toLowerCase();
+  const affiliationChar = lcCoalition === 'blue' ? 'F' : lcCoalition === 'red' ? 'H' : 'N';
+  return sidc[0] + affiliationChar + sidc.substr(2);  
 };
