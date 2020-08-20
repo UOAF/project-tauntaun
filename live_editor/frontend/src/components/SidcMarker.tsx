@@ -5,10 +5,11 @@ import { Marker, Popup, MarkerProps, MarkerEvents } from 'react-leaflet';
 
 import { omit } from 'lodash';
 
-export type SidcMarkerProps = MarkerProps & MarkerEvents & {
-  sidc: string;
-  name?: string;
-};
+export type SidcMarkerProps = MarkerProps &
+  MarkerEvents & {
+    sidc: string;
+    name?: string;
+  };
 
 export function SidcMarker(props: SidcMarkerProps) {
   const { sidc, name } = props;

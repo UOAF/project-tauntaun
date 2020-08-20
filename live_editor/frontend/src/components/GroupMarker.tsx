@@ -1,12 +1,9 @@
 import React from 'react';
 
-import { Group } from '../models';
+import { Group, Unit, AppStateContainer } from '../models';
 import { CoalitionContext } from './CoalitionLayer';
-
-import * as DcsStaticRawJson from '../data/dcs_static.json';
-import { DcsStaticData } from '../models/dcs_static';
-import { SidcMarker } from './SidcMarker';
-import { changeSidcCoalition } from '../models/dcs_util';
+import { UnitMarker } from '.';
+import { GroupThreatRing } from './GroupThreatRing';
 
 export type GroupProps = {
   group: Group;
@@ -14,34 +11,40 @@ export type GroupProps = {
 };
 
 export function GroupMarker(props: GroupProps) {
-  const DcsStatic = (DcsStaticRawJson as any).default as DcsStaticData;
-  
+  const appState = AppStateContainer.useContainer();
+
+  const { showUnits, showThreatRings } = appState;
   const { group, groupMarkerOnClick } = props;
-  
+
   const coalition = React.useContext(CoalitionContext);
 
-  const getSidc = () => {
-    // https://spatialillusions.com/unitgenerator/
-    const unitType = group.units[0].type;
-    const sidcFound = Object.keys(DcsStatic.sidc).includes(unitType);    
-
-    if (!sidcFound) return 'SOSP--------';
-
-    const sidc =  DcsStatic.sidc[unitType];
-    return changeSidcCoalition(sidc, coalition);
-  };
-
-  const sidc = getSidc();
-
-  const { lat, lon: lng } = group.units[0].position;
-
-  const onClick = () => {
+  const onClick = (unit: Unit) => {
     if (groupMarkerOnClick) {
-      groupMarkerOnClick(group, {coalition: coalition});
+      groupMarkerOnClick(group, { coalition: coalition });
     }
   };
 
-  return (
-    <SidcMarker position={{ lat, lng }} sidc={sidc} name={group.name} onclick={onClick} />
-  );
+  const renderThreatRings = (showPerUnit: boolean) => {
+    if (showThreatRings) {
+      return <GroupThreatRing group={group} showPerUnit={showPerUnit} />;
+    }
+  };
+
+  if (showUnits) {
+    return (
+      <div>
+        {group.units.map(unit => (
+          <UnitMarker key={unit.name} unit={unit} unitMarkerOnClick={onClick} />
+        ))}
+        {coalition === 'red' && renderThreatRings(true)}
+      </div>
+    );
+  } else {
+    return (
+      <div>
+        <UnitMarker unit={group.units[0]} label={group.name} unitMarkerOnClick={onClick} />;
+        {coalition === 'red' && renderThreatRings(true)}
+      </div>
+    );
+  }
 }
