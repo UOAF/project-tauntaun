@@ -11,8 +11,8 @@ import { findGroupById } from '../models/dcs_util';
 import { LoadoutEditor } from './LoadoutEditor';
 
 type ModeContextType = {
-    groupMarkerOnClick?: (group: Group, event: any) => void;  
-    selectedGroupId?: number;
+  groupMarkerOnClick?: (group: Group, event: any) => void;
+  selectedGroupId?: number;
 }
 
 export const ModeContext = createContext({} as ModeContextType);
@@ -60,7 +60,7 @@ export function App() {
   };
 
   const renderEditWaypointForm = () => {
-    if (masterModeName === 'EditGroupMode' && selectedGroupId && selectedWaypoint) {      
+    if (masterModeName === 'EditGroupMode' && selectedGroupId && selectedWaypoint) {
       if (group) {
         return <EditWaypointForm group={group} pointIndex={selectedWaypoint} />;
       }
@@ -68,7 +68,7 @@ export function App() {
 
     return;
   };
-  
+
   return (
     <div>
       <MenuBar />

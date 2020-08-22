@@ -1,4 +1,5 @@
 import { Dictionary } from './util';
+
 // TODO move data to dcs_static.json
 export const PointAction: Dictionary<string> = {
   TurningPoint: 'Turning Point',
@@ -35,16 +36,28 @@ export type Plane = {
   tacan: boolean;
   eplrs: boolean;
   radio_frequency: number;
-  pylons: Dictionary<Array<string>>
-}
+  pylons: Dictionary<Array<string>>;
+};
 
 export type Weapon = {
   name: string;
   weight: number;
   weapon_id: string;
-}
+};
+
+export type Vehicle = {
+  id: string;
+  name: string;
+  detection_range: string;
+  threat_range: string;
+  air_weapon_dist: string;
+  eprls: boolean;
+  category: string;
+};
 
 export type DcsStaticData = {
   planes: Dictionary<Plane>;
   weapons: Dictionary<Weapon>;
-}
+  vehicles: Dictionary<Vehicle>;
+  sidc: Dictionary<string>;
+};

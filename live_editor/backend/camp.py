@@ -25,7 +25,7 @@ def is_posix():
 
 class GameService:
     def __init__(self, campaign):
-        self.campaign: Campaign = campaign
+        self.campaign: Campaign = campaign                
         self.group_route_request_handler = GameService.GroupRouteRequestHandler(campaign)
 
     @staticmethod
@@ -115,7 +115,7 @@ class GameService:
                 print("Failed to remove waypoint")
 
         def insert_at(self, group_id, new_wp, at_wp):
-            group = self.campaign.lookup_group(group_id)
+            group = self.campaign.lookup_group(group_id)            
             if group is None:
                 raise ValueError(f"no group found with id {group_id}")
 
@@ -236,6 +236,7 @@ def create_mission(campaign):
     usa = m.country("USA")
     russia = m.country("Russia")
     sochi = m.terrain.sochi_adler()
+    sochi.set_red()
     ship_pos = sochi.position - dcs.Point(50000, 50000)
     cvbg = m.ship_group(
         country=usa,

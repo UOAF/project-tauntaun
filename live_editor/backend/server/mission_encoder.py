@@ -12,7 +12,6 @@ from dcs.unit import Unit
 from dcs.unitgroup import Group
 
 from coord import xz_to_lat_lon
-from unit_sidc import sidc_map
 
 class MissionEncoder(json.JSONEncoder):
     def __init__(self, convert_coords=False, add_sidc=False, *args, **kws):
@@ -74,12 +73,6 @@ class MissionEncoder(json.JSONEncoder):
             'name': self.default(obj.name),
             'position': self.default(obj.position)
         }
-
-        if self.add_sidc:
-            try:
-                result['sidc'] = sidc_map[obj.type]
-            except KeyError:
-                result['sidc'] = 'SFAPMFF---*****1' # TODO default for now
 
         return result
 

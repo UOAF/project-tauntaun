@@ -10,12 +10,16 @@ export interface AppState {
   isInitialized: boolean;
   mission: Mission;
   masterMode: MasterMode;
+  showUnits: boolean;
+  showThreatRings: boolean;
 }
 
 const defaultState: AppState = {
   isInitialized: false,
   mission: emptyMission,
-  masterMode: defaultEditGroupMode
+  masterMode: defaultEditGroupMode,
+  showUnits: false,
+  showThreatRings: true
 };
 
 function useAppState(initialState = defaultState) {
@@ -186,6 +190,20 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
+  const setShowUnits = (showUnits: boolean) => {
+    setState(state => ({
+      ...state,
+      showUnits: showUnits
+    }));
+  };
+
+  const setShowThreatRings = (showThreatRings: boolean) => {
+    setState(state => ({
+      ...state,
+      showThreatRings: showThreatRings
+    }));
+  };
+
   return {
     ...state,
     initialize,
@@ -195,7 +213,9 @@ function useAppState(initialState = defaultState) {
     selectGroup,
     selectWaypoint,
     setLocation,
-    selectUnit
+    selectUnit,
+    setShowUnits,
+    setShowThreatRings
   };
 }
 
