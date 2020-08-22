@@ -28,7 +28,7 @@ export function SidcMarker(props: SidcMarkerProps) {
 
   return (
     <Marker {...omit(props, 'onadd', 'icon')} onadd={onMarkerAdded} icon={icon}>
-      {name && <Popup>{name}</Popup>}
+      {name && <Popup minWidth={100}>{name}</Popup>}
     </Marker>
   );
 }
