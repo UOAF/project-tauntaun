@@ -1929,6 +1929,11 @@
   resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.0.0.tgz#165aae4819ad2174a17476dbe66feebd549556c0"
   integrity sha512-xSQfNcvOiE5f9dyd4Kzxbof1aTrLobL278pGLKOZI6esGfZ7ts9Ka16CzIN6Y8hFHE1C7jIBZokULhK1bOgjRw==
 
+"@types/wu@^2.1.42":
+  version "2.1.42"
+  resolved "https://registry.yarnpkg.com/@types/wu/-/wu-2.1.42.tgz#27ae70e38067316f24abcf81b950230449fe8bad"
+  integrity sha512-+GTq3oqVD+DY7iANRfazy8YhLlKwxIG2hTCF72W+yuCbnjZ6PSkxju/3emOZ4+lzMJ7ximpY3XnCQSBjIGbYgw==
+
 "@types/yargs-parser@*":
   version "15.0.0"
   resolved "https://registry.yarnpkg.com/@types/yargs-parser/-/yargs-parser-15.0.0.tgz#cb3f9f741869e20cce330ffbeb9271590483882d"
@@ -11576,6 +11581,11 @@ ws@^6.1.2, ws@^6.2.1:
   integrity sha512-GIyAXC2cB7LjvpgMt9EKS2ldqr0MTrORaleiOno6TweZ6r3TKtoFQWay/2PceJ3RuBasOHzXNn5Lrw1X0bEjqA==
   dependencies:
     async-limiter "~1.0.0"
+
+wu@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/wu/-/wu-2.1.0.tgz#7e72e3fba23e0ff669ddd537e1c857d3d4b1614f"
+  integrity sha1-fnLj+6I+D/Zp3dU34chX09SxYU8=
 
 xml-name-validator@^3.0.0:
   version "3.0.0"

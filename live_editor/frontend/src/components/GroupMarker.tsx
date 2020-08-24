@@ -17,7 +17,7 @@ export function GroupMarker(props: GroupProps) {
   const { group, groupMarkerOnClick } = props;
 
   const coalition = React.useContext(CoalitionContext);
-
+ 
   const onClick = (unit: Unit) => {
     if (groupMarkerOnClick) {
       groupMarkerOnClick(group, { coalition: coalition });

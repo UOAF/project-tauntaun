@@ -2,7 +2,6 @@ import React from 'react';
 import { gameService } from '../services';
 import { AppStateContainer, defaultEditGroupMode, defaultAddFlightMode } from '../models';
 import { EditGroupMode } from '../models/modes';
-import { findGroupById } from '../models/dcs_util';
 import { Checkbox, FormControlLabel } from '@material-ui/core';
 
 export function MenuBar() {
@@ -29,10 +28,9 @@ export function MenuBar() {
   const editLoadoutOnClick = () => {
     if (appState.masterMode && appState.masterMode.name === 'EditGroupMode') {
       const editGroupMode = appState.masterMode as EditGroupMode;
-      const selectedGroupId = editGroupMode.selectedGroupId;
-      const group = selectedGroupId ? findGroupById(appState.mission, selectedGroupId) : undefined;
-      if (group) {
-        appState.selectUnit(editGroupMode.selectedUnitId ? undefined : group.units[0]);
+      const selectedUnitd = editGroupMode.selectedUnitId;
+      if (selectedUnitd) {
+        appState.setLoadoutEditorVisibility(true);
       }
     }
   };
@@ -45,13 +43,25 @@ export function MenuBar() {
     appState.setShowThreatRings(event.target.checked);
   };
 
-  return (
-    <div className="Menubar">
+  const onAdminModeChange = (event: any) => {
+    appState.setAdminMode(event.target.checked);
+  };
+
+  const renderAdminBar = () => {
+    return (
+      <div>
       {appState.masterMode?.name}
       <button onClick={loadOnClick}>Load mission</button>
       <button onClick={saveOnClick}>Save mission</button>
       <button onClick={addFlightOnClick}>Add flight</button>
       <button onClick={editGroupOnClick}>Edit group</button>
+    </div>
+    );
+  };
+
+  return (
+    <div className="Menubar">
+      {appState.adminMode && renderAdminBar()}
       <button onClick={editLoadoutOnClick}>Edit loadout</button>
       <FormControlLabel
         value="start"
@@ -63,6 +73,12 @@ export function MenuBar() {
         value="start"
         control={<Checkbox checked={appState.showThreatRings} color="primary" onChange={onShowThreatRingsChange} />}
         label="Show threat rings"
+        labelPlacement="end"
+      />
+      <FormControlLabel
+        value="start"
+        control={<Checkbox checked={appState.adminMode} color="primary" onChange={onAdminModeChange} />}
+        label="[Admin Mode]"
         labelPlacement="end"
       />
     </div>

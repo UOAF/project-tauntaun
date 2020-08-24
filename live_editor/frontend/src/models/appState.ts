@@ -2,9 +2,12 @@ import L, { LatLng } from 'leaflet';
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
 
-import { Mission, Group, emptyMission, MasterMode, defaultEditGroupMode, EditGroupMode, AddFlightMode, Unit } from './';
+import { Mission, Group, emptyMission, MasterMode, defaultEditGroupMode, EditGroupMode, AddFlightMode } from './';
 import { gameService } from '../services';
 import { without } from 'lodash';
+import { Sessions } from './sessionData';
+import wu from 'wu';
+import { getGroups } from './dcs_util';
 
 export interface AppState {
   isInitialized: boolean;
@@ -12,6 +15,10 @@ export interface AppState {
   masterMode: MasterMode;
   showUnits: boolean;
   showThreatRings: boolean;
+  sessionId: number;
+  sessions: Sessions;
+  loadoutEditorVisibility: boolean;
+  adminMode: boolean;
 }
 
 const defaultState: AppState = {
@@ -19,7 +26,11 @@ const defaultState: AppState = {
   mission: emptyMission,
   masterMode: defaultEditGroupMode,
   showUnits: false,
-  showThreatRings: true
+  showThreatRings: true,
+  sessionId: -1,
+  sessions: {},
+  loadoutEditorVisibility: false,
+  adminMode: false
 };
 
 function useAppState(initialState = defaultState) {
@@ -30,6 +41,14 @@ function useAppState(initialState = defaultState) {
     setState(state => ({
       ...state,
       mission: mission
+    }));
+  };
+
+  const refreshSessions = async (): Promise<void> => {
+    const sessions = await gameService.getSessions();
+    setState(state => ({
+      ...state,
+      sessions: sessions
     }));
   };
 
@@ -44,6 +63,61 @@ function useAppState(initialState = defaultState) {
     console.info(`got mission update`);
   };
 
+  const onSessionIdUpdateReceived = (sessionId: number) => {
+    setState(state => {
+      return {
+        ...state,
+        sessionId: sessionId
+      };
+    });
+
+    console.info(`got registration data`);
+  };
+
+  const onSessionsUpdateReceived = (sessions: Sessions) => {
+    setState(state => {
+      // TODO this should not be here or not like this, hack for mvp
+      const sessionData = sessions[state.sessionId];
+      const editGroupMode = state.masterMode as EditGroupMode;
+      const selected_unit_id = sessionData.selected_unit_id;
+      if (
+        sessionData &&
+        selected_unit_id !== -1 &&
+        editGroupMode &&
+        (editGroupMode.selectedUnitId === undefined || editGroupMode.selectedUnitId !== selected_unit_id)
+      ) {
+        const group = wu(getGroups(state.mission)).find(
+          g => g.units.find(u => u.id === selected_unit_id) !== undefined
+        );
+
+        if (group) {
+          if (group.id !== editGroupMode.selectedGroupId) {
+            editGroupMode.selectedGroupId = group.id;
+          }
+
+          editGroupMode.selectedUnitId = selected_unit_id;
+        }
+
+        return {
+          ...state,
+          sessions: sessions,
+          masterMode: {
+            ...state.masterMode,
+            selectedGroupId: editGroupMode.selectedGroupId,
+            selectedUnitId: editGroupMode.selectedUnitId
+          } as EditGroupMode
+        };
+      }
+
+      return {
+        ...state,
+        sessions: sessions
+      };
+    });
+
+    console.info(`got sessions update`);
+  };
+
   const initialize = async (): Promise<void> => {
     try {
       if (state.isInitialized) {
@@ -53,10 +127,14 @@ function useAppState(initialState = defaultState) {
       (L as any).PM.initialize({ optIn: false });
 
       gameService.registerForMissionUpdates(onMissionUpdate);
+      gameService.registerForSessionIdUpdate(onSessionIdUpdateReceived);
+      gameService.registerForSessionsUpdate(onSessionsUpdateReceived);
       await gameService.openSocket();
       console.info('update socket connected');
 
       await refreshMission();
+      await refreshSessions();
+
       setState(state => ({
         ...state,
         isInitialized: true
@@ -150,22 +228,22 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
-  const selectGroup = (group: Group | undefined) => {
+  const selectGroup = (groupId: number | undefined) => {
     setState(state => ({
       ...state,
       masterMode: {
         ...state.masterMode,
-        selectedGroupId: group?.id
+        selectedGroupId: groupId
       } as EditGroupMode
     }));
   };
 
-  const selectUnit = (unit: Unit | undefined) => {
+  const selectUnit = (unitId: number | undefined) => {
     setState(state => ({
       ...state,
       masterMode: {
         ...state.masterMode,
-        selectedUnitId: unit?.id
+        selectedUnitId: unitId
       } as EditGroupMode
     }));
   };
@@ -204,6 +282,20 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
+  const setAdminMode = (adminMode: boolean) => {
+    setState(state => ({
+      ...state,
+      adminMode: adminMode
+    }));
+  };
+
+  const setLoadoutEditorVisibility = (visible: boolean) => {
+    setState(state => ({
+      ...state,
+      loadoutEditorVisibility: visible
+    }));
+  };
+
   return {
     ...state,
     initialize,
@@ -215,7 +307,9 @@ function useAppState(initialState = defaultState) {
     setLocation,
     selectUnit,
     setShowUnits,
-    setShowThreatRings
+    setShowThreatRings,
+    setAdminMode,
+    setLoadoutEditorVisibility
   };
 }
 

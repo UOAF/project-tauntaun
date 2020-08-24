@@ -6,6 +6,7 @@ declare module 'leaflet' {
     snappable?: boolean;
     snapDistance?: number;
     allowSelfIntersections?: boolean;
+    preventMarkerRemoval?: boolean;
   }
 
   interface Marker {
@@ -19,7 +20,6 @@ declare module 'leaflet' {
   interface PolylinePM {
     enable(options?: EditOptions);
     disable();
-
     _markers: any[];
   }
 

@@ -17,6 +17,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-leaflet": "^2.5.1",
     "@types/uuid": "^8.0.0",
+    "@types/wu": "^2.1.42",
     "bluebird": "^3.7.2",
     "bluebird-global": "^1.0.1",
     "http-proxy-middleware": "^1.0.4",
@@ -31,7 +32,8 @@
     "react-select": "^3.1.0",
     "typescript": "^3.7.5",
     "unstated-next": "^1.1.0",
-    "uuid": "^8.1.0"
+    "uuid": "^8.1.0",
+    "wu": "^2.1.0"
   },
   "scripts": {
     "start": "react-scripts start",
