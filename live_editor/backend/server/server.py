@@ -1,4 +1,4 @@
-from quart import Quart, make_response
+from quart import Quart, send_from_directory, make_response
 from quart import websocket
 from functools import wraps
 
@@ -24,7 +24,21 @@ def plain_text_response(x):
     return resp
 
 def create_app(campaign, session_manager):
-    app = Quart(__name__)
+    app = Quart(__name__, static_folder='client/static',
+                template_folder='client')
+
+    @app.route('/', defaults={'path': 'index.html'})
+    async def send_root(path):
+        return await send_from_directory('server/client', path)
+
+    @app.route('/<path:path>')
+    async def send_static_root(path):
+        return await send_from_directory('server/client', path)
+
+    @app.route('/static/<path:path>')
+    async def send_static(path):
+        return await send_from_directory('server/client/static', path)
+
     @app.route('/game/mission')
     async def render_mission():
         return json.dumps(campaign.mission, convert_coords=True, add_sidc=True, cls=MissionEncoder)
