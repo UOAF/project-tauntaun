@@ -46,9 +46,10 @@ class MissionEncoder(json.JSONEncoder):
     def group(self, obj):
         return {
             'id': obj.id,
+            'name': self.default(obj.name),
             'units': self.default(obj.units),
             'points': self.default(obj.points),
-            'name': self.default(obj.name)
+            'task': obj.task
         }
 
     def flying_unit(self, obj):
@@ -71,7 +72,8 @@ class MissionEncoder(json.JSONEncoder):
             'id': obj.id,
             'type': obj.type,
             'name': self.default(obj.name),
-            'position': self.default(obj.position)
+            'position': self.default(obj.position),
+            'skill': str(obj.skill)
         }
 
         return result

@@ -12,7 +12,7 @@ def make_sa2_site(mission: Mission,
 
     fan_song_class = vehicles.AirDefence.SAM_SA_2_TR_SNR_75_Fan_Song
     ln_class = vehicles.AirDefence.SAM_SA_2_LN_SM_90
-    name = namegen.next_unit_name(country)
+    name = f"vis_{namegen.next_unit_name(country)}"
     vg = mission.vehicle_group(country, name, fan_song_class, center_pos, orientation)
     for ii in range(num_launchers):
         ln = mission.vehicle(namegen.next_unit_name(country), ln_class)

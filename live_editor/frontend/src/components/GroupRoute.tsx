@@ -7,12 +7,13 @@ import { gameService } from '../services';
 
 export type GroupRouteProps = {
   group: Group;
+  editable: boolean;
 };
 
 export function GroupRoute(props: GroupRouteProps) {
   const appState = AppStateContainer.useContainer();
 
-  const { group } = props;
+  const { group, editable } = props;
   const positions = group.points.map(point => new LatLng(point.position.lat, point.position.lon));
 
   const handlePositionInserted = (index: number, pos: LatLng) => {
@@ -65,6 +66,7 @@ export function GroupRoute(props: GroupRouteProps) {
       onPositionModified={handlePositionModified}
       onPositionRemoved={handlePositionRemoved}
       onPositionClicked={handlePositionClicked}
+      editable={editable}
     />
   );
 }

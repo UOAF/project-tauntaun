@@ -1,4 +1,4 @@
-from quart import Quart, make_response
+from quart import Quart, send_from_directory, make_response
 from quart import websocket
 from functools import wraps
 
@@ -12,6 +12,9 @@ import signal
 import json
 
 import logging
+
+from sessions import SessionsEncoder
+
 logger = logging.basicConfig(level=logging.DEBUG)
 
 
@@ -20,31 +23,63 @@ def plain_text_response(x):
     resp.headers["Content-Type"] = "text/plain; charset=utf-8"
     return resp
 
-def create_app(campaign):
-    app = Quart(__name__)
+def create_app(campaign, session_manager):
+    app = Quart(__name__, static_folder='client/static',
+                template_folder='client')
+
+    @app.route('/', defaults={'path': 'index.html'})
+    async def send_root(path):
+        return await send_from_directory('server/client', path)
+
+    @app.route('/<path:path>')
+    async def send_static_root(path):
+        return await send_from_directory('server/client', path)
+
+    @app.route('/static/<path:path>')
+    async def send_static(path):
+        return await send_from_directory('server/client/static', path)
 
     @app.route('/game/mission')
     async def render_mission():
         return json.dumps(campaign.mission, convert_coords=True, add_sidc=True, cls=MissionEncoder)
 
-    ws_clients = set()
-    def collect_websocket(func):
-        @wraps(func)
-        async def wrapper(*args, **kwargs):
-            ws_clients.add(websocket._get_current_object())
-            print(f"adding {websocket._get_current_object()}")
-            try:
-                return await func(*args, **kwargs)
-            finally:
-                ws_clients.remove(websocket._get_current_object())
-        return wrapper
+    @app.route('/game/sessions')
+    async def render_sessions():
+        return json.dumps(session_manager.sessions, cls=SessionsEncoder)
+
+    ws_clients = {}
+    def collect_websocket(on_connect, on_disconnect):
+        def wrapper_0(func):
+            @wraps(func)
+            async def wrapper(*args, **kwargs):
+                id = wrapper.id_counter
+                ws_clients[id] = websocket._get_current_object()
+                print(f"adding ws client {id}")
+                on_connect(id)
+                await ws_clients[id].send(json.dumps({
+                    'key': 'registration_data',
+                    'value': id
+                }))
+                wrapper.id_counter += 1
+                try:
+                    return await func(*args, **kwargs)
+                finally:
+                    print(f"removing ws client {id}")
+                    del ws_clients[id]
+                    on_disconnect(id)
+
+            wrapper.id_counter = 0
+
+            return wrapper
+        return wrapper_0
 
     async def broadcast(message):
-         for ws in ws_clients:
-            await ws.send(message)
+         for ws_id in ws_clients:
+             ws = ws_clients[ws_id]
+             await ws.send(message)
 
     @app.websocket('/ws/update')
-    @collect_websocket
+    @collect_websocket(session_manager.register, session_manager.deregister)
     async def client_update_ws():
         while True:
             data = await websocket.receive()
@@ -57,6 +92,10 @@ def create_app(campaign):
             async def broadcast_update():
                 broadcast_data = {'key': 'mission_updated', 'value': campaign.mission}
                 await broadcast(json.dumps(broadcast_data, convert_coords=True, add_sidc=True, cls=MissionEncoder))
+
+            async def broadcast_session_update():
+                broadcast_data = {'key': 'sessions_updated', 'value': session_manager.sessions}
+                await broadcast(json.dumps(broadcast_data, cls=SessionsEncoder))
 
             async def group_route_insert_at(group_data):
                 group_route_request_handler.insert_at(
@@ -96,6 +135,12 @@ def create_app(campaign):
 
                 await broadcast_update()
 
+            async def session_data_update(data):
+                session_manager.update_session(
+                    data['id'], data['session_data'])
+
+                await broadcast_session_update()
+
             dispatch_map = {
                 'group_route_insert_at': group_route_insert_at,
                 'group_route_remove': group_route_remove,
@@ -103,7 +148,8 @@ def create_app(campaign):
                 'save_mission': save_mission,
                 'load_mission': load_mission,
                 'add_flight': add_flight,
-                'unit_loadout_update': unit_loadout_update
+                'unit_loadout_update': unit_loadout_update,
+                'session_data_update': session_data_update
             }
 
             try:
@@ -117,8 +163,8 @@ def create_app(campaign):
 
 
 
-def run(campaign, port=80):
-    app = create_app(campaign)
+def run(campaign, session_maanger, port=80):
+    app = create_app(campaign, session_maanger)
 
     shutdown_event = asyncio.Event()
 

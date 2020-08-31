@@ -1,5 +1,6 @@
 from dcs.flyingunit import FlyingUnit
 from dcs.point import PointAction
+from dcs.unit import Skill
 from dcs.weapons_data import Weapons, weapon_ids
 
 from util import get_dcs_dir, point_along_route
@@ -19,6 +20,9 @@ from coord import lat_lon_to_xz
 from util import feet_to_meters, knots_to_kph
 
 from templates import make_sa2_site
+
+from sessions import SessionManager
+
 
 def is_posix():
     return os.name == 'posix'
@@ -59,6 +63,7 @@ class GameService:
                                                                      airport=airport,
                                                                      group_size=number_of_planes)
         new_flight.add_waypoint(location, altitude=5000)
+        new_flight.set_skill(Skill.Client)
 
         print("add_flight", "success")
 
@@ -265,12 +270,10 @@ def create_mission(campaign):
                                   start_type=StartType.Warm,
                                   pad_group=cvbg,
                                   group_size=4)
+
+    fg.set_skill(Skill.Client)
     fg.load_pylon(planes.FA_18C_hornet.Pylon1.AN_ASQ_T50_TCTS_Pod, 1)
     fg.set_client()
-
-    offset = dcs.Point(random()*1000.0, random()*1000.0)
-    orientation = random()*360.
-    sa2_pos = sochi.position + offset
     p = fg.add_waypoint(ship_pos + dcs.Point(1000, 3000), feet_to_meters(8000))
     pos = point_along_route(p.position, sochi.position, 50*2000)
     p = fg.add_waypoint(pos, feet_to_meters(26000))
@@ -278,6 +281,22 @@ def create_mission(campaign):
         p.position, sochi.position, -1000), feet_to_meters(26000))
     fg.land_at(cvbg)
 
+    fg_2 = m.flight_group_from_unit(country=usa,
+                                  name=namegen.next_unit_name(usa),
+                                  aircraft_type=planes.FA_18C_hornet,
+                                  maintask=None,
+                                  start_type=StartType.Warm,
+                                  pad_group=cvbg,
+                                  group_size=4)
+
+    fg_2.set_skill(Skill.Client)
+    fg_2.load_pylon(planes.FA_18C_hornet.Pylon1.AN_ASQ_T50_TCTS_Pod, 1)
+    fg_2.set_client()
+    fg_2.add_waypoint(ship_pos + dcs.Point(30000, 30000), feet_to_meters(8000))
+
+    offset = dcs.Point(random()*1000.0, random()*1000.0)
+    orientation = random()*360.
+    sa2_pos = sochi.position + offset
     make_sa2_site(m, russia, sa2_pos, orientation)
 
     awacs = m.awacs_flight(
@@ -316,8 +335,11 @@ def save_mission(m, name='pytest'):
 
 def main():
     c = Campaign()
+    session_manager = SessionManager()
+
     create_mission(c)
-    server.run(c, 8080)
+
+    server.run(c, session_manager, 8080)
 
 if __name__ == '__main__':
     main()

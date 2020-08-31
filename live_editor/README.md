@@ -30,6 +30,11 @@ copy dcs_static.json to live_editor/frontend/src/data/dcs_static.json
 cd live_editor/backend
 py camp.py
 ```
+**Install yarn (one time)**  
+```bash
+npm install -g yarn
+```
+
 **Install web client dependencies (after updates to the frontend)**  
 In a new terminal go to the frontend dir.
 ```bash
@@ -42,5 +47,19 @@ In a new terminal go to the frontend dir.
 ```bash
 cd live_editor/frontend
 yarn start
+```
+
+**Build package - linux**
+Works in clean repo.
+```bash
+cd project_tauntaun
+live_editor/build_package.sh
+```
+project\_tauntaun/build/live\_editor.tar.gz
+
+**Run package - linux**
+```bash
+tar xzf live\_editor.tar.gz
+./live\_editor/live\_editor
 ```
 

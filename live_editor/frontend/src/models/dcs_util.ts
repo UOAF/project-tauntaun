@@ -1,6 +1,6 @@
 import { Mission, Group } from '.';
 
-export function findGroupById(mission: Mission, groupId: number): Group | undefined {
+export function* getGroupArrays(mission: Mission) {
   for (const coalitionKey in mission.coalition) {
     const coalition = mission.coalition[coalitionKey];
     for (const countryKey in coalition.countries) {
@@ -17,12 +17,22 @@ export function findGroupById(mission: Mission, groupId: number): Group | undefi
         const groupCategoryName = possibleGroupCategories[groupCategoryIndex];
         const groupCategory = country[groupCategoryName] as Array<Group>;
 
-        if (groupCategory) {
-          const group = groupCategory.find(g => g.id === groupId);
-          if (group) return group;
-        }
+        yield groupCategory;
       }
     }
+  }
+}
+
+export function* getGroups(mission: Mission) {
+  for (const group of getGroupArrays(mission)) {
+    yield* group;
+  }
+}
+
+export function findGroupById(mission: Mission, groupId: number): Group | undefined {
+  for (const groupArray of getGroupArrays(mission)) {
+    const group = groupArray.find(g => g.id === groupId);
+    if (group) return group;
   }
 
   return undefined;
@@ -31,5 +41,5 @@ export function findGroupById(mission: Mission, groupId: number): Group | undefi
 export function changeSidcCoalition(sidc: string, coalition: string): string {
   const lcCoalition = coalition.toLowerCase();
   const affiliationChar = lcCoalition === 'blue' ? 'F' : lcCoalition === 'red' ? 'H' : 'N';
-  return sidc[0] + affiliationChar + sidc.substr(2);  
+  return sidc[0] + affiliationChar + sidc.substr(2);
 };

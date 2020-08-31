@@ -73,7 +73,7 @@ p {
 .Popup
 {
     text-align:center;
-    position: absolute;
+    position: fixed;
     top: 10%;
     left: 10%;
     z-index:50;
@@ -85,7 +85,7 @@ p {
 .PopupBig
 {
     text-align:center;
-    position: absolute;
+    position: fixed;
     top: 10%;
     left: 10%;
     z-index:50;
@@ -94,7 +94,26 @@ p {
     border:1px solid black;
 }
 
-.PylonSelect
+.FloatLeft
 {
   float:left;
+}
+
+.Panel
+{
+    text-align:center;
+    width: 95%;
+    z-index:50;
+    background-color: #e9e6e6;
+    margin: 0 auto;
+    margin-bottom: 2%;
+    border:1px solid black;
+}
+
+.Logo
+{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
 }

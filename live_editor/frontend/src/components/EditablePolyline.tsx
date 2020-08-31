@@ -3,14 +3,17 @@ import { Polyline as CorePolyline, LeafletEvent, LatLng, Marker } from 'leaflet'
 import { Polyline, PolylineProps } from 'react-leaflet';
 import { omit } from 'lodash';
 
-type EditablePolylineCallbacks = {
+type EditablePolylineCallbacks = {  
   onPositionInserted?: (index: number, pos: LatLng) => void;
   onPositionModified?: (index: number, pos: LatLng) => void;
   onPositionRemoved?: (index: number) => void;
   onPositionClicked?: (index: number) => void;
 };
 
-export type EditablePolylineProps = EditablePolylineCallbacks & PolylineProps;
+export type EditablePolylineProps = EditablePolylineCallbacks & PolylineProps & {
+  // TODO obviously this flag should not be here, quick hack for mvp
+  editable: boolean;
+};
 
 class LeafletPolylineEventHandler {
   positions: LatLng[];
@@ -77,6 +80,12 @@ class LeafletPolylineEventHandler {
     }
   };
 
+  onVertedAdded = (event: any) => {
+    if (this.callbacks.onPositionInserted) {
+      this.callbacks.onPositionInserted(event.indexPath[0], event.latlng);
+    }
+  };
+
   private findChangedPositionIndex = (positions: LatLng[], oldPositions: LatLng[]): number => {
     const isModified = (pos: LatLng) => oldPositions.some(oldPos => pos.equals(oldPos)) === false;
 
@@ -94,7 +103,7 @@ class LeafletPolylineEventHandler {
 }
 
 export function EditablePolyline(props: EditablePolylineProps) {
-  const { onPositionInserted, onPositionModified, onPositionRemoved, onPositionClicked } = props;
+  const { editable, onPositionInserted, onPositionModified, onPositionRemoved, onPositionClicked } = props;
   const positions = props.positions as LatLng[];
 
   // Note: There is a bug(?) in Polyline it will not update the markers on change,
@@ -123,15 +132,22 @@ export function EditablePolyline(props: EditablePolylineProps) {
     );
 
     line.pm.enable({
-      allowSelfIntersections: true
+      allowSelfIntersections: true,
+      preventMarkerRemoval: !editable
     });
 
-    line.pm._markers[0].dragging.disable();
+    if (editable) {
+      line.pm._markers[0].dragging.disable();
+    } else {
+      line.pm.disable();
+    }
+
     line.pm._markers.forEach(m => m.on('click', polyLineEventHandler.onClick));
 
     // https://github.com/geoman-io/leaflet-geoman
     line.on('pm:edit', polyLineEventHandler.onEdit);
     line.on('pm:markerdragend', polyLineEventHandler.onMarkerDragEnd);
+    line.on('pm:vertexadded', polyLineEventHandler.onVertedAdded);
   };
 
   // Only redraw when positions change
@@ -147,6 +163,6 @@ export function EditablePolyline(props: EditablePolylineProps) {
   if (requestRedraw) {
     return <div></div>;
   } else {
-    return <Polyline {...omit(props, 'onadd')} onadd={onPolylineAdded} />;
+    return <Polyline {...omit(props, 'onadd', 'editable')} onadd={onPolylineAdded} />;
   }
 }

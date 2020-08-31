@@ -44,6 +44,10 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
     setAction(v.value);
   };
 
+  const closeOnClick = () => {
+    appState.selectWaypoint(undefined);
+  };
+
   return (
     <div className="Popup">
       <p>Group name: {group.name}</p>
@@ -86,6 +90,7 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
       </p>
       <p>
         <button onClick={saveWaypointOnClick}>Save waypoint</button>
+        <button onClick={closeOnClick}>Close</button>
       </p>
     </div>
   );

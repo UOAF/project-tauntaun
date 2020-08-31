@@ -46,6 +46,7 @@ export type Unit = {
   name: string;
   type: string;
   position: Point;
+  skill: string;
 };
 
 export type Group = {
@@ -53,6 +54,7 @@ export type Group = {
   name: string;
   units: Array<Unit | FlyingUnit>;
   points: Array<StaticPoint>;
+  task: string;
 };
 
 export type Country = {

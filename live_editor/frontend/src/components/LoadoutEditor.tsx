@@ -119,13 +119,14 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
   const onSaveClicked = () => {
     console.log('Send new loadout.');
     appState.selectUnit(undefined);
+    appState.setLoadoutEditorVisibility(false);
     gameService.sendUnitLoadoutUpdate(unit, pylons, chaff, flare, fuel, gun);
   };
 
   const renderPylonSelect = (pylonOption: any) => {
     const pylonNumber = pylonOption.pylonNumber as number;
     return (
-    <div className="PylonSelect" key={pylonNumber}>
+    <div className="FloatLeft" key={pylonNumber}>
       <InputLabel id={"pylon-select-label-" + pylonNumber}>{pylonNumber}</InputLabel>
       <Select
         labelId={"pylon-select-label-" + pylonNumber}
@@ -135,7 +136,11 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
             {pylonOption.options.map((v: SelectOptionType) => (<MenuItem value={v.value}>{v.label}</MenuItem>))}
       </Select>
     </div>);   
-  }
+  };
+
+  const closeOnClick = () => {
+    appState.setLoadoutEditorVisibility(false);
+  };
 
   if (unitData) {
     return (
@@ -181,9 +186,10 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
           valueLabelDisplay="auto"
           onChangeCommitted={onFuelChange}
         />
-        {pylonOptions.map(pylonOption => renderPylonSelect(pylonOption))}        
+        {pylonOptions.map(pylonOption => renderPylonSelect(pylonOption))}
         <p>
           <button onClick={onSaveClicked}>Save loadout</button>
+          <button onClick={closeOnClick}>Close</button>
         </p>
       </div>
     );

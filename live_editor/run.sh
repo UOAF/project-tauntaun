@@ -1,7 +1,11 @@
 #!/bin/bash
-# Should be run under project root: project_tauntaun/
+
+if [ $(basename "$PWD") != "project-tauntaun" ]
+then
+  echo "Must be run from project_tauntaun directory!"
+  exit
+fi
+
 source env/bin/activate
 python live_editor/backend/camp.py &
-cd live_editor/frontend
-yarn start
-
+pushd live_editor/frontend && yarn start && popd

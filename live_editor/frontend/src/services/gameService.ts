@@ -5,11 +5,14 @@ import { Dictionary, Point, Mission, Group, emptyMission, StaticPoint, Unit } fr
 import { LatLng } from 'leaflet';
 
 import * as DcsStaticRawJson from '../data/dcs_static.json';
+import { Sessions, SessionData } from '../models/sessionData';
 
 export type ForceColor = 'blue' | 'red' | 'neutral';
 export type GetType = 'ships' | 'plane_groups';
 
 export type MissionUpdateListener = (updatedMission: Mission) => void;
+export type SessionsUpdateListener = (updatedSessions: Sessions) => void;
+export type SessionIdUpdateListener = (id: number) => void;
 
 export interface GameService {
   openSocket(): Promise<void>;
@@ -28,15 +31,25 @@ export interface GameService {
     fuel: number,
     gun: number
   ): void;
+  sendSessionDataUpdate(sessionId: number, sessionData: SessionData) : void;
 
   getMission(): Promise<Mission>;
+  getSessions(): Promise<Sessions>;
 
   registerForMissionUpdates(listener: MissionUpdateListener): string;
   unregisterMissionUpdateListener(id: string): void;
+
+  registerForSessionsUpdate(listener: SessionsUpdateListener): string;
+  unregisterSessionsUpdateListener(id: string): void;
+
+  registerForSessionIdUpdate(listener: SessionIdUpdateListener): string;
+  unregisterSessionIdUpdateListener(id: string): void;
 }
 
 let socket: WebSocket | null = null;
-const updateListeners: Dictionary<MissionUpdateListener> = {};
+const missionUpdateListeners: Dictionary<MissionUpdateListener> = {};
+const sessionsUpdateListeners: Dictionary<SessionsUpdateListener> = {};
+const SessionIdUpdateListeners: Dictionary<SessionIdUpdateListener> = {};
 
 function sendMessage(name: string, value: any) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
@@ -58,13 +71,26 @@ async function getMission(): Promise<Mission> {
   }
 }
 
+async function getSessions(): Promise<Sessions> {
+  try {
+    const response = await fetch('/game/sessions');
+    const sessions = (await response.json()) as Sessions;
+    return sessions;
+  } catch (error) {
+    console.error(`Couldn't fetch sessions`, error);
+    return {};
+  }
+}
+
 function receiveUpdateMessage(event: any) {
   const message = JSON.parse(event.data);
-  if (message.key !== 'mission_updated') {
-    return;
+  if (message.key === 'mission_updated') {
+    Object.keys(missionUpdateListeners).forEach(key => missionUpdateListeners[key](message.value));
+  } else if (message.key === 'registration_data') {
+    Object.keys(SessionIdUpdateListeners).forEach(key => SessionIdUpdateListeners[key](message.value));
+  } else if (message.key === 'sessions_updated') {
+    Object.keys(sessionsUpdateListeners).forEach(key => sessionsUpdateListeners[key](message.value));
   }
-
-  Object.keys(updateListeners).forEach(key => updateListeners[key](message.value));
 }
 
 async function openSocket(): Promise<void> {
@@ -81,6 +107,7 @@ async function openSocket(): Promise<void> {
     }
   });
 }
+
 
 function sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void {
   sendMessage('group_route_insert_at', {
@@ -145,15 +172,46 @@ function sendUnitLoadoutUpdate(
   });
 }
 
+function sendSessionDataUpdate(sessionId: number, sessionData: SessionData) : void {
+  sendMessage('session_data_update', {
+    id: sessionId,
+    session_data: sessionData
+  });
+}
+
 function registerForMissionUpdates(listener: MissionUpdateListener): string {
   const id = uuidv4();
-  updateListeners[id] = listener;
+  missionUpdateListeners[id] = listener;
   return id;
 }
 
 function unregisterMissionUpdateListener(id: string): void {
-  if (updateListeners[id]) {
-    delete updateListeners[id];
+  if (missionUpdateListeners[id]) {
+    delete missionUpdateListeners[id];
+  }
+}
+
+function registerForSessionsUpdate(listener: SessionsUpdateListener): string {
+  const id = uuidv4();
+  sessionsUpdateListeners[id] = listener;
+  return id;
+}
+
+function unregisterSessionsUpdateListener(id: string): void {
+  if (sessionsUpdateListeners[id]) {
+    delete sessionsUpdateListeners[id];
+  }
+}
+
+function registerForSessionIdUpdate(listener: SessionIdUpdateListener): string {
+  const id = uuidv4();
+  SessionIdUpdateListeners[id] = listener;
+  return id;
+}
+
+function unregisterSessionIdUpdateListener(id: string): void {
+  if (SessionIdUpdateListeners[id]) {
+    delete SessionIdUpdateListeners[id];
   }
 }
 
@@ -163,10 +221,16 @@ export const gameService: GameService = {
   sendRouteRemove,
   sendRouteModify,
   sendUnitLoadoutUpdate,
+  sendSessionDataUpdate,
   sendSaveMission,
   sendLoadMission,
   sendAddFlight,
   getMission,
+  getSessions,
   registerForMissionUpdates,
-  unregisterMissionUpdateListener
+  unregisterMissionUpdateListener,
+  registerForSessionsUpdate,
+  unregisterSessionsUpdateListener,
+  registerForSessionIdUpdate,
+  unregisterSessionIdUpdateListener
 };
