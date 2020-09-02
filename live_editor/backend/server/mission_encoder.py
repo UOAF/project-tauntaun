@@ -46,13 +46,19 @@ class MissionEncoder(json.JSONEncoder):
         }
 
     def group(self, obj):
-        return {
+        result = {
             'id': obj.id,
             'name': self.default(obj.name),
             'units': self.default(obj.units),
-            'points': self.default(obj.points),
-            'task': obj.task
+            'points': self.default(obj.points)
         }
+
+        if hasattr(obj, 'task'):
+            result['task'] = obj.task
+        else:
+            result['task'] = ''
+
+        return result
 
     def flying_unit(self, obj):
         result = {

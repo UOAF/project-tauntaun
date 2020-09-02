@@ -3,9 +3,9 @@ __pycache__/
 .idea/
 client/
 build/
-Missions
 env
 mission.lua
 dcs_static.json
+tauntaun.miz
 
 node_modules

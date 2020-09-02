@@ -225,92 +225,12 @@ class Campaign():
         self.mission.save(mizname)
         print("Mission saved to", mizname)
 
-    def load_mission(self):
-        mizname = self._get_miz_path()
+    def load_mission(self, filename=None):
+        mizname = filename
+        if filename is None:
+            mizname = self._get_miz_path()
         self.mission.load_file(mizname)
         print("Mission loaded from", mizname)
-
-def create_mission(campaign):
-    m = dcs.Mission(terrain.Caucasus())
-    # setup airports
-    for name, airport in campaign.terrain.airports.items():
-        coal_name = airport.coalition
-        assert(m.terrain.airports[name].set_coalition(coal_name))
-
-    usa = m.country("USA")
-    russia = m.country("Russia")
-    sochi = m.terrain.sochi_adler()
-    sochi.set_red()
-    ship_pos = sochi.position - dcs.Point(50000, 50000)
-    cvbg = m.ship_group(
-        country=usa,
-        name="CVN 74 Stennis",
-        _type=ships.CVN_74_John_C__Stennis,
-        position=ship_pos)
-
-    tasks = cvbg.points[0].tasks
-    tasks.append(ActivateICLSCommand(unit_id=cvbg.id, channel=5))
-    tasks.append(ActivateBeaconCommand(unit_id=cvbg.id, channel=69,
-                                       callsign="STN", aa=False))
-    cvbg.add_waypoint(ship_pos + dcs.Point(0, -100*1000))
-    cvbg.add_waypoint(ship_pos + dcs.Point(-30*1000, -100*1000))
-    cvbg.add_waypoint(ship_pos + dcs.Point(-30*1000, 0))
-    # cvbg.add_waypoint(ship_pos)
-    # cvbg.add_waypoint(ship_pos + dcs.Point(0, -100*1000))
-    # cvbg.add_waypoint(ship_pos + dcs.Point(-30*1000, -100*1000))
-    # cvbg.add_waypoint(ship_pos + dcs.Point(-30*1000, 0))
-    # cvbg.add_waypoint(ship_pos)
-
-    name = namegen.next_unit_name(usa)
-    fg = m.flight_group_from_unit(country=usa,
-                                  name=name,
-                                  aircraft_type=planes.FA_18C_hornet,
-                                  maintask=None,
-                                  start_type=StartType.Warm,
-                                  pad_group=cvbg,
-                                  group_size=4)
-
-    fg.set_skill(Skill.Client)
-    fg.load_pylon(planes.FA_18C_hornet.Pylon1.AN_ASQ_T50_TCTS_Pod, 1)
-    fg.set_client()
-    p = fg.add_waypoint(ship_pos + dcs.Point(1000, 3000), feet_to_meters(8000))
-    pos = point_along_route(p.position, sochi.position, 50*2000)
-    p = fg.add_waypoint(pos, feet_to_meters(26000))
-    fg.add_waypoint(point_along_route(
-        p.position, sochi.position, -1000), feet_to_meters(26000))
-    fg.land_at(cvbg)
-
-    fg_2 = m.flight_group_from_unit(country=usa,
-                                  name=namegen.next_unit_name(usa),
-                                  aircraft_type=planes.FA_18C_hornet,
-                                  maintask=None,
-                                  start_type=StartType.Warm,
-                                  pad_group=cvbg,
-                                  group_size=4)
-
-    fg_2.set_skill(Skill.Client)
-    fg_2.load_pylon(planes.FA_18C_hornet.Pylon1.AN_ASQ_T50_TCTS_Pod, 1)
-    fg_2.set_client()
-    fg_2.add_waypoint(ship_pos + dcs.Point(30000, 30000), feet_to_meters(8000))
-
-    offset = dcs.Point(random()*1000.0, random()*1000.0)
-    orientation = random()*360.
-    sa2_pos = sochi.position + offset
-    make_sa2_site(m, russia, sa2_pos, orientation)
-
-    awacs = m.awacs_flight(
-        usa,
-        "AWACS",
-        planes.E_3A,
-        None,
-        dcs.Point(sochi.position.x + 20000, sochi.position.y + 80000),
-        race_distance=80 * 1000, heading=90,
-        speed=knots_to_kph(500),
-        altitude=feet_to_meters(30000))
-    tasks = awacs.points[0].tasks
-    tasks.append(EPLRS())
-    campaign.mission = m
-    return m
 
 def save_mission(m, name='pytest'):
     dcs_dir = '.'
@@ -334,9 +254,10 @@ def save_mission(m, name='pytest'):
 
 def main():
     c = Campaign()
+    c.mission = dcs.Mission(terrain.Caucasus())
     session_manager = SessionManager()
 
-    create_mission(c)
+    c.load_mission('Missions/default.miz')
 
     server.run(c, session_manager, 8080)
 
