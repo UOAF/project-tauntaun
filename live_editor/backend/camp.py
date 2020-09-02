@@ -27,22 +27,21 @@ from sessions import SessionManager
 def is_posix():
     return os.name == 'posix'
 
+def _convert_point(terrain, p):
+    lat = float(p['lat'])
+    lon = float(p['lon'])
+    x, z = lat_lon_to_xz(terrain.name, lat, lon)
+    return mapping.Point(x, z)
+
 class GameService:
     def __init__(self, campaign):
         self.campaign: Campaign = campaign                
         self.group_route_request_handler = GameService.GroupRouteRequestHandler(campaign)
 
-    @staticmethod
-    def _convert_point(p):
-        lat = float(p['lat'])
-        lon = float(p['lon'])
-        x, z = lat_lon_to_xz(lat, lon)
-        return mapping.Point(x, z)
-
     def add_flight(self, location, airport, plane, number_of_planes):
         print("add_flight", location, airport, plane, number_of_planes)
 
-        location = self._convert_point(location)
+        location = _convert_point(self.campaign.mission.terrain, location)
         country = self.campaign.get_countries('blue')["USA"]
 
         airport = self.campaign.terrain.airport_by_id(airport)
@@ -110,7 +109,7 @@ class GameService:
             if group is None:
                 raise ValueError(f"no group found with id {group_id}")
 
-            converted_wp = GameService._convert_point(wp)
+            converted_wp = _convert_point(self.campaign.mission.terrain, wp)
             wp_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_wp)]
 
             if wp_index:
@@ -124,11 +123,11 @@ class GameService:
             if group is None:
                 raise ValueError(f"no group found with id {group_id}")
 
-            converted_at_wp = GameService._convert_point(at_wp)
+            converted_at_wp = _convert_point(self.campaign.mission.terrain, at_wp)
             at_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_at_wp)]
 
             if at_index:
-                converted_new_wp = GameService._convert_point(new_wp)
+                converted_new_wp = _convert_point(self.campaign.mission.terrain, new_wp)
                 print("New waypoint added at position", at_index)
                 at_index = at_index[0]
                 if issubclass(group.__class__, dcs.unitgroup.FlyingGroup):
@@ -146,7 +145,7 @@ class GameService:
             if group is None:
                 raise ValueError(f"no group found with id {group_id}")
 
-            converted_old_wp = GameService._convert_point(old_wp)
+            converted_old_wp = _convert_point(self.campaign.mission.terrain, old_wp)
             old_wp_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_old_wp)]
 
             if old_wp_index:
@@ -155,7 +154,7 @@ class GameService:
                 wp.alt = new_wp['alt']
                 wp.type = new_wp['type']
                 #wp.name.set(new_wp['name']) # TODO Missing translation, ignore name for now
-                wp.position = GameService._convert_point(new_wp['position'])
+                wp.position = _convert_point(self.campaign.mission.terrain, new_wp['position'])
                 wp.speed = new_wp['speed']
                 wp.action = PointAction[new_wp['action']]
             else:
@@ -205,7 +204,7 @@ class Campaign():
         for point, new_pos in zip(group.points, points):
             lat = float(new_pos['lat'])
             lon = float(new_pos['lon'])
-            x, z = lat_lon_to_xz(lat, lon)
+            x, z = lat_lon_to_xz(self.terrain.name, lat, lon)
             point.position = mapping.Point(x, z)
 
     def _get_miz_path(self, name='tauntaun'):

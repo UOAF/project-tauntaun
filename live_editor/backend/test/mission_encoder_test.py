@@ -9,7 +9,7 @@ class MissionEncoderTestCase(unittest.TestCase):
      def test_to_json_no_exception(self):
         mission = create_mission()
 
-        json.dumps(mission, convert_coords=True, add_sidc=True, cls=MissionEncoder)
+        json.dumps(mission, terrain=mission.terrain,  convert_coords=True, add_sidc=True, cls=MissionEncoder)
         self.assertEqual(True, True)
 
 if __name__ == '__main__':

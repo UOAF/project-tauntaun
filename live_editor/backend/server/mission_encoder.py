@@ -1,3 +1,4 @@
+import inspect
 import json
 
 from dcs import Mission, Point
@@ -14,7 +15,8 @@ from dcs.unitgroup import Group
 from coord import xz_to_lat_lon
 
 class MissionEncoder(json.JSONEncoder):
-    def __init__(self, convert_coords=False, add_sidc=False, *args, **kws):
+    def __init__(self, terrain, convert_coords=False, add_sidc=False, *args, **kws):
+        self.dcs_terrain = terrain
         self.convert_coords = convert_coords
         self.add_sidc = add_sidc
         super().__init__(*args, **kws)
@@ -90,7 +92,7 @@ class MissionEncoder(json.JSONEncoder):
 
     def point(self, obj):
         if self.convert_coords:
-            lat, lon = xz_to_lat_lon(obj.x, obj.y)
+            lat, lon = xz_to_lat_lon(self.dcs_terrain.name, obj.x, obj.y)
             return {'lat': lat, 'lon': lon}
 
         return {'x': obj.x, 'y': obj.y}
@@ -109,7 +111,9 @@ class MissionEncoder(json.JSONEncoder):
     def terrain(self, obj):
         return {
             'name': obj.name,
-            'airports': self.default(obj.airports)
+            'airports': self.default(obj.airports),
+            'center': {'lat': obj.center['lat'], 'lon': obj.center['long']},
+            'map_view_default': self.default(obj.map_view_default.position)
         }
 
     def airport(self, obj):
@@ -168,7 +172,7 @@ class MissionEncoder(json.JSONEncoder):
         if isinstance(obj, Airport):
             return self.airport(obj)
 
-        if issubclass(obj, PlaneType):
+        if inspect.isclass(obj) and issubclass(obj, PlaneType):
             return self.plane_type(obj)
 
         return json.JSONEncoder.default(self, obj)

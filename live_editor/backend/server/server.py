@@ -41,7 +41,7 @@ def create_app(campaign, session_manager):
 
     @app.route('/game/mission')
     async def render_mission():
-        return json.dumps(campaign.mission, convert_coords=True, add_sidc=True, cls=MissionEncoder)
+        return json.dumps(campaign.mission, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True, cls=MissionEncoder)
 
     @app.route('/game/sessions')
     async def render_sessions():
@@ -91,7 +91,7 @@ def create_app(campaign, session_manager):
 
             async def broadcast_update():
                 broadcast_data = {'key': 'mission_updated', 'value': campaign.mission}
-                await broadcast(json.dumps(broadcast_data, convert_coords=True, add_sidc=True, cls=MissionEncoder))
+                await broadcast(json.dumps(broadcast_data, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True, cls=MissionEncoder))
 
             async def broadcast_session_update():
                 broadcast_data = {'key': 'sessions_updated', 'value': session_manager.sessions}

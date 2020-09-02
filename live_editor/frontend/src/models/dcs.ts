@@ -14,6 +14,8 @@ export type Airport = {
 export type Terrain = {
   name: string;
   airports: Dictionary<Airport>;
+  center: Point;
+  map_view_default: Point;
 };
 
 export type Point = {
@@ -80,6 +82,11 @@ export type Mission = {
 };
 
 export const emptyMission: Mission = {
-  terrain: { name: '', airports: {} },
+  terrain: {
+    name: '',
+    airports: {},
+    center: { lat: 43, lon: 41 },
+    map_view_default: { lat: 43, lon: 41 }
+  },
   coalition: {}
 };
