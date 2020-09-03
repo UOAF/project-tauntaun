@@ -9,7 +9,7 @@
 --   dofile(dcsSr.writedir()..[[Scripts\gen_grid.lua]])
 -- end
 
-local map_name = 'Caucasus'
+local map_name = 'Syria'
 local use_offset = false
 local resolution = 100
 
@@ -29,6 +29,21 @@ elseif map_name == 'PersianGulf' then
   left = -392081.937500
   bottom = 197357.906250
   right = 333129.125000
+elseif map_name == 'Syria' then
+  top = -320000
+  left = -579986
+  bottom = 300000
+  right = 579998
+elseif map_name == 'Nevada' then
+  top = -166934.953125
+  left =  -329334.875000
+  bottom = -497177.656250
+  right = 209836.890625
+elseif map_name == 'Normandy' then
+  top = 74967
+  left = -114995
+  bottom = -129982
+  right = 129991
 end
 
 local x_step = (bottom - top) / resolution

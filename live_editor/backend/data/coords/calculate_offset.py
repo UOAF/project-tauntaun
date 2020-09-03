@@ -84,7 +84,7 @@ def calc_offset_map(name):
 
     func = get_f_map(name, data)
 
-    initial = [0, 0]
+    initial = [_terrain_data[name]['x'], _terrain_data[name]['z']]
     res = fmin(func, np.array(initial), ftol=1)
 
     print('\nOffset =', res)

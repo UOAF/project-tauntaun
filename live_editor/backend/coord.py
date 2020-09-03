@@ -426,5 +426,23 @@ _terrain_data = {
         'z': -75755.99875273,
         'zone': 40,
         'southhemi': False
+    },
+    'Nevada': {
+        'x': 4410027.78012357,
+        'z': 193996.80821451,
+        'zone': 11,
+        'southhemi': False
+    },
+    'Normandy': {
+        'x': 5484812.64515257,
+        'z': 195525.99448141,
+        'zone': 30,
+        'southhemi': False
+    },
+    'Syria': {
+        'x': 3879865.72585971,
+        'z': -282800.99275397,
+        'zone': 37,
+        'southhemi': False
     }
 }
