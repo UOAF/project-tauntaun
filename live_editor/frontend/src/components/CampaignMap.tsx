@@ -24,8 +24,8 @@ export function CampaignMap(props: CampaignMapProps) {
       <Map center={pick(props, ['lat', 'lng'])} zoom={props.zoom} onclick={props.onMapClick}>
         <TileLayer
           url={props.tileLayerUrl}
-          id="bobmoretti.3zp0vycr"
-          maxZoom={13}
+          id="mapbox/streets-v11"
+          maxZoom={15}
           attribution={
             'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
             '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +

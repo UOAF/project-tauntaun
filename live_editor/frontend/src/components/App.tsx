@@ -33,7 +33,7 @@ export function App() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { masterMode } = appState;
-
+  
   const masterModeName = masterMode?.name;
   const addFlightMode = masterMode as AddFlightMode;
   const editGroupMode = masterMode as EditGroupMode;
@@ -44,6 +44,7 @@ export function App() {
   const group = selectedGroupId ? findGroupById(appState.mission, selectedGroupId) : undefined;
   const unit = group && selectedUnitId ? group.units.find(u => u.id === selectedUnitId) : undefined;
   const sessionData = appState.sessions[appState.sessionId];
+  const terrain = appState.mission.terrain;
 
   const mapOnClick = (e: LeafletMouseEvent) => {
     if (masterModeName === 'AddFlightMode') {
@@ -89,10 +90,10 @@ export function App() {
         <MenuBar />
         <ModeContext.Provider value={ {groupMarkerOnClick: groupMarkerOnClick, selectedGroupId: masterModeName === 'EditGroupMode' ? editGroupMode.selectedGroupId : undefined} }>
           <CampaignMap
-            lat={43}
-            lng={41}
+            lat={terrain.map_view_default.lat}
+            lng={terrain.map_view_default.lon}
             zoom={9}
-            tileLayerUrl="https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoiYm9ibW9yZXR0aSIsImEiOiJjazI4amV6eWswaWF2M2JtYjh3dmowdnQ1In0.XutSpPpaRm9LZudTNgVZwQ"
+            tileLayerUrl="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2hpbnBvayIsImEiOiJjamxnYmtubDIxNXkxM3FtaWR2dThvZTU3In0.EQeuA12Ganj2LkQ8VRn3lA"
             mission={appState.mission}
             onMapClick={mapOnClick}
           />
