@@ -44,7 +44,7 @@ class GameService:
         location = _convert_point(self.campaign.mission.terrain, location)
         country = self.campaign.get_countries('blue')["USA"]
 
-        airport = self.campaign.terrain.airport_by_id(airport)
+        airport = self.campaign.mission.terrain.airport_by_id(airport)
         if not airport:
             print("add_flight airport not found")
             return
@@ -161,8 +161,7 @@ class GameService:
                 print("Failed to modify waypoint")
 
 class Campaign():
-    def __init__(self, terrain=dcs.terrain.Caucasus):
-        self.terrain = terrain()
+    def __init__(self):
         self.mission: dcs.Mission = None
         self.game_service = GameService(self)
 
@@ -177,7 +176,7 @@ class Campaign():
         return itertools.chain(*(group.units for group in self.get_plane_groups(side)))
 
     def get_airport(self, name):
-        return self.terrain.airport[name]
+        return self.mission.terrain.airport[name]
 
     def get_ship_groups(self, side):
         countries = self.get_countries(side)
@@ -204,7 +203,7 @@ class Campaign():
         for point, new_pos in zip(group.points, points):
             lat = float(new_pos['lat'])
             lon = float(new_pos['lon'])
-            x, z = lat_lon_to_xz(self.terrain.name, lat, lon)
+            x, z = lat_lon_to_xz(self.mission.terrain.name, lat, lon)
             point.position = mapping.Point(x, z)
 
     def _get_miz_path(self, name='tauntaun'):
