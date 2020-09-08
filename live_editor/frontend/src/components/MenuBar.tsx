@@ -59,6 +59,10 @@ export function MenuBar() {
     appState.setShowAIFlightPlans(event.target.checked);
   };
 
+  const onShowAllGroupsChange = (event: any) => {
+    appState.setShowAllGroups(event.target.checked);
+  };
+
   const renderAdminBar = () => {
     return (
       <div>
@@ -67,6 +71,12 @@ export function MenuBar() {
       <button onClick={saveOnClick}>Save mission</button>
       <button onClick={addFlightOnClick}>Add flight</button>
       <button onClick={editGroupOnClick}>Edit group</button>
+      <FormControlLabel
+        value="start"
+        control={<Checkbox checked={appState.showAllGroups} color="primary" onChange={onShowAllGroupsChange} />}
+        label="Show all groups"
+        labelPlacement="end"
+      />      
     </div>
     );
   };

@@ -38,14 +38,16 @@ export function GroupLayer(props: GroupLayerProps) {
     return group !== undefined && sessionData.selected_unit_id === group.units[0].id;
   };
 
-  const visibleGroups = groups.filter(g => coalition !== 'red' || g.name.substr(0, 4) === 'vis_');
+  const visibleGroups = groups.filter(
+    g => coalition !== 'red' || g.name.substr(0, 4) === 'vis_' || appState.showAllGroups
+  );
 
   const renderGroupRoute = (group: Group) => {
     const color = colorPalette[group.id % colorPalette.length];
     const isSelected = group.id === selectedGroupId;
     const isRouteEditable = selectedGroupId !== undefined && (appState.adminMode || (isLeadOfFlight() && isSelected));
 
-    legendContext.legends.push({color: color, text: group.name});
+    legendContext.legends.push({ color: color, text: group.name });
 
     return (
       <ColorContext.Provider
