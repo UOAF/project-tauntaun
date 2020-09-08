@@ -20,6 +20,17 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
   const [name, setName] = useState(point.name);
   const [speed, setSpeed] = useState(point.speed);
   const [action, setAction] = useState(point.action);
+  const [currentPointIndex, setCurrentPointIndex] = useState(pointIndex);
+
+  // TODO hack
+  if (pointIndex !== currentPointIndex) {
+    setAlt(point.alt);
+    setType(point.type);
+    setName(point.name);
+    setSpeed(point.speed);
+    setAction(point.action);
+    setCurrentPointIndex(pointIndex);
+  }
 
   const actionsOptions = Object.keys(PointAction).map((key, value) => {
     return { value: key, label: Object.values(PointAction)[value] };
@@ -57,7 +68,7 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
         <input
           type="text"
           pattern="[0-100000]"
-          defaultValue={alt}
+          value={alt}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setAlt(+event.target.value);
           }}
@@ -68,7 +79,7 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
         Name:{' '}
         <input
           type="text"
-          defaultValue={name}
+          value={name}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setName(event.target.value);
           }}
@@ -79,14 +90,14 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
         <input
           type="text"
           pattern="[0-2]{0,1}[0-9]{1,3}[\.,][0-9]+"
-          defaultValue={speed}
+          value={speed}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
             setSpeed(+event.target.value);
           }}
         />
       </p>
       <p>
-        Action: <Select options={actionsOptions} onChange={onActionChange} defaultInputValue={PointAction[action]} />
+        Action: <Select options={actionsOptions} onChange={onActionChange} inputValue={PointAction[action]} />
       </p>
       <p>
         <button onClick={saveWaypointOnClick}>Save waypoint</button>
