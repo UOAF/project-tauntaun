@@ -26,7 +26,8 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
   const flyingUnit = unit as FlyingUnit;
 
   const chargeLeft = () => {
-    return unitData.charge_total - chaff / unitData.chaff_charge_size - flare / unitData.flare_charge_size;
+    const left = unitData.charge_total - chaff * unitData.chaff_charge_size - flare * unitData.flare_charge_size;
+    return left < 0 ? 0 : left;
   };
 
   const getWeaponByClsid = (clsid: string) => {
@@ -96,17 +97,17 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
   // eslint-disable-next-line @typescript-eslint/ban-types
   const onChaffChange = (event: object, value: number | number[]) => {
     const maxFreeCharges = chargeLeft();
-    let newCharges = ((value as number) - chaff) / unitData.chaff_charge_size;
+    let newCharges = ((value as number) - chaff) * unitData.chaff_charge_size;
     if (newCharges > maxFreeCharges) newCharges = maxFreeCharges;
-    setChaff(chaff + newCharges * unitData.chaff_charge_size);
+    setChaff(chaff + Math.floor(newCharges / unitData.chaff_charge_size));
   };
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   const onFlareChange = (event: object, value: number | number[]) => {
     const maxFreeCharges = chargeLeft();
-    let newCharges = ((value as number) - flare) / unitData.flare_charge_size;
+    let newCharges = ((value as number) - flare) * unitData.flare_charge_size;
     if (newCharges > maxFreeCharges) newCharges = maxFreeCharges;
-    setFlare(flare + newCharges * unitData.flare_charge_size);
+    setFlare(flare + Math.floor(newCharges / unitData.flare_charge_size));
   };
 
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -167,9 +168,8 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
         <Slider
           defaultValue={chaff}
           value={chaff}
-          step={unitData.chaff_charge_size}
           min={0}
-          max={unitData.charge_total * unitData.chaff_charge_size}
+          max={unitData.charge_total / unitData.chaff_charge_size}
           valueLabelDisplay="auto"
           onChange={onChaffChange}
           onChangeCommitted={onChaffChange}
@@ -178,9 +178,8 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
         <Slider
           defaultValue={flare}
           value={flare}
-          step={unitData.flare_charge_size}
           min={0}
-          max={unitData.charge_total * unitData.flare_charge_size}
+          max={unitData.charge_total / unitData.flare_charge_size}
           valueLabelDisplay="auto"
           onChange={onFlareChange}
           onChangeCommitted={onFlareChange}
