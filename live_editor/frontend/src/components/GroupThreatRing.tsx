@@ -35,7 +35,7 @@ export function GroupThreatRing(props: GroupThreatRingProps) {
         color="red"
         fill={false}
         fillOpacity={0.01}
-        opacity={0.05}
+        opacity={0.25}
       />
     );
   };

@@ -27,8 +27,8 @@ copy dcs_static.json to live_editor/frontend/src/data/dcs_static.json
 ```
 **Run server**
 ```bash
-cd live_editor/backend
-py camp.py
+cd project_tauntaun
+py (insert path to camp.py in live_editor/backend)
 ```
 **Install yarn (one time)**  
 ```bash
