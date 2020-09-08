@@ -47,6 +47,18 @@ export function MenuBar() {
     appState.setAdminMode(event.target.checked);
   };
 
+  const onShowOtherFlightPlansChange = (event: any) => {
+    appState.setShowOtherFlightPlans(event.target.checked);
+  };
+
+  const onShowOtherWpNamesChange = (event: any) => {
+    appState.setShowOtherWpNames(event.target.checked);
+  };
+
+  const onShowAIFlightPlansChange = (event: any) => {
+    appState.setShowAIFlightPlans(event.target.checked);
+  };
+
   const renderAdminBar = () => {
     return (
       <div>
@@ -73,6 +85,24 @@ export function MenuBar() {
         value="start"
         control={<Checkbox checked={appState.showThreatRings} color="primary" onChange={onShowThreatRingsChange} />}
         label="Show threat rings"
+        labelPlacement="end"
+      />      
+      <FormControlLabel
+        value="start"
+        control={<Checkbox checked={appState.showOtherFlightPlans} color="primary" onChange={onShowOtherFlightPlansChange} />}
+        label="Show other flightplans"
+        labelPlacement="end"
+      />
+      <FormControlLabel
+        value="start"
+        control={<Checkbox checked={appState.showOtherWpNames} color="primary" onChange={onShowOtherWpNamesChange} />}
+        label="Show other wp names"
+        labelPlacement="end"
+      />
+      <FormControlLabel
+        value="start"
+        control={<Checkbox checked={appState.showAIFlightPlans} color="primary" onChange={onShowAIFlightPlansChange} />}
+        label="Show AI flightplans"
         labelPlacement="end"
       />
       <FormControlLabel

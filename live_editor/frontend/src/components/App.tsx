@@ -11,6 +11,7 @@ import { findGroupById } from '../models/dcs_util';
 import { LoadoutEditor } from './LoadoutEditor';
 import { BriefingForm } from './BriefingForm';
 import { Sessions } from '../models/sessionData';
+import { Legend } from './Legend';
 
 type ModeContextType = {
   groupMarkerOnClick?: (group: Group, event: any) => void;
@@ -22,8 +23,21 @@ type SessionContextType = {
   sessions: Sessions;
 };
 
+type LegendType = {
+  color: string;
+  text: string;
+};
+
+type LegendContextType = {
+  legends: LegendType[];
+};
+
+const colorPalette = ['red', 'black', 'orange', 'blue', 'green', 'brown', 'cyan', 'magenta', 'white'];
+
 export const ModeContext = createContext({} as ModeContextType);
 export const SessionContext = createContext({} as SessionContextType);
+export const ColorPaletteContext = createContext(colorPalette);
+export const LegendContext = createContext({} as LegendContextType);
 
 export function App() {
   const appState = AppStateContainer.useContainer();
@@ -33,7 +47,7 @@ export function App() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const { masterMode } = appState;
-  
+
   const masterModeName = masterMode?.name;
   const addFlightMode = masterMode as AddFlightMode;
   const editGroupMode = masterMode as EditGroupMode;
@@ -81,24 +95,34 @@ export function App() {
 
   return (
     <div>
-      <img className="Logo" src='./logo.png' alt="Yes I'm serious." />      
-      <SessionContext.Provider value={ {sessionId: appState.sessionId, sessions: appState.sessions } }>
-        {sessionData && <BriefingForm />}
-        {masterModeName === 'AddFlightMode' && location && <AddFlightForm location={location} />}
-        {renderEditWaypointForm()}
-        {appState.loadoutEditorVisibility && unit && <LoadoutEditor unit={unit} />}
-        <MenuBar />
-        <ModeContext.Provider value={ {groupMarkerOnClick: groupMarkerOnClick, selectedGroupId: masterModeName === 'EditGroupMode' ? editGroupMode.selectedGroupId : undefined} }>
-          <CampaignMap
-            lat={terrain.map_view_default.lat}
-            lng={terrain.map_view_default.lon}
-            zoom={9}
-            tileLayerUrl="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2hpbnBvayIsImEiOiJjamxnYmtubDIxNXkxM3FtaWR2dThvZTU3In0.EQeuA12Ganj2LkQ8VRn3lA"
-            mission={appState.mission}
-            onMapClick={mapOnClick}
-          />
-        </ModeContext.Provider>
-      </SessionContext.Provider>
+      <img className="Logo" src="./logo.png" alt="Yes I'm serious." />
+      <LegendContext.Provider value={{ legends: [] }}>
+        <ColorPaletteContext.Provider value={colorPalette}>
+          <SessionContext.Provider value={{ sessionId: appState.sessionId, sessions: appState.sessions }}>            
+            {sessionData && <BriefingForm />}
+            {masterModeName === 'AddFlightMode' && location && <AddFlightForm location={location} />}
+            {renderEditWaypointForm()}
+            {appState.loadoutEditorVisibility && unit && <LoadoutEditor unit={unit} />}
+            <MenuBar />
+            <ModeContext.Provider
+              value={{
+                groupMarkerOnClick: groupMarkerOnClick,
+                selectedGroupId: masterModeName === 'EditGroupMode' ? editGroupMode.selectedGroupId : undefined
+              }}
+            >
+              <CampaignMap
+                lat={terrain.map_view_default.lat}
+                lng={terrain.map_view_default.lon}
+                zoom={9}
+                tileLayerUrl="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2hpbnBvayIsImEiOiJjamxnYmtubDIxNXkxM3FtaWR2dThvZTU3In0.EQeuA12Ganj2LkQ8VRn3lA"
+                mission={appState.mission}
+                onMapClick={mapOnClick}
+              />
+              <Legend />
+            </ModeContext.Provider>
+          </SessionContext.Provider>
+        </ColorPaletteContext.Provider>
+      </LegendContext.Provider>
     </div>
   );
 }

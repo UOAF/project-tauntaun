@@ -19,6 +19,9 @@ export interface AppState {
   sessions: Sessions;
   loadoutEditorVisibility: boolean;
   adminMode: boolean;
+  showOtherFlightPlans: boolean;
+  showOtherWpNames: boolean;
+  showAIFlightPlans: boolean;
 }
 
 const defaultState: AppState = {
@@ -30,7 +33,10 @@ const defaultState: AppState = {
   sessionId: -1,
   sessions: {},
   loadoutEditorVisibility: false,
-  adminMode: false
+  adminMode: false,
+  showOtherFlightPlans: true,
+  showOtherWpNames: false,
+  showAIFlightPlans: false
 };
 
 function useAppState(initialState = defaultState) {
@@ -296,6 +302,27 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
+  const setShowOtherFlightPlans = (showOtherFlightPlans: boolean) => {
+    setState(state => ({
+      ...state,
+      showOtherFlightPlans: showOtherFlightPlans
+    }));
+  };
+
+  const setShowOtherWpNames = (showOtherWpNames: boolean) => {
+    setState(state => ({
+      ...state,
+      showOtherWpNames: showOtherWpNames
+    }));
+  };
+
+  const setShowAIFlightPlans = (showAIFlightPlans: boolean) => {
+    setState(state => ({
+      ...state,
+      showAIFlightPlans: showAIFlightPlans
+    }));
+  };
+
   return {
     ...state,
     initialize,
@@ -309,7 +336,10 @@ function useAppState(initialState = defaultState) {
     setShowUnits,
     setShowThreatRings,
     setAdminMode,
-    setLoadoutEditorVisibility
+    setLoadoutEditorVisibility,
+    setShowOtherFlightPlans,
+    setShowOtherWpNames,
+    setShowAIFlightPlans
   };
 }
 

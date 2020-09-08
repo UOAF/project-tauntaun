@@ -11,6 +11,9 @@ def get_dcs_dir():
     if not os.path.exists(dcs_dir):
         dcs_dir = os.path.join(get_saved_games_dir(), "DCS")
 
+    if not os.path.exists(dcs_dir):
+        dcs_dir = os.path.join(get_saved_games_dir(), "DCS.openbeta_server")
+
         if not os.path.exists(dcs_dir):
             return ""
 
@@ -21,7 +24,7 @@ def knots_to_kph(knots):
     return knots * 1.8502
 
 def feet_to_meters(feet):
-    return feet*0.3048
+    return feet * 0.3048
 
 def point_along_route(p1, p2, distance):
     heading = p1.heading_between_point(p2)

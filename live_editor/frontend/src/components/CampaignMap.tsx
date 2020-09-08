@@ -31,7 +31,7 @@ export function CampaignMap(props: CampaignMapProps) {
             '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
             'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
           }
-        />
+        />        
         <AirportLayer airports={mission.terrain.airports}/>
         {Object.keys(mission.coalition).map(key => (
           <CoalitionLayer
