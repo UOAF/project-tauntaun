@@ -9,6 +9,8 @@ import { InputLabel } from '@material-ui/core';
 import { gameService } from '../services';
 import { SelectOptionType } from '../types/material_ui';
 import { Dictionary } from '../models/util';
+import wu from 'wu';
+import { getGroups } from '../models/dcs_util';
 
 export interface LoadoutEditorProps {
   unit: Unit;
@@ -26,13 +28,14 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
   const chargeLeft = () => {
     return unitData.charge_total - chaff / unitData.chaff_charge_size - flare / unitData.flare_charge_size;
   };
-  
+
   const getWeaponByClsid = (clsid: string) => {
     return Object.keys(weaponsData)
-    .filter(key => weaponsData[key].weapon_id === clsid)
-    .map(key => {
-       return { ...weaponsData[key], key: key };
-     }).pop();
+      .filter(key => weaponsData[key].weapon_id === clsid)
+      .map(key => {
+        return { ...weaponsData[key], key: key };
+      })
+      .pop();
   };
 
   let unitPylons: Dictionary<string> = {};
@@ -40,13 +43,13 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
     const flyingUnitPylons = flyingUnit.pylons;
     const values = Object.keys(flyingUnitPylons).map(key => {
       const weapon = getWeaponByClsid(flyingUnitPylons[key]['CLSID']);
-      return { key: key, value: weapon?.key};
+      return { key: key, value: weapon?.key };
     });
     values.forEach(value => {
       console.assert(value.value !== undefined);
       unitPylons = {
         ...unitPylons,
-        [value.key]: value.value ? value.value : "empty"
+        [value.key]: value.value ? value.value : 'empty'
       };
     });
   }
@@ -66,11 +69,11 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
       return {
         pylonNumber: key,
         options: [
-          ...(pylonData.map(value => {
-          return { value: value, label: DcsStatic.weapons[value].name };
-        })),
-        emptyOption
-      ]
+          ...pylonData.map(value => {
+            return { value: value, label: DcsStatic.weapons[value].name };
+          }),
+          emptyOption
+        ]
       };
     });
   }
@@ -123,19 +126,33 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
     gameService.sendUnitLoadoutUpdate(unit, pylons, chaff, flare, fuel, gun);
   };
 
+  const onSaveForGroupClicked = () => {
+    console.log('Send new loadout for group.');
+    appState.selectUnit(undefined);
+    appState.setLoadoutEditorVisibility(false);
+
+    const group = wu(getGroups(appState.mission))
+      .find(g => g.units.find(u => u.id === unit.id) !== undefined);
+    group?.units.forEach(u => gameService.sendUnitLoadoutUpdate(u, pylons, chaff, flare, fuel, gun));
+  };
+
   const renderPylonSelect = (pylonOption: any) => {
     const pylonNumber = pylonOption.pylonNumber as number;
     return (
-    <div className="FloatLeft" key={pylonNumber}>
-      <InputLabel id={"pylon-select-label-" + pylonNumber}>{pylonNumber}</InputLabel>
-      <Select
-        labelId={"pylon-select-label-" + pylonNumber}
-        id={"pylon-select-" + pylonNumber}
-        defaultValue={pylons[pylonNumber]}
-        onChange={(event: any) => onPylonWeaponSelected(event, pylonNumber)}>
-            {pylonOption.options.map((v: SelectOptionType) => (<MenuItem value={v.value}>{v.label}</MenuItem>))}
-      </Select>
-    </div>);   
+      <div className="FloatLeft" key={pylonNumber}>
+        <InputLabel id={'pylon-select-label-' + pylonNumber}>{pylonNumber}</InputLabel>
+        <Select
+          labelId={'pylon-select-label-' + pylonNumber}
+          id={'pylon-select-' + pylonNumber}
+          defaultValue={pylons[pylonNumber]}
+          onChange={(event: any) => onPylonWeaponSelected(event, pylonNumber)}
+        >
+          {pylonOption.options.map((v: SelectOptionType) => (
+            <MenuItem value={v.value}>{v.label}</MenuItem>
+          ))}
+        </Select>
+      </div>
+    );
   };
 
   const closeOnClick = () => {
@@ -188,7 +205,8 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
         />
         {pylonOptions.map(pylonOption => renderPylonSelect(pylonOption))}
         <p>
-          <button onClick={onSaveClicked}>Save loadout</button>
+          <button onClick={onSaveClicked}>Save</button>
+          <button onClick={onSaveForGroupClicked}>Save for group</button>
           <button onClick={closeOnClick}>Close</button>
         </p>
       </div>
