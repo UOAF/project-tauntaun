@@ -63,6 +63,10 @@ export function MenuBar() {
     appState.setShowAllGroups(event.target.checked);
   };
 
+  const onShowLegendChange = (event: any) => {
+    appState.setShowLegend(event.target.checked);
+  };
+
   const renderAdminBar = () => {
     return (
       <div>
@@ -115,6 +119,12 @@ export function MenuBar() {
         label="Show AI flightplans"
         labelPlacement="end"
       />
+      <FormControlLabel
+        value="start"
+        control={<Checkbox checked={appState.showLegend} color="primary" onChange={onShowLegendChange} />}
+        label="Show legend"
+        labelPlacement="end"
+      />      
       <FormControlLabel
         value="start"
         control={<Checkbox checked={appState.adminMode} color="primary" onChange={onAdminModeChange} />}

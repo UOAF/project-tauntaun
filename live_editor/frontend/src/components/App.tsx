@@ -118,7 +118,7 @@ export function App() {
                 mission={appState.mission}
                 onMapClick={mapOnClick}
               />
-              <Legend />
+              {appState.showLegend && <Legend />}
             </ModeContext.Provider>
           </SessionContext.Provider>
         </ColorPaletteContext.Provider>

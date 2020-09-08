@@ -23,6 +23,7 @@ export interface AppState {
   showOtherWpNames: boolean;
   showAIFlightPlans: boolean;
   showAllGroups: boolean;
+  showLegend: boolean;
 }
 
 const defaultState: AppState = {
@@ -38,7 +39,8 @@ const defaultState: AppState = {
   showOtherFlightPlans: true,
   showOtherWpNames: false,
   showAIFlightPlans: false,
-  showAllGroups: false
+  showAllGroups: false,
+  showLegend: true
 };
 
 function useAppState(initialState = defaultState) {
@@ -332,6 +334,14 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
+  const setShowLegend = (showLegend: boolean) => {
+    setState(state => ({
+      ...state,
+      showLegend: showLegend
+    }));
+  };
+
+
   return {
     ...state,
     initialize,
@@ -349,7 +359,8 @@ function useAppState(initialState = defaultState) {
     setShowOtherFlightPlans,
     setShowOtherWpNames,
     setShowAIFlightPlans,
-    setShowAllGroups
+    setShowAllGroups,
+    setShowLegend
   };
 }
 
