@@ -3,11 +3,15 @@ import Select from 'react-select';
 import { Group, AppStateContainer, PointAction } from '../models';
 import { gameService } from '../services';
 import { SelectOptionType } from '../types/material_ui';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import Checkbox from '@material-ui/core/Checkbox';
 
 export interface EditWaypointFormProps {
   group: Group;
   pointIndex: number;
 }
+
+const meterToFeet = 3.28084;
 
 export function EditWaypointForm(props: EditWaypointFormProps) {
   const appState = AppStateContainer.useContainer();
@@ -21,6 +25,7 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
   const [speed, setSpeed] = useState(point.speed);
   const [action, setAction] = useState(point.action);
   const [currentPointIndex, setCurrentPointIndex] = useState(pointIndex);
+  const [useImperial, setImperial] = useState(true);
 
   // TODO hack
   if (pointIndex !== currentPointIndex) {
@@ -59,6 +64,10 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
     appState.selectWaypoint(undefined);
   };
 
+  const onUnitsSystemChange = (event: any) => {
+    setImperial(event.target.checked);
+  };
+
   return (
     <div className="Popup">
       <p>Group name: {group.name}</p>
@@ -68,10 +77,16 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
         <input
           type="text"
           pattern="[0-100000]"
-          value={alt}
+          value={useImperial ? alt * meterToFeet : alt}
           onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-            setAlt(+event.target.value);
+            setAlt(useImperial ? +event.target.value / meterToFeet : +event.target.value);
           }}
+        />
+        <FormControlLabel
+          value="start"
+          control={<Checkbox checked={useImperial} color="primary" onChange={onUnitsSystemChange} />}
+          label="ft"
+          labelPlacement="end"
         />
       </p>
       <p>Type: {type}</p>
