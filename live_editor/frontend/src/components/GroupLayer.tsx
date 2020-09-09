@@ -39,7 +39,7 @@ export function GroupLayer(props: GroupLayerProps) {
   };
 
   const visibleGroups = groups.filter(
-    g => coalition !== 'red' || g.name.substr(0, 4) === 'vis_' || appState.showAllGroups
+    g => coalition !== 'red' || g.name.substr(g.name.length - 4) === '_vis' || appState.showAllGroups
   );
 
   const renderGroupRoute = (group: Group) => {
