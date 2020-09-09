@@ -36,17 +36,16 @@ class _TriggerCopier:
         self.trig = ""
         self.triggers = ""
         self.trigrules = ""
-        self.enabled = False
+        self.enabled = True
 
-    def _replace(self, content, target):
+    def _delete(self, content, target):
         new_content = ""
         erase_head_active = False
         open_bracket_hit = False
         num_of_open_brackets = 0
 
-        for raw_line in content.splitlines():
-            raw_line = raw_line + b'\n'
-            line = raw_line.decode("utf-8")
+        for line in content.splitlines():
+            line = line + '\n'
 
             if line.find(f"[\"{target}\"]") != -1:
                 erase_head_active = True
@@ -61,12 +60,11 @@ class _TriggerCopier:
                     num_of_open_brackets = num_of_open_brackets + opening - closing
 
                     if num_of_open_brackets == 0:
-                        new_content = new_content + getattr(self, target)
                         erase_head_active = False
             else:
                 new_content = new_content + line
 
-        return new_content.encode("utf-8")
+        return new_content
 
     def _save(self, content, target):
         record_head_active = False
@@ -85,7 +83,7 @@ class _TriggerCopier:
                 record_head_active = True
 
             if record_head_active:
-                setattr(self, target, getattr(self, target) + line)
+                setattr(self, target, getattr(self, target) + line + '\n')
 
                 opening = line.count('{')
                 closing = line.count('}')
@@ -108,9 +106,16 @@ class _TriggerCopier:
                     content = miz_in.read(item.filename)
 
                     if item.filename == 'mission':
-                        content = self._replace(content, 'trig')
-                        content = self._replace(content, 'triggers')
-                        content = self._replace(content, 'trigrules')
+                        content = content.decode('utf-8')
+                        content = self._delete(content, 'trig')
+                        content = self._delete(content, 'triggers')
+                        content = self._delete(content, 'trigrules')
+
+                        index = content.rfind('}')
+                        index = content.rfind('}', index)
+
+                        content = content[:index] + ',\n' + self.trig + self.triggers + self.trigrules + '\n' + content[index:]
+                        content = content.encode('utf-8')
 
                     miz_out.writestr(item, content)
 
@@ -127,7 +132,6 @@ class _TriggerCopier:
                 self._save(content, 'trig')
                 self._save(content, 'triggers')
                 self._save(content, 'trigrules')
-
 
 class GameService:
     def __init__(self, campaign):
