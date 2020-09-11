@@ -133,7 +133,8 @@ export function EditablePolyline(props: EditablePolylineProps) {
 
     line.pm.enable({
       allowSelfIntersections: true,
-      preventMarkerRemoval: !editable
+      preventMarkerRemoval: !editable,
+      snappable: false
     });
 
     if (editable) {

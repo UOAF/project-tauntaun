@@ -1,25 +1,19 @@
+import zipfile
+
 from dcs.flyingunit import FlyingUnit
 from dcs.point import PointAction
 from dcs.unit import Skill
-from dcs.weapons_data import Weapons, weapon_ids
+from dcs.weapons_data import weapon_ids
 
 from util import get_dcs_dir, point_along_route
 from dcs import terrain
-from dcs.mission import StartType
-from dcs import ships, planes
-from dcs.task import ActivateBeaconCommand, ActivateICLSCommand, EPLRS
 import dcs
 import dcs.mapping as mapping
 import os
 import os.path
-from namegen import namegen
-from random import random
 import server
 import itertools
 from coord import lat_lon_to_xz
-from util import feet_to_meters, knots_to_kph
-
-from templates import make_sa2_site
 
 from sessions import SessionManager
 
@@ -33,6 +27,112 @@ def _convert_point(terrain, p):
     x, z = lat_lon_to_xz(terrain.name, lat, lon)
     return mapping.Point(x, z)
 
+class _TriggerCopier:
+    """Workround to copy the triggers from the original mission as
+       pydcs will mess triggers up (until fixed) and the live_editor
+       should not change them anyway.
+    """
+    def __init__(self):
+        self.trig = ""
+        self.triggers = ""
+        self.trigrules = ""
+        self.enabled = True
+
+    def _delete(self, content, target):
+        new_content = ""
+        erase_head_active = False
+        open_bracket_hit = False
+        num_of_open_brackets = 0
+
+        for line in content.splitlines():
+            line = line + '\n'
+
+            if line.find(f"[\"{target}\"]") != -1:
+                erase_head_active = True
+
+            if erase_head_active:
+                opening = line.count('{')
+                closing = line.count('}')
+                if not open_bracket_hit and opening > 0:
+                    open_bracket_hit = True
+
+                if open_bracket_hit:
+                    num_of_open_brackets = num_of_open_brackets + opening - closing
+
+                    if num_of_open_brackets == 0:
+                        erase_head_active = False
+            else:
+                new_content = new_content + line
+
+        return new_content
+
+    def _save(self, content, target):
+        record_head_active = False
+        open_bracket_hit = False
+        num_of_open_brackets = 0
+
+        setattr(self, target, "")
+
+        for raw_line in content.splitlines():
+            if not raw_line:
+                break
+
+            line = raw_line.decode("utf-8")
+
+            if line.find(f"[\"{target}\"]") != -1:
+                record_head_active = True
+
+            if record_head_active:
+                setattr(self, target, getattr(self, target) + line + '\n')
+
+                opening = line.count('{')
+                closing = line.count('}')
+                if not open_bracket_hit and opening > 0:
+                    open_bracket_hit = True
+
+                if open_bracket_hit:
+                    num_of_open_brackets = num_of_open_brackets + opening - closing
+
+                    if num_of_open_brackets == 0:
+                        return
+
+    def replace_triggers(self, filename):
+        if not self.enabled:
+            return
+
+        with zipfile.ZipFile(filename, 'r') as miz_in:
+            with zipfile.ZipFile(filename + ".tmp", 'w') as miz_out:
+                for item in miz_in.infolist():
+                    content = miz_in.read(item.filename)
+
+                    if item.filename == 'mission':
+                        content = content.decode('utf-8')
+                        content = self._delete(content, 'trig')
+                        content = self._delete(content, 'triggers')
+                        content = self._delete(content, 'trigrules')
+
+                        index = content.rfind('}')
+                        index = content.rfind('}', index)
+
+                        content = content[:index] + ',\n' + self.trig + self.triggers + self.trigrules + '\n' + content[index:]
+                        content = content.encode('utf-8')
+
+                    miz_out.writestr(item, content)
+
+        os.remove(filename)
+        os.rename(filename + ".tmp", filename)
+
+    def save_triggers(self, filename):
+        if not self.enabled:
+            return
+
+        with zipfile.ZipFile(filename, 'r') as miz:
+            with miz.open('mission', 'r') as mission:
+                content = mission.read()
+                self._save(content, 'trig')
+                self._save(content, 'triggers')
+                self._save(content, 'trigrules')
+
 class GameService:
     def __init__(self, campaign):
         self.campaign: Campaign = campaign                
@@ -44,7 +144,7 @@ class GameService:
         location = _convert_point(self.campaign.mission.terrain, location)
         country = self.campaign.get_countries('blue')["USA"]
 
-        airport = self.campaign.terrain.airport_by_id(airport)
+        airport = self.campaign.mission.terrain.airport_by_id(airport)
         if not airport:
             print("add_flight airport not found")
             return
@@ -161,10 +261,10 @@ class GameService:
                 print("Failed to modify waypoint")
 
 class Campaign():
-    def __init__(self, terrain=dcs.terrain.Caucasus):
-        self.terrain = terrain()
+    def __init__(self):
         self.mission: dcs.Mission = None
         self.game_service = GameService(self)
+        self._trigger_copier = _TriggerCopier()
 
     def get_countries(self, side):
         return self.mission.coalition[side].countries
@@ -177,7 +277,7 @@ class Campaign():
         return itertools.chain(*(group.units for group in self.get_plane_groups(side)))
 
     def get_airport(self, name):
-        return self.terrain.airport[name]
+        return self.mission.terrain.airport[name]
 
     def get_ship_groups(self, side):
         countries = self.get_countries(side)
@@ -204,7 +304,7 @@ class Campaign():
         for point, new_pos in zip(group.points, points):
             lat = float(new_pos['lat'])
             lon = float(new_pos['lon'])
-            x, z = lat_lon_to_xz(self.terrain.name, lat, lon)
+            x, z = lat_lon_to_xz(self.mission.terrain.name, lat, lon)
             point.position = mapping.Point(x, z)
 
     def _get_miz_path(self, name='tauntaun'):
@@ -223,12 +323,18 @@ class Campaign():
     def save_mission(self):
         mizname = self._get_miz_path()
         self.mission.save(mizname)
+
+        self._trigger_copier.replace_triggers(mizname)
+
         print("Mission saved to", mizname)
 
     def load_mission(self, filename=None):
         mizname = filename
         if filename is None:
             mizname = self._get_miz_path()
+
+        self._trigger_copier.save_triggers(mizname)
+
         self.mission.load_file(mizname)
         print("Mission loaded from", mizname)
 

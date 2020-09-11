@@ -117,3 +117,37 @@ p {
   margin-right: auto;
   width: 50%;
 }
+
+.MapText
+{
+  background-color: transparent;
+  border: transparent;    
+  box-shadow: none;
+  border-width: 0px;
+  text-shadow: white 1px 1px 1px;
+  font: small-caps bold 16px/30px Courier;
+}
+
+.MapText.leaflet-tooltip-right:before {
+  display: none;
+}
+
+.Legends {
+  position: absolute;
+  bottom: -20%;
+  right: 3%;
+  z-index: 100;  
+}
+
+.Legend {
+  opacity: 0.75;
+}
+
+.Dot {
+  height: 5px;
+  width: 5px;
+  background-color: var(--color);
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 5px;
+}
