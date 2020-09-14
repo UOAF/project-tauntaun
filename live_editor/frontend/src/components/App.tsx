@@ -98,7 +98,7 @@ export function App() {
       <img className="Logo" src="./logo.png" alt="Yes I'm serious." />
       <LegendContext.Provider value={{ legends: [] }}>
         <ColorPaletteContext.Provider value={colorPalette}>
-          <SessionContext.Provider value={{ sessionId: appState.sessionId, sessions: appState.sessions }}>            
+          <SessionContext.Provider value={{ sessionId: appState.sessionId, sessions: appState.sessions }}>
             {sessionData && <BriefingForm />}
             {masterModeName === 'AddFlightMode' && location && <AddFlightForm location={location} />}
             {renderEditWaypointForm()}
@@ -114,7 +114,7 @@ export function App() {
                 lat={terrain.map_view_default.lat}
                 lng={terrain.map_view_default.lon}
                 zoom={9}
-                tileLayerUrl="https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2hpbnBvayIsImEiOiJjamxnYmtubDIxNXkxM3FtaWR2dThvZTU3In0.EQeuA12Ganj2LkQ8VRn3lA"
+                tileLayerUrl={`https://api.mapbox.com/styles/v1/${appState.mapType}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2hpbnBvayIsImEiOiJjamxnYmtubDIxNXkxM3FtaWR2dThvZTU3In0.EQeuA12Ganj2LkQ8VRn3lA`}
                 mission={appState.mission}
                 onMapClick={mapOnClick}
               />

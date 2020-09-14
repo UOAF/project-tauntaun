@@ -4,7 +4,6 @@ import { AppStateContainer, defaultEditGroupMode, defaultAddFlightMode } from '.
 import { EditGroupMode } from '../models/modes';
 import { Checkbox, FormControlLabel, MenuItem, Select } from '@material-ui/core';
 import { SelectOptionType } from '../types/material_ui';
-import InputLabel from '@material-ui/core/InputLabel/InputLabel';
 
 export function MenuBar() {
   const appState = AppStateContainer.useContainer();
@@ -144,7 +143,8 @@ export function MenuBar() {
         labelPlacement="end"
       />
       Map Type
-      <Select className="MapTypeSelect"
+      <Select
+        className="MapTypeSelect"
         defaultValue={appState.mapType}
         onChange={(event: any) => onMapTypeSelected(event)}
       >
