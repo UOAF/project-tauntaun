@@ -2,10 +2,11 @@ import React from 'react';
 import { Map, TileLayer } from 'react-leaflet';
 import { pick } from 'lodash';
 
-import { Mission } from '../models';
+import { AppStateContainer, Mission } from '../models';
 import { CoalitionLayer } from './CoalitionLayer';
 import { LeafletMouseEvent } from 'leaflet';
 import { AirportLayer } from './AirportLayer';
+import { useState } from 'react';
 
 export interface CampaignMapProps {
   tileLayerUrl: string;
@@ -17,6 +18,8 @@ export interface CampaignMapProps {
 }
 
 export function CampaignMap(props: CampaignMapProps) {
+  const appState = AppStateContainer.useContainer();
+
   const { mission } = props;
 
   return (
@@ -24,7 +27,7 @@ export function CampaignMap(props: CampaignMapProps) {
       <Map center={pick(props, ['lat', 'lng'])} zoom={props.zoom} onclick={props.onMapClick}>
         <TileLayer
           url={props.tileLayerUrl}
-          id="mapbox/streets-v11"
+          id={appState.mapType}
           maxZoom={15}
           attribution={
             'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +

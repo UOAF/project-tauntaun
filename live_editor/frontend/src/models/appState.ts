@@ -24,6 +24,7 @@ export interface AppState {
   showAIFlightPlans: boolean;
   showAllGroups: boolean;
   showLegend: boolean;
+  mapType: string;
 }
 
 const defaultState: AppState = {
@@ -40,7 +41,8 @@ const defaultState: AppState = {
   showOtherWpNames: false,
   showAIFlightPlans: false,
   showAllGroups: false,
-  showLegend: true
+  showLegend: true,
+  mapType: 'mapbox/outdoors-v11'
 };
 
 function useAppState(initialState = defaultState) {
@@ -341,6 +343,12 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
+  const setMapType = (mapType: string) => {
+    setState(state => ({
+      ...state,
+      mapType: mapType
+    }));
+  };
 
   return {
     ...state,
@@ -360,7 +368,8 @@ function useAppState(initialState = defaultState) {
     setShowOtherWpNames,
     setShowAIFlightPlans,
     setShowAllGroups,
-    setShowLegend
+    setShowLegend,
+    setMapType
   };
 }
 
