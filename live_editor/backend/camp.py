@@ -1,7 +1,7 @@
 import zipfile
 
 from dcs.flyingunit import FlyingUnit
-from dcs.point import PointAction
+from dcs.point import PointAction, MovingPoint
 from dcs.unit import Skill
 from dcs.weapons_data import weapon_ids
 
@@ -257,6 +257,8 @@ class GameService:
                 wp.position = _convert_point(self.campaign.mission.terrain, new_wp['position'])
                 wp.speed = new_wp['speed']
                 wp.action = PointAction[new_wp['action']]
+                if isinstance(wp, MovingPoint):
+                    wp.alt_type =  new_wp['alt_type']
             else:
                 print("Failed to modify waypoint")
 

@@ -1,7 +1,7 @@
 import { pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Dictionary, Point, Mission, Group, emptyMission, StaticPoint, Unit } from '../models';
+import { Dictionary, Point, Mission, Group, emptyMission, MovingPoint, Unit } from '../models';
 import { LatLng } from 'leaflet';
 
 import * as DcsStaticRawJson from '../data/dcs_static.json';
@@ -19,7 +19,7 @@ export interface GameService {
 
   sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void;
   sendRouteRemove(group: Group, wp: Point): void;
-  sendRouteModify(group: Group, oldWp: Point, newWp: StaticPoint): void;
+  sendRouteModify(group: Group, oldWp: Point, newWp: MovingPoint): void;
   sendSaveMission(): void;
   sendLoadMission(): void;
   sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void;
@@ -124,7 +124,7 @@ function sendRouteRemove(group: Group, wp: Point): void {
   });
 }
 
-function sendRouteModify(group: Group, oldWp: Point, newWp: StaticPoint): void {
+function sendRouteModify(group: Group, oldWp: Point, newWp: MovingPoint): void {
   sendMessage('group_route_modify', {
     ...pick(group, ['id']),
     old: pick(oldWp, ['lat', 'lon']),

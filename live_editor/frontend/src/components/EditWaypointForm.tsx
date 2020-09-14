@@ -20,6 +20,7 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
   const point = group.points[pointIndex];
 
   const [alt, setAlt] = useState(point.alt);
+  const [altType, setAltType] = useState(point.alt_type);
   const [type, setType] = useState(point.type);
   const [name, setName] = useState(point.name);
   const [speed, setSpeed] = useState(point.speed);
@@ -30,6 +31,7 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
   // TODO hack
   if (pointIndex !== currentPointIndex) {
     setAlt(point.alt);
+    setAltType(point.alt_type);
     setType(point.type);
     setName(point.name);
     setSpeed(point.speed);
@@ -46,6 +48,7 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
     gameService.sendRouteModify(group, point.position, {
       ...point,
       alt: alt,
+      alt_type: altType,
       type: type,
       name: name,
       speed: speed,
@@ -68,6 +71,10 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
     setImperial(event.target.checked);
   };
 
+  const onAltTypeChange = (event: any) => {
+    setAltType(event.target.checked ? 'BARO' : 'RADIO');
+  };
+
   return (
     <div className="Popup">
       <p>Group name: {group.name}</p>
@@ -88,6 +95,12 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
           label="ft"
           labelPlacement="end"
         />
+       {altType && <FormControlLabel
+          value="start"
+          control={<Checkbox checked={altType === "BARO"} color="primary" onChange={onAltTypeChange} />}
+          label="baro"
+          labelPlacement="end"
+        />}
       </p>
       <p>Type: {type}</p>
       <p>

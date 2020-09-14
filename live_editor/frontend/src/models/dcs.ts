@@ -32,6 +32,10 @@ export type StaticPoint = {
   action: string;
 };
 
+export type MovingPoint = StaticPoint & {
+  alt_type?: string; // TODO it can't be empty
+};
+
 export type FlyingUnit = Unit & {
   flare: number;
   chaff: number;
@@ -55,7 +59,7 @@ export type Group = {
   id: number;
   name: string;
   units: Array<Unit | FlyingUnit>;
-  points: Array<StaticPoint>;
+  points: Array<MovingPoint>;
   task: string;
 };
 
