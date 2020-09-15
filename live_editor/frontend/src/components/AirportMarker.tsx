@@ -11,8 +11,8 @@ export type AirportProps = {
 
 export function AirportMarker(props: AirportProps) {
   const { airport, airportMarkerOnClick } = props;
- 
-  const sidc = changeSidcCoalition('SFGPIBA---H-',  airport.coalition);
+
+  const sidc = changeSidcCoalition('SFGPIBA---H-', airport.coalition);
   const { lat, lon: lng } = airport.position;
 
   const onClick = () => {
@@ -21,7 +21,5 @@ export function AirportMarker(props: AirportProps) {
     }
   };
 
-  return (
-    <SidcMarker position={{ lat, lng }} sidc={sidc} name={airport.name} onclick={onClick} />
-  );
+  return <SidcMarker position={{ lat, lng }} sidc={sidc} name={airport.name} onclick={onClick} />;
 }

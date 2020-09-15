@@ -4,9 +4,8 @@ import './App.css';
 
 import { CampaignMap, EditWaypointForm } from './';
 import { MenuBar } from './';
-import { AppStateContainer, AddFlightMode, EditGroupMode, Group } from '../models';
+import { AppStateContainer, Group } from '../models';
 import { AddFlightForm } from './AddFlightForm';
-import { LeafletMouseEvent } from 'leaflet';
 import { findGroupById } from '../models/dcs_util';
 import { LoadoutEditor } from './LoadoutEditor';
 import { BriefingForm } from './BriefingForm';
@@ -46,28 +45,15 @@ export function App() {
     appState.initialize();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const { masterMode } = appState;
+  const { location, selectedWaypoint, selectedGroupId, selectedUnitId } = appState;
 
-  const masterModeName = masterMode?.name;
-  const addFlightMode = masterMode as AddFlightMode;
-  const editGroupMode = masterMode as EditGroupMode;
-  const location = addFlightMode.location;
-  const selectedWaypoint = editGroupMode.selectedWaypoint;
-  const selectedGroupId = editGroupMode.selectedGroupId;
-  const selectedUnitId = editGroupMode.selectedUnitId;
   const group = selectedGroupId ? findGroupById(appState.mission, selectedGroupId) : undefined;
   const unit = group && selectedUnitId ? group.units.find(u => u.id === selectedUnitId) : undefined;
   const sessionData = appState.sessions[appState.sessionId];
   const terrain = appState.mission.terrain;
 
-  const mapOnClick = (e: LeafletMouseEvent) => {
-    if (masterModeName === 'AddFlightMode') {
-      appState.setLocation(e.latlng);
-    }
-  };
-
   const groupMarkerOnClick = (group: Group, event: any): void => {
-    if (!appState.adminMode || masterModeName !== 'EditGroupMode') return;
+    if (!appState.adminMode) return;
 
     if (event && event.coalition !== 'blue') return;
 
@@ -84,7 +70,7 @@ export function App() {
   };
 
   const renderEditWaypointForm = () => {
-    if (masterModeName === 'EditGroupMode' && selectedGroupId && selectedWaypoint) {
+    if (selectedGroupId && selectedWaypoint) {
       if (group) {
         return <EditWaypointForm group={group} pointIndex={selectedWaypoint} />;
       }
@@ -100,14 +86,14 @@ export function App() {
         <ColorPaletteContext.Provider value={colorPalette}>
           <SessionContext.Provider value={{ sessionId: appState.sessionId, sessions: appState.sessions }}>
             {sessionData && <BriefingForm />}
-            {masterModeName === 'AddFlightMode' && location && <AddFlightForm location={location} />}
+            {location && <AddFlightForm location={location} />}
             {renderEditWaypointForm()}
             {appState.loadoutEditorVisibility && unit && <LoadoutEditor unit={unit} />}
             <MenuBar />
             <ModeContext.Provider
               value={{
                 groupMarkerOnClick: groupMarkerOnClick,
-                selectedGroupId: masterModeName === 'EditGroupMode' ? editGroupMode.selectedGroupId : undefined
+                selectedGroupId: selectedGroupId
               }}
             >
               <CampaignMap
@@ -116,7 +102,6 @@ export function App() {
                 zoom={9}
                 tileLayerUrl={`https://api.mapbox.com/styles/v1/${appState.mapType}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2hpbnBvayIsImEiOiJjamxnYmtubDIxNXkxM3FtaWR2dThvZTU3In0.EQeuA12Ganj2LkQ8VRn3lA`}
                 mission={appState.mission}
-                onMapClick={mapOnClick}
               />
               {appState.showLegend && <Legend />}
             </ModeContext.Provider>

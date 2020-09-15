@@ -6,6 +6,9 @@ import { Mission } from '../models';
 import { CoalitionLayer } from './CoalitionLayer';
 import { LeafletMouseEvent } from 'leaflet';
 import { AirportLayer } from './AirportLayer';
+import { useState } from 'react';
+import { ContextMenu, ClickPosition } from '.';
+import { PointXY } from './ContextMenu';
 
 export interface CampaignMapProps {
   tileLayerUrl: string;
@@ -19,9 +22,27 @@ export interface CampaignMapProps {
 export function CampaignMap(props: CampaignMapProps) {
   const { mission } = props;
 
+  const [position, setPosition] = useState(null as ClickPosition | null);
+
+  const onContextMenuClick = (event: any) => {
+    setPosition({
+      xy: {
+        x: event.originalEvent.clientX,
+        y: event.originalEvent.clientY
+      } as PointXY,
+      latlon: event.latlng
+    } as ClickPosition);
+  };
+
   return (
-    <div data-testid="campaign-map">
-      <Map center={pick(props, ['lat', 'lng'])} zoom={props.zoom} onclick={props.onMapClick}>
+    <div data-testid="campaign-map">  
+    {position && <ContextMenu position={position} />}
+      <Map
+        center={pick(props, ['lat', 'lng'])}
+        zoom={props.zoom}
+        onclick={props.onMapClick}
+        oncontextmenu={onContextMenuClick}
+      >
         <TileLayer
           url={props.tileLayerUrl}
           maxZoom={15}

@@ -5,7 +5,6 @@ import { LatLng } from 'leaflet';
 import { AppStateContainer } from '../models';
 import { gameService } from '../services';
 import { SelectOptionType } from '../types/material_ui';
-import { defaultEditGroupMode } from '../models/modes';
 
 export interface AddFlightFormProps {
   location: LatLng;
@@ -53,7 +52,6 @@ export function AddFlightForm(props: AddFlightFormProps) {
     }
 
     gameService.sendAddFlight(location as LatLng, selectedAirport, selectedPlane, selectedNumber);
-    appState.setMasterMode(defaultEditGroupMode);
     appState.setLocation(undefined);
   };
 
@@ -66,7 +64,6 @@ export function AddFlightForm(props: AddFlightFormProps) {
   };
 
   const closeOnClick = () => {
-    appState.setMasterMode(defaultEditGroupMode);
     appState.setLocation(undefined);
   };
 

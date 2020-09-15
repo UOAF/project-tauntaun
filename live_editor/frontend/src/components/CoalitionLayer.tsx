@@ -15,10 +15,7 @@ export function CoalitionLayer(props: CoalitionLayerProps) {
   return (
     <CoalitionContext.Provider value={coalition.name}>
       {Object.keys(coalition.countries).map(countryKey => (
-        <CountryLayer
-          key={countryKey}
-          country={coalition.countries[countryKey]}
-        />
+        <CountryLayer key={countryKey} country={coalition.countries[countryKey]} />
       ))}
     </CoalitionContext.Provider>
   );
