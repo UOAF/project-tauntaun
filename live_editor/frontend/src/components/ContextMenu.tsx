@@ -5,6 +5,8 @@ import MenuItem from '@material-ui/core/MenuItem/MenuItem';
 import { useState } from 'react';
 import { LatLng } from 'leaflet';
 import { AppStateContainer } from '../models/appState';
+import { convertLeafletMapToKml, saveKmlFile, openInNewTab, getGoogleEarthUrl } from '../models/util';
+import { MapContext } from './App';
 
 export type PointXY = {
   x: number;
@@ -22,6 +24,7 @@ export interface ContextMenuProps {
 
 export function ContextMenu(props: ContextMenuProps) {
   const appState = AppStateContainer.useContainer();
+  const mapContext = React.useContext(MapContext);
 
   const { position } = props;
 
@@ -47,6 +50,15 @@ export function ContextMenu(props: ContextMenuProps) {
     setVisible(false);
   };
 
+  const reconOnClick = () => {
+    if (position && position.latlon) {
+      const kml = convertLeafletMapToKml(mapContext.map);
+      saveKmlFile('markers.kml', kml);
+      openInNewTab(getGoogleEarthUrl(position.latlon));
+    }
+    setVisible(false);
+  };
+
   return (
     <Menu
       id="simple-menu"
@@ -57,7 +69,7 @@ export function ContextMenu(props: ContextMenuProps) {
       onContextMenu={handleClose}
     >
       {appState.adminMode && <MenuItem onClick={addFlightOnClick}>Add flight</MenuItem>}
-      <MenuItem onClick={handleClose}>Recon</MenuItem>
+      <MenuItem onClick={reconOnClick}>Recon</MenuItem>
       <MenuItem onClick={handleClose}>Close</MenuItem>
     </Menu>
   );

@@ -31,12 +31,17 @@ type LegendContextType = {
   legends: LegendType[];
 };
 
+type MapContextType = {
+  map: any;
+};
+
 const colorPalette = ['red', 'black', 'orange', 'blue', 'green', 'brown', 'cyan', 'magenta', 'white'];
 
 export const ModeContext = createContext({} as ModeContextType);
 export const SessionContext = createContext({} as SessionContextType);
 export const ColorPaletteContext = createContext(colorPalette);
 export const LegendContext = createContext({} as LegendContextType);
+export const MapContext = createContext({} as MapContextType);
 
 export function App() {
   const appState = AppStateContainer.useContainer();
@@ -82,32 +87,34 @@ export function App() {
   return (
     <div>
       <img className="Logo" src="./logo.png" alt="Yes I'm serious." />
-      <LegendContext.Provider value={{ legends: [] }}>
-        <ColorPaletteContext.Provider value={colorPalette}>
-          <SessionContext.Provider value={{ sessionId: appState.sessionId, sessions: appState.sessions }}>
-            {sessionData && <BriefingForm />}
-            {location && <AddFlightForm location={location} />}
-            {renderEditWaypointForm()}
-            {appState.loadoutEditorVisibility && unit && <LoadoutEditor unit={unit} />}
-            <MenuBar />
-            <ModeContext.Provider
-              value={{
-                groupMarkerOnClick: groupMarkerOnClick,
-                selectedGroupId: selectedGroupId
-              }}
-            >
-              <CampaignMap
-                lat={terrain.map_view_default.lat}
-                lng={terrain.map_view_default.lon}
-                zoom={9}
-                tileLayerUrl={`https://api.mapbox.com/styles/v1/${appState.mapType}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2hpbnBvayIsImEiOiJjamxnYmtubDIxNXkxM3FtaWR2dThvZTU3In0.EQeuA12Ganj2LkQ8VRn3lA`}
-                mission={appState.mission}
-              />
-              {appState.showLegend && <Legend />}
-            </ModeContext.Provider>
-          </SessionContext.Provider>
-        </ColorPaletteContext.Provider>
-      </LegendContext.Provider>
+      <MapContext.Provider value={{ map: undefined } as MapContextType}>
+        <LegendContext.Provider value={{ legends: [] }}>
+          <ColorPaletteContext.Provider value={colorPalette}>
+            <SessionContext.Provider value={{ sessionId: appState.sessionId, sessions: appState.sessions }}>
+              {sessionData && <BriefingForm />}
+              {location && <AddFlightForm location={location} />}
+              {renderEditWaypointForm()}
+              {appState.loadoutEditorVisibility && unit && <LoadoutEditor unit={unit} />}
+              <MenuBar />
+              <ModeContext.Provider
+                value={{
+                  groupMarkerOnClick: groupMarkerOnClick,
+                  selectedGroupId: selectedGroupId
+                }}
+              >
+                <CampaignMap
+                  lat={terrain.map_view_default.lat}
+                  lng={terrain.map_view_default.lon}
+                  zoom={9}
+                  tileLayerUrl={`https://api.mapbox.com/styles/v1/${appState.mapType}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2hpbnBvayIsImEiOiJjamxnYmtubDIxNXkxM3FtaWR2dThvZTU3In0.EQeuA12Ganj2LkQ8VRn3lA`}
+                  mission={appState.mission}
+                />
+                {appState.showLegend && <Legend />}
+              </ModeContext.Provider>
+            </SessionContext.Provider>
+          </ColorPaletteContext.Provider>
+        </LegendContext.Provider>
+      </MapContext.Provider>
     </div>
   );
 }

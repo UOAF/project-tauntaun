@@ -7,7 +7,7 @@ import { CoalitionLayer } from './CoalitionLayer';
 import { LeafletMouseEvent } from 'leaflet';
 import { AirportLayer } from './AirportLayer';
 import { useState } from 'react';
-import { ContextMenu, ClickPosition } from '.';
+import { ContextMenu, ClickPosition, MapContext } from '.';
 import { PointXY } from './ContextMenu';
 
 export interface CampaignMapProps {
@@ -20,6 +20,8 @@ export interface CampaignMapProps {
 }
 
 export function CampaignMap(props: CampaignMapProps) {
+  const mapContext = React.useContext(MapContext);
+
   const { mission } = props;
 
   const [position, setPosition] = useState(null as ClickPosition | null);
@@ -35,9 +37,13 @@ export function CampaignMap(props: CampaignMapProps) {
   };
 
   return (
-    <div data-testid="campaign-map">  
-    {position && <ContextMenu position={position} />}
+    <div data-testid="campaign-map">
+      {position && <ContextMenu position={position} />}
       <Map
+        ref={ref => {
+          const map = ref ? (ref.contextValue ? ref.contextValue.map : null) : null;
+          mapContext.map = map;
+        }}
         center={pick(props, ['lat', 'lng'])}
         zoom={props.zoom}
         onclick={props.onMapClick}
