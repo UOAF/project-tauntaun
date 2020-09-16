@@ -1,6 +1,6 @@
 import unittest
 
-from live_editor.backend.coord import xz_to_lat_lon, lat_lon_to_xz
+from tauntaun_live_editor.coord import xz_to_lat_lon, lat_lon_to_xz
 
 
 class CoordTestCase(unittest.TestCase):

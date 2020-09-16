@@ -12,7 +12,7 @@ from dcs.translation import String
 from dcs.unit import Unit
 from dcs.unitgroup import Group
 
-from coord import xz_to_lat_lon
+from tauntaun_live_editor.coord import xz_to_lat_lon
 
 class MissionEncoder(json.JSONEncoder):
     def __init__(self, terrain, convert_coords=False, add_sidc=False, *args, **kws):

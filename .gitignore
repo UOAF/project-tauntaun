@@ -3,9 +3,11 @@ __pycache__/
 .idea/
 client/
 build/
+dist/
+*.egg-info/
 env
 mission.lua
 dcs_static.json
 tauntaun.miz
-
 node_modules
+

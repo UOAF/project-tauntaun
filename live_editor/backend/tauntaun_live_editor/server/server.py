@@ -1,19 +1,18 @@
-from quart import Quart, send_from_directory, make_response
-from quart import websocket
-from functools import wraps
-
-from server.mission_encoder import MissionEncoder
-
-from hypercorn.config import Config
-from hypercorn.asyncio import serve
-import asyncio
-
+import os
 import signal
 import json
-
+import asyncio
 import logging
+from functools import wraps
 
-from sessions import SessionsEncoder
+from quart import Quart, send_from_directory, make_response
+from quart import websocket
+from hypercorn.config import Config
+from hypercorn.asyncio import serve
+
+from tauntaun_live_editor.sessions import SessionsEncoder
+from tauntaun_live_editor.util import get_data_path
+from .mission_encoder import MissionEncoder
 
 logger = logging.basicConfig(level=logging.DEBUG)
 
@@ -24,20 +23,22 @@ def plain_text_response(x):
     return resp
 
 def create_app(campaign, session_manager):
-    app = Quart(__name__, static_folder='client/static',
-                template_folder='client')
+    data_dir = get_data_path()
+
+    app = Quart(__name__, static_folder=os.path.join(data_dir, 'client', 'static'),
+                template_folder=os.path.join(data_dir, 'client'))
 
     @app.route('/', defaults={'path': 'index.html'})
     async def send_root(path):
-        return await send_from_directory('server/client', path)
+        return await send_from_directory(os.path.join(data_dir, 'client'), path)
 
     @app.route('/<path:path>')
     async def send_static_root(path):
-        return await send_from_directory('server/client', path)
+        return await send_from_directory(os.path.join(data_dir, 'client'), path)
 
     @app.route('/static/<path:path>')
     async def send_static(path):
-        return await send_from_directory('server/client/static', path)
+        return await send_from_directory(os.path.join(data_dir, 'client', 'static'), path)
 
     @app.route('/game/mission')
     async def render_mission():

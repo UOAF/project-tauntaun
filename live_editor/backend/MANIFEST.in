@@ -1,0 +1,3 @@
+recursive-exclude test *.*
+recursive-exclude tools *.*
+recursive-include tauntaun_live_editor/data *.*

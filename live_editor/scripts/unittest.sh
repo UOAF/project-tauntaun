@@ -7,6 +7,5 @@ then
 fi
 
 source env/bin/activate
-python live_editor/backend/data/gen_client_data.py
-cp dcs_static.json live_editor/frontend/src/data/
-rm dcs_static.json
+
+pushd live_editor/backend && python3 -m unittest discover test -p '*_test.py' && popd

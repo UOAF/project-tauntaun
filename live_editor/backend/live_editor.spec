@@ -2,13 +2,14 @@
 
 block_cipher = None
 
+# TODO not working
 
-a = Analysis(['backend/camp.py'],
-             pathex=['live_editor/backend'],
+a = Analysis(['tauntaun_live_editor/camp.py'],
+             pathex=['live_editor/backend/tauntaun_live_editor'],
              binaries=[],
              datas=[        
-        ('../env/lib/python3.8/site-packages/dcs/terrain/caucasus.p', 'dcs/terrain/'),
-('../env/lib/python3.8/site-packages/dcs/terrain/nevada.p', 'dcs/terrain/')        ],
+        ('../../env/lib/python3.8/site-packages/dcs/terrain/caucasus.p', 'dcs/terrain/'),
+('../../env/lib/python3.8/site-packages/dcs/terrain/nevada.p', 'dcs/terrain/')        ],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],

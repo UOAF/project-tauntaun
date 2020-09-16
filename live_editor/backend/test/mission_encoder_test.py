@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from server.mission_encoder import MissionEncoder
+from tauntaun_live_editor.server.mission_encoder import MissionEncoder
 from test.test_common import create_mission
 
 
