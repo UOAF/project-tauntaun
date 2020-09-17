@@ -14,4 +14,5 @@ export * from './BriefingForm';
 export * from './MapText';
 export * from './Legend';
 export * from './LoadoutEditor';
+export * from './ContextMenu';
 export * from './App';

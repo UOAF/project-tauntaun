@@ -6,7 +6,7 @@ from dcs.coalition import Coalition
 from dcs.country import Country
 from dcs.flyingunit import FlyingUnit
 from dcs.planes import PlaneType
-from dcs.point import StaticPoint, PointAction
+from dcs.point import StaticPoint, PointAction, MovingPoint
 from dcs.terrain import Terrain, Airport
 from dcs.translation import String
 from dcs.unit import Unit
@@ -96,6 +96,12 @@ class MissionEncoder(json.JSONEncoder):
             'action': obj.action
         }
 
+    def moving_point(self, obj):
+        return {
+            **self.static_point(obj),
+            'alt_type': obj.alt_type
+        }
+
     def point(self, obj):
         if self.convert_coords:
             lat, lon = xz_to_lat_lon(self.dcs_terrain.name, obj.x, obj.y)
@@ -159,6 +165,9 @@ class MissionEncoder(json.JSONEncoder):
 
         if isinstance(obj, Unit):
             return self.unit(obj)
+
+        if isinstance(obj, MovingPoint):
+            return self.moving_point(obj)
 
         if isinstance(obj, StaticPoint):
             return self.static_point(obj)

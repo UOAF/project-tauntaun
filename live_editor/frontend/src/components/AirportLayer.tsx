@@ -16,9 +16,9 @@ export function AirportLayer(props: AirportLayerProps) {
 
   return (
     <div>
-      {map(airports, airport => 
-        (<AirportMarker airport={airport} />)
-      )}
+      {map(airports, airport => (
+        <AirportMarker airport={airport} />
+      ))}
     </div>
   );
 }

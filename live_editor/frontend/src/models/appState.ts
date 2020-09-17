@@ -2,7 +2,7 @@ import L, { LatLng } from 'leaflet';
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
 
-import { Mission, Group, emptyMission, MasterMode, defaultEditGroupMode, EditGroupMode, AddFlightMode } from './';
+import { Mission, Group, emptyMission } from './';
 import { gameService } from '../services';
 import { without } from 'lodash';
 import { Sessions } from './sessionData';
@@ -12,7 +12,10 @@ import { getGroups } from './dcs_util';
 export interface AppState {
   isInitialized: boolean;
   mission: Mission;
-  masterMode: MasterMode;
+  location: LatLng | undefined;
+  selectedGroupId: number | undefined;
+  selectedWaypoint: number | undefined;
+  selectedUnitId: number | undefined;
   showUnits: boolean;
   showThreatRings: boolean;
   sessionId: number;
@@ -24,12 +27,16 @@ export interface AppState {
   showAIFlightPlans: boolean;
   showAllGroups: boolean;
   showLegend: boolean;
+  mapType: string;
 }
 
 const defaultState: AppState = {
   isInitialized: false,
   mission: emptyMission,
-  masterMode: defaultEditGroupMode,
+  location: undefined,
+  selectedGroupId: undefined,
+  selectedWaypoint: undefined,
+  selectedUnitId: undefined,
   showUnits: false,
   showThreatRings: true,
   sessionId: -1,
@@ -40,7 +47,8 @@ const defaultState: AppState = {
   showOtherWpNames: false,
   showAIFlightPlans: false,
   showAllGroups: false,
-  showLegend: true
+  showLegend: true,
+  mapType: 'mapbox/outdoors-v11'
 };
 
 function useAppState(initialState = defaultState) {
@@ -88,34 +96,29 @@ function useAppState(initialState = defaultState) {
     setState(state => {
       // TODO this should not be here or not like this, hack for mvp
       const sessionData = sessions[state.sessionId];
-      const editGroupMode = state.masterMode as EditGroupMode;
       const selected_unit_id = sessionData.selected_unit_id;
       if (
         sessionData &&
         selected_unit_id !== -1 &&
-        editGroupMode &&
-        (editGroupMode.selectedUnitId === undefined || editGroupMode.selectedUnitId !== selected_unit_id)
+        (state.selectedUnitId === undefined || state.selectedUnitId !== selected_unit_id)
       ) {
         const group = wu(getGroups(state.mission)).find(
           g => g.units.find(u => u.id === selected_unit_id) !== undefined
         );
 
         if (group) {
-          if (group.id !== editGroupMode.selectedGroupId) {
-            editGroupMode.selectedGroupId = group.id;
+          if (group.id !== state.selectedGroupId) {
+            state.selectedGroupId = group.id;
           }
 
-          editGroupMode.selectedUnitId = selected_unit_id;
+          state.selectedUnitId = selected_unit_id;
         }
 
         return {
           ...state,
           sessions: sessions,
-          masterMode: {
-            ...state.masterMode,
-            selectedGroupId: editGroupMode.selectedGroupId,
-            selectedUnitId: editGroupMode.selectedUnitId
-          } as EditGroupMode
+          selectedGroupId: state.selectedGroupId,
+          selectedUnitId: state.selectedUnitId
         };
       }
 
@@ -231,50 +234,31 @@ function useAppState(initialState = defaultState) {
     });
   };
 
-  const setMasterMode = (masterMode: MasterMode) => {
-    setState(state => ({
-      ...state,
-      masterMode: masterMode
-    }));
-  };
-
   const selectGroup = (groupId: number | undefined) => {
     setState(state => ({
       ...state,
-      masterMode: {
-        ...state.masterMode,
-        selectedGroupId: groupId
-      } as EditGroupMode
+      selectedGroupId: groupId
     }));
   };
 
   const selectUnit = (unitId: number | undefined) => {
     setState(state => ({
       ...state,
-      masterMode: {
-        ...state.masterMode,
-        selectedUnitId: unitId
-      } as EditGroupMode
+      selectedUnitId: unitId
     }));
   };
 
   const selectWaypoint = (id: number | undefined) => {
     setState(state => ({
       ...state,
-      masterMode: {
-        ...state.masterMode,
-        selectedWaypoint: id
-      } as EditGroupMode
+      selectedWaypoint: id
     }));
   };
 
   const setLocation = (location: LatLng | undefined) => {
     setState(state => ({
       ...state,
-      masterMode: {
-        ...state.masterMode,
-        location: location
-      } as AddFlightMode
+      location: location
     }));
   };
 
@@ -341,13 +325,18 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
+  const setMapType = (mapType: string) => {
+    setState(state => ({
+      ...state,
+      mapType: mapType
+    }));
+  };
 
   return {
     ...state,
     initialize,
     refreshMission,
-    updateGroup,
-    setMasterMode,
+    updateGroup,  
     selectGroup,
     selectWaypoint,
     setLocation,
@@ -360,7 +349,8 @@ function useAppState(initialState = defaultState) {
     setShowOtherWpNames,
     setShowAIFlightPlans,
     setShowAllGroups,
-    setShowLegend
+    setShowLegend,
+    setMapType
   };
 }
 

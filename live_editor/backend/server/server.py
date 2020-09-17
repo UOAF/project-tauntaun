@@ -61,6 +61,7 @@ def create_app(campaign, session_manager):
                     'value': id
                 }))
                 wrapper.id_counter += 1
+
                 try:
                     return await func(*args, **kwargs)
                 finally:
@@ -152,15 +153,10 @@ def create_app(campaign, session_manager):
                 'session_data_update': session_data_update
             }
 
-            try:
-                await dispatch_map[update_type](data['value'])
-            except KeyError():
-                # TODO log error
-                pass
+            #Note: try catch removed to crash on exception
+            await dispatch_map[update_type](data['value'])
 
     return app
-
-
 
 
 def run(campaign, session_maanger, port=80):

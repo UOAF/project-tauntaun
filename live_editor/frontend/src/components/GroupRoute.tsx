@@ -58,9 +58,7 @@ export function GroupRoute(props: GroupRouteProps) {
   };
 
   const handlePositionClicked = (index: number) => {
-    if (appState.masterMode && appState.masterMode.name === 'EditGroupMode') {
-      appState.selectWaypoint(index);
-    }
+    appState.selectWaypoint(index);
 
     console.log('Point clicked.', index);
   };

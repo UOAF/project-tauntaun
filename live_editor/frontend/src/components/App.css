@@ -151,3 +151,8 @@ p {
   display: inline-block;
   margin-right: 5px;
 }
+
+.MapTypeSelect {
+  margin-left: 10px;
+  margin-right: 10px;
+}
