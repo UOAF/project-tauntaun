@@ -53,3 +53,8 @@ def fixup_jsonlike(x):
 
     fixup_helper(x)
     return x
+
+_ROOT = os.path.abspath(os.path.dirname(__file__))
+def get_data_path():
+    return os.path.join(_ROOT, 'data')
+

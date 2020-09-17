@@ -1,4 +1,4 @@
-import numpy as np
+import math
 
 def lat_lon_to_xz(terrain, lat, lon):
     c = _terrain_data[terrain]
@@ -63,10 +63,10 @@ class _CoordInterpolator(object):
         epsilon = (315.0 * (n ** 4.0 / 512.0)) \
  \
             # /* Now calculate the sum of the series and return */
-        result = alpha * (phi + (beta * np.sin(2.0 * phi)) \
-                          + (gamma * np.sin(4.0 * phi)) \
-                          + (delta * np.sin(6.0 * phi)) \
-                          + (epsilon * np.sin(8.0 * phi)))
+        result = alpha * (phi + (beta * math.sin(2.0 * phi)) \
+                          + (gamma * math.sin(4.0 * phi)) \
+                          + (delta * math.sin(6.0 * phi)) \
+                          + (epsilon * math.sin(8.0 * phi)))
         return result
 
     """/*
@@ -85,7 +85,7 @@ class _CoordInterpolator(object):
     */"""
 
     def UTMCentralMeridian(self, zone):
-        cmeridian = np.deg2rad(-183.0 + (zone * 6.0))
+        cmeridian = math.radians(-183.0 + (zone * 6.0))
         return cmeridian
 
     """/*
@@ -134,10 +134,10 @@ class _CoordInterpolator(object):
         epsilon_ = (1097.0 * (n ** 4.0) / 512.0)
 
         # /* Now calculate the sum of the series (Eq. 10.21) */
-        result = y_ + (beta_ * np.sin(2.0 * y_)) \
-                 + (gamma_ * np.sin(4.0 * y_)) \
-                 + (delta_ * np.sin(6.0 * y_)) \
-                 + (epsilon_ * np.sin(8.0 * y_))
+        result = y_ + (beta_ * math.sin(2.0 * y_)) \
+                 + (gamma_ * math.sin(4.0 * y_)) \
+                 + (delta_ * math.sin(6.0 * y_)) \
+                 + (epsilon_ * math.sin(8.0 * y_))
 
         return result
 
@@ -170,13 +170,13 @@ class _CoordInterpolator(object):
         ep2 = ((self.sm_a ** 2.0) - (self.sm_b ** 2.0)) / (self.sm_b ** 2.0)
 
         # /* Precalculate nu2 */
-        nu2 = ep2 * (np.cos(phi) ** 2.0)
+        nu2 = ep2 * (math.cos(phi) ** 2.0)
 
         # /* Precalculate N */
-        N = (self.sm_a ** 2.0) / (self.sm_b * np.sqrt(1 + nu2))
+        N = (self.sm_a ** 2.0) / (self.sm_b * math.sqrt(1 + nu2))
 
         # /* Precalculate t */
-        t = np.tan(phi)
+        t = math.tan(phi)
         t2 = t * t
         # tmp = (t2 * t2 * t2) - (t**6.0)
 
@@ -203,17 +203,17 @@ class _CoordInterpolator(object):
 
         xy = [0, 0]
         # /* Calculate easting (x) */
-        xy[0] = N * np.cos(phi) * l \
-                + (N / 6.0 * np.power(np.cos(phi), 3.0) * l3coef * np.power(l, 3.0)) \
-                + (N / 120.0 * np.power(np.cos(phi), 5.0) * l5coef * np.power(l, 5.0)) \
-                + (N / 5040.0 * np.power(np.cos(phi), 7.0) * l7coef * np.power(l, 7.0))
+        xy[0] = N * math.cos(phi) * l \
+                + (N / 6.0 * math.pow(math.cos(phi), 3.0) * l3coef * math.pow(l, 3.0)) \
+                + (N / 120.0 * math.pow(math.cos(phi), 5.0) * l5coef * math.pow(l, 5.0)) \
+                + (N / 5040.0 * math.pow(math.cos(phi), 7.0) * l7coef * math.pow(l, 7.0))
 
         # /* Calculate northing (y) */
         xy[1] = self.ArcLengthOfMeridian(phi) \
-                + (t / 2.0 * N * np.power(np.cos(phi), 2.0) * np.power(l, 2.0)) \
-                + (t / 24.0 * N * np.power(np.cos(phi), 4.0) * l4coef * np.power(l, 4.0)) \
-                + (t / 720.0 * N * np.power(np.cos(phi), 6.0) * l6coef * np.power(l, 6.0)) \
-                + (t / 40320.0 * N * np.power(np.cos(phi), 8.0) * l8coef * np.power(l, 8.0))
+                + (t / 2.0 * N * math.pow(math.cos(phi), 2.0) * math.pow(l, 2.0)) \
+                + (t / 24.0 * N * math.pow(math.cos(phi), 4.0) * l4coef * math.pow(l, 4.0)) \
+                + (t / 720.0 * N * math.pow(math.cos(phi), 6.0) * l6coef * math.pow(l, 6.0)) \
+                + (t / 40320.0 * N * math.pow(math.cos(phi), 8.0) * l8coef * math.pow(l, 8.0))
 
         return xy
 
@@ -259,17 +259,17 @@ class _CoordInterpolator(object):
               / (self.sm_b ** 2.0)
 
         # /* Precalculate cos (phif) */
-        cf = np.cos(phif)
+        cf = math.cos(phif)
 
         # /* Precalculate nuf2 */
         nuf2 = ep2 * (cf ** 2.0)
 
         # /* Precalculate Nf and initialize Nfpow */
-        Nf = (self.sm_a ** 2.0) / (self.sm_b * np.sqrt(1 + nuf2))
+        Nf = (self.sm_a ** 2.0) / (self.sm_b * math.sqrt(1 + nuf2))
         Nfpow = Nf
 
         # /* Precalculate tf */
-        tf = np.tan(phif)
+        tf = math.tan(phif)
         tf2 = tf * tf
         tf4 = tf2 * tf2
 
@@ -319,15 +319,15 @@ class _CoordInterpolator(object):
         philambda = [0, 0]
         # /* Calculate latitude */
         philambda[0] = phif + x2frac * x2poly * (x * x) \
-                       + x4frac * x4poly * np.power(x, 4.0) \
-                       + x6frac * x6poly * np.power(x, 6.0) \
-                       + x8frac * x8poly * np.power(x, 8.0)
+                       + x4frac * x4poly * math.pow(x, 4.0) \
+                       + x6frac * x6poly * math.pow(x, 6.0) \
+                       + x8frac * x8poly * math.pow(x, 8.0)
 
         # /* Calculate longitude */
         philambda[1] = lambda0 + x1frac * x \
-                       + x3frac * x3poly * np.power(x, 3.0) \
-                       + x5frac * x5poly * np.power(x, 5.0) \
-                       + x7frac * x7poly * np.power(x, 7.0)
+                       + x3frac * x3poly * math.pow(x, 3.0) \
+                       + x5frac * x5poly * math.pow(x, 5.0) \
+                       + x7frac * x7poly * math.pow(x, 7.0)
 
         return philambda
 
@@ -400,7 +400,7 @@ class _CoordInterpolator(object):
         return latlon
 
     def lat_lon_to_xz(self, c, lat, lon):
-        utmxy, zone = self.LatLonToUTMXY(np.deg2rad(lat), np.deg2rad(lon), c['zone'])
+        utmxy, zone = self.LatLonToUTMXY(math.radians(lat), math.radians(lon), c['zone'])
 
         return utmxy[1] - c['x'], utmxy[0] - c['z']
 
@@ -409,7 +409,7 @@ class _CoordInterpolator(object):
         utmx = z + c['z']
         latlon = self.UTMXYToLatLon(utmx, utmy, c['zone'], c['southhemi'])
 
-        return np.rad2deg(latlon[0]), np.rad2deg(latlon[1])
+        return math.degrees(latlon[0]), math.degrees(latlon[1])
 
 
 _instance = _CoordInterpolator()

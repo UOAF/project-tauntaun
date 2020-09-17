@@ -7,5 +7,6 @@ then
 fi
 
 source env/bin/activate
-python live_editor/backend/camp.py &
+
+pushd live_editor/backend/ && (python -m tauntaun_live_editor &) && popd
 pushd live_editor/frontend && yarn start && popd

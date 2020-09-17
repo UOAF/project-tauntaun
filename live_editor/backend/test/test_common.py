@@ -1,7 +1,7 @@
 import dcs
 from dcs import Mission
 
-from camp import Campaign
+from tauntaun_live_editor.camp import Campaign
 
 
 def create_mission() -> Mission:

@@ -1,22 +1,22 @@
+import os
+import os.path
 import zipfile
+import itertools
 
+import dcs
 from dcs.flyingunit import FlyingUnit
 from dcs.point import PointAction, MovingPoint
 from dcs.unit import Skill
 from dcs.weapons_data import weapon_ids
-
-from util import get_dcs_dir, point_along_route
 from dcs import terrain
-import dcs
 import dcs.mapping as mapping
-import os
-import os.path
-import server
-import itertools
-from coord import lat_lon_to_xz
 
-from sessions import SessionManager
+import tauntaun_live_editor.server as server
+from .util import get_dcs_dir, get_data_path
+from .coord import lat_lon_to_xz
+from .sessions import SessionManager
 
+_data_dir = get_data_path()
 
 def is_posix():
     return os.name == 'posix'
@@ -310,10 +310,8 @@ class Campaign():
             point.position = mapping.Point(x, z)
 
     def _get_miz_path(self, name='tauntaun'):
-        dcs_dir = '.'
         if is_posix():
-            if not os.path.exists('Missions'):
-                os.makedirs('Missions')
+            dcs_dir = _data_dir
         else:
             dcs_dir = get_dcs_dir()
             if not dcs_dir:
@@ -341,10 +339,8 @@ class Campaign():
         print("Mission loaded from", mizname)
 
 def save_mission(m, name='pytest'):
-    dcs_dir = '.'
     if is_posix:
-        if not os.path.exists('Missions'):
-            os.makedirs('Missions')
+        dcs_dir = _data_dir
     else:
         dcs_dir = get_dcs_dir()
         if not dcs_dir:
@@ -365,7 +361,7 @@ def main():
     c.mission = dcs.Mission(terrain.Caucasus())
     session_manager = SessionManager()
 
-    c.load_mission('Missions/default.miz')
+    c.load_mission(os.path.join(_data_dir, 'Missions/default.miz'))
 
     server.run(c, session_manager, 8080)
 
