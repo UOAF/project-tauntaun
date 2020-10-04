@@ -29,7 +29,7 @@ setuptools.setup(
     },
     install_requires=[
       'wheel>=0.35.1',
-      'pydcs>=0.10.0',
+      'pydcs@git+https://github.com/pydcs/dcs.git@c203e5a1b8d5eb42d559dab074e668bf37fa5158',
       'Quart>=0.12.0'
     ],
     entry_points={
