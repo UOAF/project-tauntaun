@@ -1,0 +1,18 @@
+.TextMarkerTooltip
+{
+  background-color: transparent;
+  border: transparent;    
+  box-shadow: none;
+  border-width: 0px;
+}
+
+.TextMarkerTooltip.leaflet-tooltip-right:before {
+  display: none;
+}
+
+.TextMarkerText
+{
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: bold;
+}

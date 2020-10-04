@@ -13,6 +13,7 @@ fi
 python3 -m venv env
 
 source env/bin/activate
+pip3 install wheel
 pip install -r requirements.txt
 
 pushd live_editor/frontend && yarn install && popd

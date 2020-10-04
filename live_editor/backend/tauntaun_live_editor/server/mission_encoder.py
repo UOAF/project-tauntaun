@@ -21,6 +21,9 @@ class MissionEncoder(json.JSONEncoder):
         self.add_sidc = add_sidc
         super().__init__(*args, **kws)
 
+    def boolean(self, obj):
+        return 'true' if obj else 'false'
+
     def mission(self, obj):
         return {
             'terrain': self.default(obj.terrain),
@@ -50,7 +53,8 @@ class MissionEncoder(json.JSONEncoder):
             'id': obj.id,
             'name': self.default(obj.name),
             'units': self.default(obj.units),
-            'points': self.default(obj.points)
+            'points': self.default(obj.points),
+            'hidden': self.default(obj.hidden) if obj.hidden is not None else 'false'
         }
 
         if hasattr(obj, 'task'):
@@ -147,6 +151,9 @@ class MissionEncoder(json.JSONEncoder):
 
         if isinstance(obj, list):
             return [self.default(v) for v in obj]
+
+        if isinstance(obj, bool):
+            return self.boolean(obj)
 
         if isinstance(obj, Mission):
             return self.mission(obj)

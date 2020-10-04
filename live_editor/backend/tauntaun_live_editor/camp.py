@@ -9,7 +9,9 @@ from dcs.point import PointAction, MovingPoint
 from dcs.unit import Skill
 from dcs.weapons_data import weapon_ids
 from dcs import terrain
+from dcs.terrain.terrain import NoParkingSlotError
 import dcs.mapping as mapping
+
 
 import tauntaun_live_editor.server as server
 from .util import get_dcs_dir, get_data_path
@@ -138,11 +140,13 @@ class GameService:
         self.campaign: Campaign = campaign                
         self.group_route_request_handler = GameService.GroupRouteRequestHandler(campaign)
 
-    def add_flight(self, location, airport, plane, number_of_planes):
+    def add_flight(self, coalition, countryName, location, airport, plane, number_of_planes):
         print("add_flight", location, airport, plane, number_of_planes)
 
+        # TODO validate values
+
         location = _convert_point(self.campaign.mission.terrain, location)
-        country = self.campaign.get_countries('blue')["USA"]
+        country = self.campaign.get_countries(coalition)[countryName]
 
         airport = self.campaign.mission.terrain.airport_by_id(airport)
         if not airport:
@@ -156,11 +160,16 @@ class GameService:
             print("add_flight plane not found")
             return
 
-        new_flight = self.campaign.mission.flight_group_from_airport(country,
-                                                                     'DefaultName',
-                                                                     aircraft_type=plane,
-                                                                     airport=airport,
-                                                                     group_size=number_of_planes)
+        try:
+            new_flight = self.campaign.mission.flight_group_from_airport(country,
+                                                                         'DefaultName',
+                                                                         aircraft_type=plane,
+                                                                         airport=airport,
+                                                                         group_size=number_of_planes)
+        except NoParkingSlotError as e:
+            print(f"add_flight failed error: {e}")
+            return
+
         new_flight.add_waypoint(location, altitude=5000)
         new_flight.set_skill(Skill.Client)
 

@@ -1,3 +1,5 @@
+import './index.css';
+
 import 'bluebird-global';
 
 import 'leaflet';
@@ -7,7 +9,6 @@ import 'leaflet.pm/dist/leaflet.pm.css';
 
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
 
 import { App } from './components';
 import { AppStateContainer } from './models';
