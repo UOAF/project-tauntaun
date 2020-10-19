@@ -83,6 +83,7 @@ export function GroupRoute(props: GroupRouteProps) {
     console.log('Point clicked.', index);
   };
 
+  // TODO order
   return (
     <React.Fragment>
       <EditablePolyline
@@ -99,16 +100,6 @@ export function GroupRoute(props: GroupRouteProps) {
         editable={editable}
         nonEditableWpRadius={isSelected ? 7 : 4}
       />
-      {showWaypointNames &&
-        labels.map((v, i) => (
-          <TextMarker
-            key={`maptext${i}`}
-            text={v.text}
-            position={v.position}
-            color={colors.color}
-            backgroundColor={'white'}
-          />
-        ))}
       {isSelected &&
         distanceTextPositions.map((p, i) => (
           <TextMarker
@@ -118,6 +109,16 @@ export function GroupRoute(props: GroupRouteProps) {
             color={'white'}
             backgroundColor={'black'}
             size={11}
+          />
+        ))}
+      {showWaypointNames &&
+        labels.map((v, i) => (
+          <TextMarker
+            key={`maptext${i}`}
+            text={v.text}
+            position={v.position}
+            color={colors.color}
+            backgroundColor={'white'}
           />
         ))}
     </React.Fragment>

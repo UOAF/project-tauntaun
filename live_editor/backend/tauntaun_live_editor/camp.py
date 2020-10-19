@@ -6,6 +6,7 @@ import itertools
 import dcs
 from dcs.flyingunit import FlyingUnit
 from dcs.point import PointAction, MovingPoint
+from dcs.translation import String
 from dcs.unit import Skill
 from dcs.weapons_data import weapon_ids
 from dcs import terrain
@@ -249,6 +250,23 @@ class GameService:
             else:
                 print("Failed to add new waypoint")
 
+        def _get_next_wp_key(self):
+            wpt_key = "DictKey_WptName_"
+            new_wpt_key = "DictKey_WptName_0"  # TODO
+            mission_translation = self.campaign.mission.translation
+            lang = "DEFAULT"
+            if lang in mission_translation.strings:
+                lang_translations = mission_translation.strings[lang]
+                wptkeys = [key for key in lang_translations.keys() if key.startswith(wpt_key)]
+                if wptkeys:
+                    wptkey_numbers = [int(key.split('_')[-1]) for key in wptkeys]
+                    wptkey_numbers.sort()
+                    last_wp_number = wptkey_numbers[-1]
+                    next_wp_number = last_wp_number + 1
+                    new_wpt_key = '{}{}'.format(wpt_key, next_wp_number)
+
+            return new_wpt_key
+
         def modify(self, group_id, old_wp, new_wp):
             group = self.campaign.lookup_group(group_id)
             if group is None:
@@ -262,12 +280,14 @@ class GameService:
                 wp = group.points[old_wp_index[0]]
                 wp.alt = new_wp['alt']
                 wp.type = new_wp['type']
-                #wp.name.set(new_wp['name']) # TODO Missing translation, ignore name for now
+                if wp.name is None or wp.name.translation is None or not isinstance(wp.name, String):
+                    wp.name = String(self._get_next_wp_key(), self.campaign.mission.translation)
+                wp.name.set(new_wp['name'])
                 wp.position = _convert_point(self.campaign.mission.terrain, new_wp['position'])
                 wp.speed = new_wp['speed']
                 wp.action = PointAction[new_wp['action']]
                 if isinstance(wp, MovingPoint):
-                    wp.alt_type =  new_wp['alt_type']
+                    wp.alt_type = new_wp['alt_type']
             else:
                 print("Failed to modify waypoint")
 
