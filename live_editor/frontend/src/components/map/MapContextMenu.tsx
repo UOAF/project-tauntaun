@@ -9,12 +9,12 @@ export interface MapContextMenuProps {
 }
 
 export function MapContextMenu(props: MapContextMenuProps) {
-  const { setShowAddFlightForm, setLocation } = AppStateContainer.useContainer();
+  const { adminMode, setShowAddFlightForm, setLocation } = AppStateContainer.useContainer();
   const mapContext = React.useContext(MapContext);
 
   const contextMenuOptionsAdmin: Array<ContextMenuOption> = [{ label: 'Add Flight', value: 'add_flight' }];
   const contextMenuOptionsNormal: Array<ContextMenuOption> = [{ label: 'Recon', value: 'recon' }];
-  const contextMenuOptions: Array<ContextMenuOption> = contextMenuOptionsAdmin
+  const contextMenuOptions: Array<ContextMenuOption> = adminMode
     ? [...contextMenuOptionsAdmin, ...contextMenuOptionsNormal]
     : contextMenuOptionsNormal;
 
