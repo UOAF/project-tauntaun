@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Polyline as CorePolyline, LeafletEvent, LatLng, Marker } from 'leaflet';
 import { Polyline, PolylineProps, CircleMarker } from 'react-leaflet';
 import { omit } from 'lodash';
@@ -106,7 +106,7 @@ class LeafletPolylineEventHandler {
   };
 }
 
-export function EditablePolyline(props: EditablePolylineProps) {
+export function EditablePolylineNonMemo(props: EditablePolylineProps) {
   const {
     nonEditableWpRadius: nonEditableWpRadiusProp,
     editable,
@@ -123,7 +123,7 @@ export function EditablePolyline(props: EditablePolylineProps) {
   // only the polyline is redrawn.
   // requestRedraw will recreate/redraw the polyline at every change which is not optimal
   // but at least it works with all 3 scenarios and external updates.
-  const [savedPositions, setSavePositions] = useState(positions);
+  const [savedPositions, setSavedPositions] = useState(positions);
   const [requestRedraw, setRequestRedraw] = useState(false);
 
   const redraw = () => {
@@ -164,15 +164,15 @@ export function EditablePolyline(props: EditablePolylineProps) {
     line.on('pm:vertexadded', polyLineEventHandler.onVertedAdded);
   };
 
-  // Only redraw when positions change
-  if (positions !== savedPositions) {
-    setSavePositions(positions);
-    setRequestRedraw(true);
-  }
-
   useEffect(() => {
     setRequestRedraw(false);
   }, [requestRedraw]);
+
+  // Only redraw when positions change
+  if (positions !== savedPositions) {
+    setSavedPositions(positions);
+    setRequestRedraw(true);
+  }
 
   const renderNonEditableWp = (position: LatLng, index: number) => (
     <CircleMarker
@@ -195,4 +195,16 @@ export function EditablePolyline(props: EditablePolylineProps) {
       </React.Fragment>
     );
   }
+}
+
+export function EditablePolyline(props: EditablePolylineProps) {
+  const { editable, positions } = props;
+  const latLngArray = JSON.stringify(positions as LatLng[]);
+
+  const memorizedItem = useMemo(() => <EditablePolylineNonMemo {...props} />, [ // eslint-disable-line react-hooks/exhaustive-deps
+    editable,
+    latLngArray
+  ]);
+
+  return memorizedItem;
 }
