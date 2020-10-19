@@ -1,5 +1,20 @@
 import { Dictionary } from './';
 
+export enum AltType {
+  BARO = 'BARO',
+  RADIO = 'RADIO'
+}
+
+export enum Coalitions {
+  BLUE = 'blue',
+  RED = 'red',
+  NEUTRAL = 'neutral'
+}
+
+export enum Skill {
+  Client = 'Skill.Client'
+}
+
 export type PlaneType = {
   id: string;
 };
@@ -33,7 +48,11 @@ export type StaticPoint = {
 };
 
 export type MovingPoint = StaticPoint & {
-  alt_type?: string; // TODO it can't be empty
+  alt_type: string;
+};
+
+export type Pylon = {
+  CLSID: string;
 };
 
 export type FlyingUnit = Unit & {
@@ -41,10 +60,10 @@ export type FlyingUnit = Unit & {
   chaff: number;
   fuel: number;
   gun: number;
-  pylons: Dictionary<any>;
+  pylons: Dictionary<Pylon>;
   radio: any; // TODO
   hardpoint_racks: boolean;
-  [key: string]: boolean | number | string | Dictionary<any>;
+  [key: string]: boolean | number | string | Dictionary<Pylon>;
 };
 
 export type Unit = {
@@ -59,8 +78,9 @@ export type Group = {
   id: number;
   name: string;
   units: Array<Unit | FlyingUnit>;
-  points: Array<MovingPoint>;
+  points: Array<MovingPoint | StaticPoint>;
   task: string;
+  hidden: string; // boolean as string
 };
 
 export type Country = {

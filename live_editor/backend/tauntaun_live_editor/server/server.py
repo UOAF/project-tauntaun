@@ -16,7 +16,6 @@ from .mission_encoder import MissionEncoder
 
 logger = logging.basicConfig(level=logging.DEBUG)
 
-
 def plain_text_response(x):
     resp = make_response(str(x))
     resp.headers["Content-Type"] = "text/plain; charset=utf-8"
@@ -24,6 +23,7 @@ def plain_text_response(x):
 
 def create_app(campaign, session_manager):
     data_dir = get_data_path()
+    ws_clients = {}
 
     app = Quart(__name__, static_folder=os.path.join(data_dir, 'client', 'static'),
                 template_folder=os.path.join(data_dir, 'client'))
@@ -48,7 +48,6 @@ def create_app(campaign, session_manager):
     async def render_sessions():
         return json.dumps(session_manager.sessions, cls=SessionsEncoder)
 
-    ws_clients = {}
     def collect_websocket(on_connect, on_disconnect):
         def wrapper_0(func):
             @wraps(func)
@@ -57,10 +56,6 @@ def create_app(campaign, session_manager):
                 ws_clients[id] = websocket._get_current_object()
                 print(f"adding ws client {id}")
                 on_connect(id)
-                await ws_clients[id].send(json.dumps({
-                    'key': 'registration_data',
-                    'value': id
-                }))
                 wrapper.id_counter += 1
 
                 try:
@@ -80,12 +75,18 @@ def create_app(campaign, session_manager):
              ws = ws_clients[ws_id]
              await ws.send(message)
 
-    @app.websocket('/ws/update')
+    @app.websocket('/ws/message')
     @collect_websocket(session_manager.register, session_manager.deregister)
     async def client_update_ws():
         while True:
+            ws = websocket._get_current_object()
+            ws_id = next(key for key, value in ws_clients.items() if value == ws)
+            if ws_id == -1:
+                print("Invalid client request")
+                return
+
             data = await websocket.receive()
-            print(data)
+            print(f"$Client_id: {ws_id}, Data: ${data}")
             data = json.loads(data)
             update_type = data['key']
             game_service = campaign.game_service
@@ -119,7 +120,12 @@ def create_app(campaign, session_manager):
 
             async def add_flight(group_data):
                 game_service.add_flight(
-                    group_data['location'], group_data['airport'], group_data['plane'], group_data['number_of_planes'])
+                    group_data['coalition'],
+                    group_data['country'],
+                    group_data['location'],
+                    group_data['airport'],
+                    group_data['plane'],
+                    group_data['number_of_planes'])
 
                 await broadcast_update()
 
@@ -143,6 +149,12 @@ def create_app(campaign, session_manager):
 
                 await broadcast_session_update()
 
+            async def request_session_id(data):
+                await ws.send(json.dumps({
+                    'key': 'sessionid',
+                    'value': ws_id
+                }))
+
             dispatch_map = {
                 'group_route_insert_at': group_route_insert_at,
                 'group_route_remove': group_route_remove,
@@ -151,10 +163,10 @@ def create_app(campaign, session_manager):
                 'load_mission': load_mission,
                 'add_flight': add_flight,
                 'unit_loadout_update': unit_loadout_update,
-                'session_data_update': session_data_update
+                'session_data_update': session_data_update,
+                'request_session_id': request_session_id,
             }
 
-            #Note: try catch removed to crash on exception
             await dispatch_map[update_type](data['value'])
 
     return app
@@ -174,7 +186,7 @@ def run(campaign, session_maanger, port=80):
     signal.signal(signal.SIGTERM, _signal_handler)
 
     config = Config()
-    config.bind = ["0.0.0.0:" + str(port)]  # As an example configuration setting
+    config.bind = ["0.0.0.0:" + str(port)]
 
     loop.run_until_complete(
         serve(app, config, shutdown_trigger=shutdown_event.wait)

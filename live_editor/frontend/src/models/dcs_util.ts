@@ -1,4 +1,5 @@
-import { Mission, Group } from '.';
+import wu from 'wu';
+import { Mission, Group, Coalitions, Dictionary } from '.';
 
 export function* getGroupArrays(mission: Mission) {
   for (const coalitionKey in mission.coalition) {
@@ -36,10 +37,55 @@ export function findGroupById(mission: Mission, groupId: number): Group | undefi
   }
 
   return undefined;
-};
+}
 
-export function changeSidcCoalition(sidc: string, coalition: string): string {
-  const lcCoalition = coalition.toLowerCase();
-  const affiliationChar = lcCoalition === 'blue' ? 'F' : lcCoalition === 'red' ? 'H' : 'N';
-  return sidc[0] + affiliationChar + sidc.substr(2);
-};
+export enum Affiliation {
+  FRIENDLY = 'F',
+  HOSTILE = 'H',
+  NEUTRAL = 'N'
+}
+
+export function setSidcCoalition(sidc: string, affiliation: Affiliation): string {
+  return sidc[0] + affiliation + sidc.substr(2);
+}
+
+export function calcAffiliation(from: string, to: string) {
+  const affiliationMatrix: Dictionary<Dictionary<Affiliation>> = {
+    [Coalitions.BLUE]: {
+      [Coalitions.BLUE]: Affiliation.FRIENDLY,
+      [Coalitions.RED]: Affiliation.HOSTILE,
+      [Coalitions.NEUTRAL]: Affiliation.NEUTRAL
+    },
+    [Coalitions.RED]: {
+      [Coalitions.BLUE]: Affiliation.HOSTILE,
+      [Coalitions.RED]: Affiliation.FRIENDLY,
+      [Coalitions.NEUTRAL]: Affiliation.NEUTRAL
+    },
+    [Coalitions.NEUTRAL]: {
+      [Coalitions.BLUE]: Affiliation.NEUTRAL,
+      [Coalitions.RED]: Affiliation.NEUTRAL,
+      [Coalitions.NEUTRAL]: Affiliation.FRIENDLY
+    }
+  };
+
+  return affiliationMatrix[from.toLowerCase()][to.toLowerCase()];
+}
+
+export function getGroupOfUnit(mission: Mission, unitId: number | undefined) {
+  if (unitId === undefined || unitId === -1) return undefined;
+  return wu(getGroups(mission)).find(g => g.units.find(u => u.id === unitId) !== undefined);
+}
+
+export function matchCategoryToStaticCategory(category: string) {
+  switch (category) {
+    case 'helicopter_group':
+      return 'planes';
+    case 'plane_group':
+      return 'planes';
+    case 'vehicle_group':
+      return 'vehicles';
+
+    default:
+      return '';
+  }
+}

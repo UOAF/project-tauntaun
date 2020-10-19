@@ -1,14 +1,11 @@
 import { pick } from 'lodash';
 import { v4 as uuidv4 } from 'uuid';
 
-import { Dictionary, Point, Mission, Group, emptyMission, MovingPoint, Unit } from '../models';
+import { Dictionary, Point, Mission, Group, emptyMission, MovingPoint, Unit, StaticPoint } from '../models';
 import { LatLng } from 'leaflet';
 
 import * as DcsStaticRawJson from '../data/dcs_static.json';
 import { Sessions, SessionData } from '../models/sessionData';
-
-export type ForceColor = 'blue' | 'red' | 'neutral';
-export type GetType = 'ships' | 'plane_groups';
 
 export type MissionUpdateListener = (updatedMission: Mission) => void;
 export type SessionsUpdateListener = (updatedSessions: Sessions) => void;
@@ -19,10 +16,18 @@ export interface GameService {
 
   sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void;
   sendRouteRemove(group: Group, wp: Point): void;
-  sendRouteModify(group: Group, oldWp: Point, newWp: MovingPoint): void;
+  sendRouteModify(group: Group, oldWp: Point, newWp: StaticPoint | MovingPoint): void;
   sendSaveMission(): void;
   sendLoadMission(): void;
-  sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void;
+  sendAddFlight(
+    coalition: string,
+    country: string,
+    location: LatLng,
+    airport: number,
+    plane: string,
+    numberOfPlanes: number
+  ): void;
+  requestSessionId(): void;
   sendUnitLoadoutUpdate(
     unit: Unit,
     pylons: Dictionary<string>,
@@ -31,7 +36,7 @@ export interface GameService {
     fuel: number,
     gun: number
   ): void;
-  sendSessionDataUpdate(sessionId: number, sessionData: SessionData) : void;
+  sendSessionDataUpdate(sessionId: number, sessionData: SessionData): void;
 
   getMission(): Promise<Mission>;
   getSessions(): Promise<Sessions>;
@@ -86,7 +91,7 @@ function receiveUpdateMessage(event: any) {
   const message = JSON.parse(event.data);
   if (message.key === 'mission_updated') {
     Object.keys(missionUpdateListeners).forEach(key => missionUpdateListeners[key](message.value));
-  } else if (message.key === 'registration_data') {
+  } else if (message.key === 'sessionid') {
     Object.keys(SessionIdUpdateListeners).forEach(key => SessionIdUpdateListeners[key](message.value));
   } else if (message.key === 'sessions_updated') {
     Object.keys(sessionsUpdateListeners).forEach(key => sessionsUpdateListeners[key](message.value));
@@ -96,7 +101,7 @@ function receiveUpdateMessage(event: any) {
 async function openSocket(): Promise<void> {
   return new Promise((resolve, reject) => {
     try {
-      const url = new URL('/ws/update', window.location.href);
+      const url = new URL('/ws/message', window.location.href);
       url.protocol = url.protocol.replace('http', 'ws');
       url.port = '8080';
       socket = new WebSocket(url.toString());
@@ -107,7 +112,6 @@ async function openSocket(): Promise<void> {
     }
   });
 }
-
 
 function sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void {
   sendMessage('group_route_insert_at', {
@@ -124,7 +128,7 @@ function sendRouteRemove(group: Group, wp: Point): void {
   });
 }
 
-function sendRouteModify(group: Group, oldWp: Point, newWp: MovingPoint): void {
+function sendRouteModify(group: Group, oldWp: Point, newWp: StaticPoint | MovingPoint): void {
   sendMessage('group_route_modify', {
     ...pick(group, ['id']),
     old: pick(oldWp, ['lat', 'lon']),
@@ -136,14 +140,28 @@ function sendSaveMission(): void {
   sendMessage('save_mission', '');
 }
 
-function sendAddFlight(location: LatLng, airport: number, plane: string, numberOfPlanes: number): void {
+function sendAddFlight(
+  coalition: string,
+  country: string,
+  location: LatLng,
+  airport: number,
+  plane: string,
+  numberOfPlanes: number
+): void {
   sendMessage('add_flight', {
+    coalition: coalition,
+    country: country,
     location: { lat: location.lat, lon: location.lng },
     airport: airport,
     plane: plane,
     number_of_planes: numberOfPlanes
   });
 }
+
+function requestSessionId(): void {
+  sendMessage('request_session_id', {});
+}
+
 function sendLoadMission(): void {
   sendMessage('load_mission', '');
 }
@@ -159,7 +177,8 @@ function sendUnitLoadoutUpdate(
   const weaponsData = (DcsStaticRawJson as any).default.weapons;
   sendMessage('unit_loadout_update', {
     id: unit.id,
-    pylons: Object.keys(pylons).map(k => {
+    pylons: Object.keys(pylons)
+      .map(k => {
         return { [k]: weaponsData[pylons[k]].weapon_id };
       })
       .reduce((a, c) => {
@@ -172,7 +191,7 @@ function sendUnitLoadoutUpdate(
   });
 }
 
-function sendSessionDataUpdate(sessionId: number, sessionData: SessionData) : void {
+function sendSessionDataUpdate(sessionId: number, sessionData: SessionData): void {
   sendMessage('session_data_update', {
     id: sessionId,
     session_data: sessionData
@@ -225,6 +244,7 @@ export const gameService: GameService = {
   sendSaveMission,
   sendLoadMission,
   sendAddFlight,
+  requestSessionId,
   getMission,
   getSessions,
   registerForMissionUpdates,

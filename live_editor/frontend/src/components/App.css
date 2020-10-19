@@ -1,28 +1,8 @@
-body {
-  padding-bottom: 30px;
-}
 h1,
 h2,
 p {
   font-family: sans-serif;
   text-align: center;
-}
-
-.leaflet-container {
-  height: 85vh;
-  width: 95%;
-  margin: 0 auto;
-  text-align: center;
-  z-index: 0;
-}
-
-.leaflet-popup-content-wrapper {
-  border: 1px solid black;
-  border-radius: 0;
-}
-
-.leaflet-popup-tip {
-  border: 1px solid black;
 }
 
 .App {
@@ -62,97 +42,4 @@ p {
   to {
     transform: rotate(360deg);
   }
-}
-
-.Menubar {
-  padding: 30px;
-  text-align: left;
-  background: white;
-}
-
-.Popup
-{
-    text-align:center;
-    position: fixed;
-    top: 10%;
-    left: 10%;
-    z-index:50;
-    width: 400px;
-    background-color: #d3d3d3;
-    border:1px solid black;
-}
-
-.PopupBig
-{
-    text-align:center;
-    position: fixed;
-    top: 10%;
-    left: 10%;
-    z-index:50;
-    width: 80%;
-    background-color: #d3d3d3;
-    border:1px solid black;
-}
-
-.FloatLeft
-{
-  float:left;
-}
-
-.Panel
-{
-    text-align:center;
-    width: 95%;
-    z-index:50;
-    background-color: #e9e6e6;
-    margin: 0 auto;
-    margin-bottom: 2%;
-    border:1px solid black;
-}
-
-.Logo
-{
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 50%;
-}
-
-.MapText
-{
-  background-color: transparent;
-  border: transparent;    
-  box-shadow: none;
-  border-width: 0px;
-  text-shadow: white 1px 1px 1px;
-  font: small-caps bold 16px/30px Courier;
-}
-
-.MapText.leaflet-tooltip-right:before {
-  display: none;
-}
-
-.Legends {
-  position: absolute;
-  bottom: -20%;
-  right: 3%;
-  z-index: 100;  
-}
-
-.Legend {
-  opacity: 0.75;
-}
-
-.Dot {
-  height: 5px;
-  width: 5px;
-  background-color: var(--color);
-  border-radius: 50%;
-  display: inline-block;
-  margin-right: 5px;
-}
-
-.MapTypeSelect {
-  margin-left: 10px;
-  margin-right: 10px;
 }

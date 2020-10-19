@@ -1,0 +1,24 @@
+.marker-icon,
+.marker-icon:focus {
+  z-index: 2000 !important;  
+  background-color: #ffffff6c !important;
+  border: 1px solid #3388ff !important;
+  color: black !important;
+  border-radius: 50% !important;
+  margin: -8px 0 0 -8px !important;
+  width: 14px !important;
+  height: 14px !important;
+  outline: 0 !important;
+  transition: opacity ease 0.3s !important;
+}
+
+.marker-icon-middle,
+.marker-icon-middle:focus {
+  opacity: 0.7 !important;
+  margin: -3px 0 0 -3px !important;
+  background-color: #ffffff !important;
+  width: 5px !important;
+  height: 5px !important;  
+  z-index: 100 !important;  
+  border-radius: 0% !important;
+}

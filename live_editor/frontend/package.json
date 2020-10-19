@@ -13,7 +13,6 @@
     "react-dom": "^16.13.1",
     "react-leaflet": "^2.7.0",
     "react-scripts": "3.4.1",
-    "react-select": "^3.1.0",
     "tokml": "^0.4.0",
     "unstated-next": "^1.1.0",
     "uuid": "^8.1.0",
