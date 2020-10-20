@@ -15,7 +15,7 @@ export type GroupLayerProps = {
   groups: Group[];
 };
 export function GroupLayer(props: GroupLayerProps) {
-  const { adminMode, coalition, map, mission: missionState } = AppStateContainer.useContainer();
+  const { commanderMode, coalition, map, mission: missionState } = AppStateContainer.useContainer();
   const { mission } = missionState;
   const { showAllGroups, showOtherWpNames, showOtherFlightPlans, showAIFlightPlans, hideAllHostileUnits } = map;
 
@@ -44,7 +44,7 @@ export function GroupLayer(props: GroupLayerProps) {
   const renderGroupRoute = (group: Group) => {
     const color = colorPalette[group.id % colorPalette.length];
     const isSelected = group.id === selectedGroupId;
-    const isRouteEditable = selectedGroupId !== undefined && (adminMode || (isSelectedUnitLeadOfFlight && isSelected));
+    const isRouteEditable = selectedGroupId !== undefined && (commanderMode || (isSelectedUnitLeadOfFlight && isSelected));
 
     legendContext.legends.push({ color: color, text: group.name, bold: isSelected });
 

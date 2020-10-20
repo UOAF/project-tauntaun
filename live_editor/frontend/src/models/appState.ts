@@ -2,6 +2,7 @@ import { LatLng } from 'leaflet';
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
 import { Coalitions } from '.';
+import { gameService } from '../services';
 import { useMapState } from './mapState';
 import { useMissionState } from './missionState';
 import { useSelectionState } from './selectionState';
@@ -9,6 +10,7 @@ import { useSessionState } from './sessionState';
 
 export interface AppState {
   adminMode: boolean;
+  commanderMode: boolean;
 
   showAddFlightForm: boolean;
   location: LatLng;
@@ -18,15 +20,19 @@ export interface AppState {
   showBriefingForm: boolean;
 
   coalition: string;
+
+  mapToken: string | undefined;
 }
 
 const defaultState: AppState = {
   adminMode: false,
+  commanderMode: false,
   showAddFlightForm: false,
   location: new LatLng(0, 0),
   showLoadoutEditor: false,
   showBriefingForm: false,
-  coalition: Coalitions.BLUE
+  coalition: Coalitions.BLUE,
+  mapToken: undefined
 };
 
 function useAppState(initialState = defaultState) {
@@ -37,12 +43,21 @@ function useAppState(initialState = defaultState) {
   const mapState = useMapState();
   const selectionState = useSelectionState();
 
+  const refreshMapToken = async (): Promise<void> => {
+    const mapToken = await gameService.getMapToken();
+    setState(state => ({
+      ...state,
+      mapToken: mapToken
+    }));
+  };
+
   const initialize = async (): Promise<void> => {
     try {
       if (initialized) {
         return;
       }
 
+      await refreshMapToken();
       await missionState.initialize();
       await sessionState.initialize();
 
@@ -96,6 +111,20 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
+  const setMapToken = (mapToken: string) => {
+    setState(state => ({
+      ...state,
+      mapToken: mapToken
+    }));
+  };
+
+  const setCommanderMode = (commanderMode: boolean) => {
+    setState(state => ({
+      ...state,
+      commanderMode: commanderMode
+    }));
+  };
+
   return {
     ...state,
     initialize,
@@ -105,6 +134,8 @@ function useAppState(initialState = defaultState) {
     setShowAddFlightForm,
     setShowBriefingForm,
     setCoalition,
+    setMapToken,
+    setCommanderMode,
     session: {
       ...sessionState
     },

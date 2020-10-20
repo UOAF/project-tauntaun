@@ -1,15 +1,27 @@
 import React, { useState } from 'react';
-import { EmptyPropWithChildren } from '../common';
 
-export function Foldable(props: EmptyPropWithChildren) {
+export type FoldableProps = {
+  text?: string;
+  onContextMenu?: () => void;
+};
+
+export function Foldable(props: React.PropsWithChildren<FoldableProps>) {
+  const { text, children, onContextMenu } = props;
   const [fold, setFold] = useState(true);
-  const { children } = props;
+
+  const foldText = fold ? '>' : '<';
+  const buttonText = `${text ? text : ''}${text ? ' ' : ''}${foldText}`;
+
+  const contextMenuProxy = (event: any) => {
+    onContextMenu?.();
+    event.preventDefault();
+  };
 
   return (
     <React.Fragment>
-      <div>
-        <button onClick={() => setFold(!fold)}>{fold ? '>' : '<'}</button>
-      </div>
+      <button onClick={() => setFold(!fold)} onContextMenu={contextMenuProxy}>
+        {buttonText}
+      </button>
       {!fold && children}
     </React.Fragment>
   );

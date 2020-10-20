@@ -30,7 +30,8 @@ setuptools.setup(
     install_requires=[
       'wheel>=0.35.1',
       'pydcs@git+https://github.com/pydcs/dcs.git@495ecd4996d69780de36c54a8c9e63b307442aa7',
-      'Quart>=0.12.0'
+      'Quart>=0.12.0',
+      'dataclasses-json>=0.5.2'
     ],
     entry_points={
         "console_scripts": [

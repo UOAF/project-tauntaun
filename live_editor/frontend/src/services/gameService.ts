@@ -40,6 +40,8 @@ export interface GameService {
 
   getMission(): Promise<Mission>;
   getSessions(): Promise<Sessions>;
+  getMapToken(): Promise<string>;
+  authAdminPassword(password: string): Promise<boolean>;
 
   registerForMissionUpdates(listener: MissionUpdateListener): string;
   unregisterMissionUpdateListener(id: string): void;
@@ -84,6 +86,28 @@ async function getSessions(): Promise<Sessions> {
   } catch (error) {
     console.error(`Couldn't fetch sessions`, error);
     return {};
+  }
+}
+
+async function getMapToken(): Promise<string> {
+  try {
+    const response = await fetch('/game/map_token');
+    const mapToken = await response.text();
+    return mapToken;
+  } catch (error) {
+    console.error(`Couldn't fetch mapToken`, error);
+    return '';
+  }
+}
+
+async function authAdminPassword(password: string): Promise<boolean> {
+  try {
+    const response = await fetch(`/game/auth_admin/${password}`);
+    const result = await response.text();
+    return result === 'true';
+  } catch (error) {
+    console.error(`Couldn't fetch mapToken`, error);
+    return false;
   }
 }
 
@@ -247,6 +271,8 @@ export const gameService: GameService = {
   requestSessionId,
   getMission,
   getSessions,
+  getMapToken,
+  authAdminPassword,
   registerForMissionUpdates,
   unregisterMissionUpdateListener,
   registerForSessionsUpdate,
