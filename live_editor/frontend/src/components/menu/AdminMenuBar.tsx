@@ -4,7 +4,7 @@ import { AppStateContainer } from '../../models';
 import { Checkbox, FormControlLabel } from '@material-ui/core';
 
 export function AdminMenuBar() {
-  const { map } = AppStateContainer.useContainer();
+  const { commanderMode, map, setCommanderMode } = AppStateContainer.useContainer();
   const { showAllGroups, setShowAllGroups } = map;
 
   const saveOnClick = () => {
@@ -18,6 +18,7 @@ export function AdminMenuBar() {
   };
 
   const onShowAllGroupsChange = (event: any) => setShowAllGroups(event.target.checked);
+  const onCommanderModeChange = (event: any) => setCommanderMode(event.target.checked);
 
   return (
     <React.Fragment>
@@ -27,6 +28,12 @@ export function AdminMenuBar() {
         value="start"
         control={<Checkbox checked={showAllGroups} color="primary" onChange={onShowAllGroupsChange} />}
         label="Show all groups"
+        labelPlacement="end"
+      />
+      <FormControlLabel
+        value="start"
+        control={<Checkbox checked={commanderMode} color="secondary" onChange={onCommanderModeChange} />}
+        label="Commander Mode"
         labelPlacement="end"
       />
     </React.Fragment>

@@ -5,6 +5,7 @@
   "proxy": "",
   "dependencies": {
     "bluebird-global": "^1.0.1",
+    "js-sha256": "^0.9.0",
     "leaflet": "^1.6.0",
     "leaflet.pm": "^2.2.0",
     "lodash": "^4.17.19",
@@ -43,6 +44,9 @@
   "devDependencies": {
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.5.0",
+    "@testing-library/user-event": "^7.2.1",
     "@types/bluebird-global": "^3.5.12",
     "@types/lodash": "^4.14.155",
     "@types/node": "^12.12.47",
@@ -53,15 +57,12 @@
     "@types/wu": "^2.1.42",
     "@typescript-eslint/eslint-plugin": "^3.8.0",
     "@typescript-eslint/parser": "^3.8.0",
-    "@testing-library/jest-dom": "^4.2.4",
-    "@testing-library/react": "^9.5.0",
-    "@testing-library/user-event": "^7.2.1",
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.11.0",
     "eslint-plugin-prettier": "^3.1.3",
     "eslint-plugin-react": "^7.20.5",
-    "prettier": "^2.0.5",
     "http-proxy-middleware": "^1.0.4",
+    "prettier": "^2.0.5",
     "typescript": "^3.7.5"
   }
 }

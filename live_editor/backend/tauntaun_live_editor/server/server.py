@@ -12,6 +12,7 @@ from hypercorn.asyncio import serve
 
 from tauntaun_live_editor.sessions import SessionsEncoder
 from tauntaun_live_editor.util import get_data_path
+import tauntaun_live_editor.config as config
 from .mission_encoder import MissionEncoder
 
 logger = logging.basicConfig(level=logging.DEBUG)
@@ -47,6 +48,14 @@ def create_app(campaign, session_manager):
     @app.route('/game/sessions')
     async def render_sessions():
         return json.dumps(session_manager.sessions, cls=SessionsEncoder)
+
+    @app.route('/game/map_token')
+    async def render_map_token():
+        return config.config.map_token
+
+    @app.route('/game/auth_admin/<password>')
+    async def render_auth_admin_password(password):
+        return 'true' if config.config.admin_password == password else 'false'
 
     def collect_websocket(on_connect, on_disconnect):
         def wrapper_0(func):

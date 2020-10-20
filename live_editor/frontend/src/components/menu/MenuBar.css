@@ -11,3 +11,8 @@
   margin-left: 10px;
   margin-right: 10px;
 }
+
+.AdminButton {
+  background-color: transparent;
+  color: red;
+}

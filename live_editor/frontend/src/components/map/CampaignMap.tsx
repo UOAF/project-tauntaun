@@ -22,7 +22,7 @@ export interface CampaignMapProps {
 }
 
 export function CampaignMap(props: CampaignMapProps) {
-  const { map, mission: missionState } = AppStateContainer.useContainer();
+  const { map, mission: missionState, mapToken } = AppStateContainer.useContainer();
   const { mission } = missionState;
   const { mapType, showLegend } = map;
   const mapContext = React.useContext(MapContext);
@@ -55,7 +55,7 @@ export function CampaignMap(props: CampaignMapProps) {
           oncontextmenu={onContextMenuClick}
         >
           <TileLayer
-            url={`https://api.mapbox.com/styles/v1/${mapType}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiY2hpbnBvayIsImEiOiJjamxnYmtubDIxNXkxM3FtaWR2dThvZTU3In0.EQeuA12Ganj2LkQ8VRn3lA`}
+            url={`https://api.mapbox.com/styles/v1/${mapType}/tiles/{z}/{x}/{y}?access_token=${mapToken}`}
             maxZoom={15}
             attribution={
               'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +

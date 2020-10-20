@@ -15,19 +15,20 @@ export function App() {
   const {
     showAddFlightForm,
     showBriefingForm: showBriefingFormConfig,
-    adminMode,
+    commanderMode,
     showLoadoutEditor,
     mission: missionState,
     session: sessionState,
     selection,
+    mapToken,
     initialize
   } = AppStateContainer.useContainer();
   const { mission } = missionState;
   const { sessions, sessionId } = sessionState;
   const {
     selectedWaypoint,
-    selectedGroupId: selectedGroupIdAdminMode,
-    selectedUnitId: selectedUnitIdAdminMode,
+    selectedGroupId: selectedGroupIdCommanderMode,
+    selectedUnitId: selectedUnitIdCommanderMode,
     selectGroup
   } = selection;
 
@@ -44,7 +45,7 @@ export function App() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const groupMarkerOnClick = (group: Group, event: any): void => {
-    if (!adminMode) return;
+    if (!commanderMode) return;
 
     if (event && event.coalition !== Coalitions.BLUE) return;
 
@@ -62,8 +63,8 @@ export function App() {
 
   const modeContext = {
     groupOnClick: groupMarkerOnClick,
-    selectedGroupId: adminMode ? selectedGroupIdAdminMode : getGroupOfUnit(mission, selected_unit_id)?.id,
-    selectedUnitId: adminMode ? selectedUnitIdAdminMode : selected_unit_id
+    selectedGroupId: commanderMode ? selectedGroupIdCommanderMode : getGroupOfUnit(mission, selected_unit_id)?.id,
+    selectedUnitId: commanderMode ? selectedUnitIdCommanderMode : selected_unit_id
   } as ModeContextType;
 
   const { selectedGroupId, selectedUnitId } = modeContext;
@@ -72,22 +73,30 @@ export function App() {
   const unit = group && selectedUnitId ? group.units.find(u => u.id === selectedUnitId) : undefined;
   const terrain = mission.terrain;
 
-  const showBriefingForm = sessionData !== undefined && !adminMode && showBriefingFormConfig;
+  const showBriefingForm = sessionData !== undefined && !commanderMode && showBriefingFormConfig;
 
   return (
     <React.Fragment>
-      <MapContext.Provider value={{ map: undefined } as MapContextType}>
-        <ModeContext.Provider value={modeContext}>
-          {showBriefingForm && <BriefingForm />}
-          {showAddFlightForm && <AddFlightForm />}
-          {selectedGroupId && selectedWaypoint && group && (
-            <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
-          )}
-          {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
-          <MenuBar />
-          <CampaignMap lat={terrain.map_view_default.lat} lng={terrain.map_view_default.lon} zoom={9} />
-        </ModeContext.Provider>
-      </MapContext.Provider>
+      {mapToken ? (
+        <React.Fragment>
+          <MapContext.Provider value={{ map: undefined } as MapContextType}>
+            <ModeContext.Provider value={modeContext}>
+              {showBriefingForm && <BriefingForm />}
+              {showAddFlightForm && <AddFlightForm />}
+              {selectedGroupId && selectedWaypoint && group && (
+                <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
+              )}
+              {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
+              <MenuBar />
+              <CampaignMap lat={terrain.map_view_default.lat} lng={terrain.map_view_default.lon} zoom={9} />
+            </ModeContext.Provider>
+          </MapContext.Provider>
+        </React.Fragment>
+      ) : mapToken === undefined ? (
+        <span>Loading...</span>
+      ) : (
+        <span>Empty map token, server is not configured.</span>
+      )}
     </React.Fragment>
   );
 }
