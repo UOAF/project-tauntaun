@@ -1,11 +1,11 @@
-import './Forms.css';
+import '../Window.css';
 
 import React, { useState } from 'react';
 
 import { LatLng } from 'leaflet';
 import { MenuItem, Select } from '@material-ui/core';
-import { AppStateContainer } from '../../models';
-import { gameService } from '../../services';
+import { AppStateContainer } from '../../../models';
+import { gameService } from '../../../services';
 
 export function AddFlightForm() {
   const {

@@ -1,12 +1,12 @@
-import './Forms.css';
+import '../Window.css';
 
 import React, { useState } from 'react';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { MenuItem, Select } from '@material-ui/core';
-import { AltType, AppStateContainer, Group, MovingPoint, PointAction } from '../../models';
-import { gameService } from '../../services';
-import { c_MeterToFeet } from '../../data/constants';
+import { AltType, AppStateContainer, Group, MovingPoint, PointAction } from '../../../models';
+import { gameService } from '../../../services';
+import { c_MeterToFeet } from '../../../data/constants';
 
 export interface EditWaypointFormProps {
   group: Group;

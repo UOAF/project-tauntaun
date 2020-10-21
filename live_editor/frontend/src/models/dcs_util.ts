@@ -1,5 +1,6 @@
 import wu from 'wu';
-import { Mission, Group, Coalitions, Dictionary } from '.';
+import { find } from 'lodash';
+import { Mission, Group, Coalitions, Dictionary, Skill, SessionData } from '.';
 
 export function* getGroupArrays(mission: Mission) {
   for (const coalitionKey in mission.coalition) {
@@ -89,3 +90,14 @@ export function matchCategoryToStaticCategory(category: string) {
       return '';
   }
 }
+
+export function getGroupsWithClients(mission: Mission) {
+  return wu(getGroups(mission))
+    .filter(g => g.units.find(u => u.skill === Skill.Client) !== undefined)
+    .toArray();
+}
+
+export function findPilotNameForUnit(sessions: Dictionary<SessionData>, id: number) {
+  const session = find(sessions, s => s.selected_unit_id === id);
+  return session?.name;
+};

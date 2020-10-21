@@ -1,7 +1,7 @@
 import './LoadoutEditor.css';
 
 import React, { useState } from 'react';
-import * as DcsStaticRawJson from '../../data/dcs_static.json';
+import * as DcsStaticRawJson from '../../../data/dcs_static.json';
 import { Slider } from '@material-ui/core';
 import { Select } from '@material-ui/core';
 import { MenuItem } from '@material-ui/core';
@@ -14,11 +14,11 @@ import {
   FlyingUnit,
   getGroupOfUnit,
   Unit
-} from '../../models';
-import { gameService } from '../../services';
-import { SelectOptionType } from '../../types/material_ui';
-import { ModeContext } from '../contexts';
-import { isLeadOfFlight } from '../common';
+} from '../../../models';
+import { gameService } from '../../../services';
+import { SelectOptionType } from '../../../types/material_ui';
+import { ModeContext } from '../../contexts';
+import { isLeadOfFlight } from '../../common';
 
 const pylonStyle = { minWidth: 200, maxWidth: 200, margin: '5px' };
 

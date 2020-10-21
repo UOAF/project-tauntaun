@@ -72,7 +72,7 @@ def create_app(campaign, session_manager):
                 finally:
                     print(f"removing ws client {id}")
                     del ws_clients[id]
-                    on_disconnect(id)
+                    await on_disconnect(id)
 
             wrapper.id_counter = 0
 
@@ -84,8 +84,17 @@ def create_app(campaign, session_manager):
              ws = ws_clients[ws_id]
              await ws.send(message)
 
+    async def broadcast_session_update():
+        broadcast_data = {'key': 'sessions_updated', 'value': session_manager.sessions}
+        await broadcast(json.dumps(broadcast_data, cls=SessionsEncoder))
+
+
+    async def on_ws_disconnect(id):
+        session_manager.deregister(id)
+        await broadcast_session_update()
+
     @app.websocket('/ws/message')
-    @collect_websocket(session_manager.register, session_manager.deregister)
+    @collect_websocket(session_manager.register, on_ws_disconnect)
     async def client_update_ws():
         while True:
             ws = websocket._get_current_object()
@@ -104,10 +113,6 @@ def create_app(campaign, session_manager):
             async def broadcast_update():
                 broadcast_data = {'key': 'mission_updated', 'value': campaign.mission}
                 await broadcast(json.dumps(broadcast_data, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True, cls=MissionEncoder))
-
-            async def broadcast_session_update():
-                broadcast_data = {'key': 'sessions_updated', 'value': session_manager.sessions}
-                await broadcast(json.dumps(broadcast_data, cls=SessionsEncoder))
 
             async def group_route_insert_at(group_data):
                 group_route_request_handler.insert_at(

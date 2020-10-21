@@ -1,12 +1,18 @@
-import './Forms.css';
+import '../Window.css';
 
 import React, { useState } from 'react';
 
 import { InputLabel, Select, MenuItem, List, ListItem, ListItemText } from '@material-ui/core';
-import wu from 'wu';
-import { find } from 'lodash';
-import { AppStateContainer, findGroupById, getGroupOfUnit, getGroups, SessionData, Skill } from '../../models';
-import { gameService } from '../../services';
+import {
+  AppStateContainer,
+  findGroupById,
+  findPilotNameForUnit,
+  getGroupOfUnit,
+  getGroupsWithClients,
+  SessionData,
+  Skill
+} from '../../../models';
+import { gameService } from '../../../services';
 
 export function BriefingForm() {
   const { session: sessionState, mission: missionState, setShowBriefingForm } = AppStateContainer.useContainer();
@@ -20,9 +26,7 @@ export function BriefingForm() {
   const [name, setName] = useState(sessionData ? sessionData.name : '');
   const [group, setGroup] = useState(getGroupOfUnit(mission, selectedUnitId));
 
-  const groupsWithClients = wu(getGroups(mission))
-    .filter(g => g.units.find(u => u.skill === Skill.Client) !== undefined)
-    .toArray();
+  const groupsWithClients = getGroupsWithClients(mission);
 
   const onSetNameClicked = () => {
     if (name.length === 0) return;
@@ -49,16 +53,11 @@ export function BriefingForm() {
     setGroup(groupId !== -1 ? findGroupById(mission, groupId) : undefined);
   };
 
-  const findPilotNameForUnit = (id: number) => {
-    const session = find(sessions, s => s.selected_unit_id === id);
-    return session?.name;
-  };
-
   const unitOptions = group
     ? group.units
         .filter(u => u.skill === Skill.Client)
         .map(u => {
-          const pilotName = findPilotNameForUnit(u.id);
+          const pilotName = findPilotNameForUnit(sessions, u.id);
 
           return {
             key: u.id,
