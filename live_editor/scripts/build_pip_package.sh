@@ -13,5 +13,3 @@ rm -rf tauntaun_live_editor.egg-info
 
 python3 setup.py sdist --formats=gztar,zip
 
-
-
