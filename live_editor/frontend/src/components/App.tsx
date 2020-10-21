@@ -11,6 +11,7 @@ import { AddFlightForm, BriefingForm, EditWaypointForm, LoadoutEditor } from './
 import { MenuBar } from './menu';
 import { CampaignMap } from './map';
 import { RoleOverview } from './window/RoleOverview';
+import { MissionTime } from './ui/MissionTime';
 
 export function App() {
   const {
@@ -83,6 +84,7 @@ export function App() {
         <React.Fragment>
           <MapContext.Provider value={{ map: undefined } as MapContextType}>
             <ModeContext.Provider value={modeContext}>
+              <MissionTime />
               {showRoleOverview && <RoleOverview />}
               {showBriefingForm && <BriefingForm />}
               {showAddFlightForm && <AddFlightForm />}
