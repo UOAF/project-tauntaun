@@ -16,12 +16,16 @@ export type GroupProps = {
 export function DcsGroup(props: GroupProps): ReactElement {
   const DcsStatic = (DcsStaticRawJson as any).default as DcsStaticData;
   const { coalition, map } = AppStateContainer.useContainer();
-  const { showUnits, showThreatRings: showThreatRingsConfig } = map;
+  const {
+    showUnits,
+    showThreatRings: showThreatRingsConfig,
+    showFriendlyThreatRings: showFriendlyThreatRingsConfig
+  } = map;
 
   const groupCoalition = React.useContext(CoalitionContext);
   const groupCategory = React.useContext(CategoryContext);
   const isSameCoalition = coalition === groupCoalition;
-  const showThreatRings = showThreatRingsConfig && !isSameCoalition;
+  const showThreatRings = (showThreatRingsConfig && !isSameCoalition) || (showFriendlyThreatRingsConfig && isSameCoalition);
 
   const { group, groupOnClick } = props;
 

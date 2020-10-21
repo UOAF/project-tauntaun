@@ -3,6 +3,7 @@ import { useState } from 'react';
 export interface MapState {
   showUnits: boolean;
   showThreatRings: boolean;
+  showFriendlyThreatRings: boolean;
   showOtherFlightPlans: boolean;
   showOtherWpNames: boolean;
   showAIFlightPlans: boolean;
@@ -15,6 +16,7 @@ export interface MapState {
 export const defaultState: MapState = {
   showUnits: false,
   showThreatRings: true,
+  showFriendlyThreatRings: false,
   showOtherFlightPlans: true,
   showOtherWpNames: false,
   showAIFlightPlans: false,
@@ -38,6 +40,13 @@ export function useMapState(initialState = defaultState) {
     setState(state => ({
       ...state,
       showThreatRings: showThreatRings
+    }));
+  };
+
+  const setShowFriendlyThreatRings = (showFriendlyThreatRings: boolean) => {
+    setState(state => ({
+      ...state,
+      showFriendlyThreatRings: showFriendlyThreatRings
     }));
   };
 
@@ -94,6 +103,7 @@ export function useMapState(initialState = defaultState) {
     ...state,
     setShowUnits,
     setShowThreatRings,
+    setShowFriendlyThreatRings,
     setShowOtherFlightPlans,
     setShowOtherWpNames,
     setShowAIFlightPlans,

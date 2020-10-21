@@ -7,9 +7,11 @@ import { findGroupById, getGroupOfUnit } from '../models/dcs_util';
 import { gameService } from '../services';
 import L from 'leaflet';
 import { MapContext, MapContextType, ModeContext, ModeContextType } from './contexts';
-import { AddFlightForm, BriefingForm, EditWaypointForm, LoadoutEditor } from './forms';
+import { AddFlightForm, BriefingForm, EditWaypointForm, LoadoutEditor } from './window/forms';
 import { MenuBar } from './menu';
 import { CampaignMap } from './map';
+import { RoleOverview } from './window/RoleOverview';
+import { MissionTime } from './ui/MissionTime';
 
 export function App() {
   const {
@@ -17,6 +19,7 @@ export function App() {
     showBriefingForm: showBriefingFormConfig,
     commanderMode,
     showLoadoutEditor,
+    showRoleOverview,
     mission: missionState,
     session: sessionState,
     selection,
@@ -81,9 +84,11 @@ export function App() {
         <React.Fragment>
           <MapContext.Provider value={{ map: undefined } as MapContextType}>
             <ModeContext.Provider value={modeContext}>
+              <MissionTime />
+              {showRoleOverview && <RoleOverview />}
               {showBriefingForm && <BriefingForm />}
               {showAddFlightForm && <AddFlightForm />}
-              {selectedGroupId && selectedWaypoint && group && (
+              {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
                 <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
               )}
               {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}

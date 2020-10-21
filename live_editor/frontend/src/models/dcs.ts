@@ -103,6 +103,7 @@ export type Coalition = {
 export type Mission = {
   terrain: Terrain;
   coalition: Dictionary<Coalition>;
+  start_time: string;
 };
 
 export const emptyMission: Mission = {
@@ -112,5 +113,6 @@ export const emptyMission: Mission = {
     center: { lat: 43, lon: 41 },
     map_view_default: { lat: 43, lon: 41 }
   },
-  coalition: {}
+  coalition: {},
+  start_time: '1970-01-01 00:00:00'
 };

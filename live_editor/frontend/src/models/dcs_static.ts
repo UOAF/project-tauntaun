@@ -55,9 +55,18 @@ export type Vehicle = {
   category: string;
 };
 
+export type Ship = {
+  id: string;
+  name: string;
+  detection_range: string;
+  threat_range: string;
+  air_weapon_dist: string;
+};
+
 export type DcsStaticData = {
   planes: Dictionary<Plane>;
   weapons: Dictionary<Weapon>;
   vehicles: Dictionary<Vehicle>;
+  ships: Dictionary<Ship>;
   sidc: Dictionary<string>;
 };

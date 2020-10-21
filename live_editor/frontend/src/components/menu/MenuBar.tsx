@@ -5,7 +5,7 @@ import { AppStateContainer } from '../../models';
 import { AdminMenuBar } from './AdminMenuBar';
 import { Foldable } from '../ui/Foldable';
 import { UserMenuBar } from './UserMenuBar';
-import { PasswordForm } from '../forms/PasswordForm';
+import { PasswordForm } from '../window/forms/PasswordForm';
 import { gameService } from '../../services/gameService';
 import sha256 from 'js-sha256';
 

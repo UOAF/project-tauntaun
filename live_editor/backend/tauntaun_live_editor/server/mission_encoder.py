@@ -14,6 +14,8 @@ from dcs.unitgroup import Group
 
 from tauntaun_live_editor.coord import xz_to_lat_lon
 
+from datetime import datetime
+
 class MissionEncoder(json.JSONEncoder):
     def __init__(self, terrain, convert_coords=False, add_sidc=False, *args, **kws):
         self.dcs_terrain = terrain
@@ -27,7 +29,8 @@ class MissionEncoder(json.JSONEncoder):
     def mission(self, obj):
         return {
             'terrain': self.default(obj.terrain),
-            'coalition': self.default(obj.coalition)
+            'coalition': self.default(obj.coalition),
+            'start_time': self.default(obj.start_time)
         }
 
     def coalition(self, obj):
@@ -145,6 +148,9 @@ class MissionEncoder(json.JSONEncoder):
             'id': obj.id
         }
 
+    def datetime(self, obj):
+        return obj.strftime("%Y-%m-%d %H:%M:%S")
+
     def default(self, obj):
         if isinstance(obj, dict):
             return {k: self.default(v) for k, v in obj.items()}
@@ -154,6 +160,9 @@ class MissionEncoder(json.JSONEncoder):
 
         if isinstance(obj, bool):
             return self.boolean(obj)
+
+        if isinstance(obj, datetime):
+            return self.datetime(obj)
 
         if isinstance(obj, Mission):
             return self.mission(obj)

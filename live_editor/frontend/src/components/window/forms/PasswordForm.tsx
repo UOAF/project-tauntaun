@@ -1,4 +1,4 @@
-import './Forms.css';
+import '../Window.css';
 
 import React, { useState } from 'react';
 import { Input } from '@material-ui/core';

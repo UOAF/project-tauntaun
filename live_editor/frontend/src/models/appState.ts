@@ -19,6 +19,8 @@ export interface AppState {
 
   showBriefingForm: boolean;
 
+  showRoleOverview: boolean;
+
   coalition: string;
 
   mapToken: string | undefined;
@@ -31,6 +33,7 @@ const defaultState: AppState = {
   location: new LatLng(0, 0),
   showLoadoutEditor: false,
   showBriefingForm: false,
+  showRoleOverview: false,
   coalition: Coalitions.BLUE,
   mapToken: undefined
 };
@@ -125,6 +128,13 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
+  const setShowRoleOverview = (showRoleOverview: boolean) => {
+    setState(state => ({
+      ...state,
+      showRoleOverview: showRoleOverview
+    }));
+  };
+
   return {
     ...state,
     initialize,
@@ -133,6 +143,7 @@ function useAppState(initialState = defaultState) {
     setLocation,
     setShowAddFlightForm,
     setShowBriefingForm,
+    setShowRoleOverview,
     setCoalition,
     setMapToken,
     setCommanderMode,
