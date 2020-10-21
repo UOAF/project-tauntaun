@@ -12,23 +12,14 @@ def map_planes():
     result = {}
     for module_name, module_obj in inspect.getmembers(sys.modules["dcs.planes"]):
         if inspect.isclass(module_obj) and issubclass(module_obj, dcs.unittype.FlyingType):
-            plane_data = {}
-            plane_data['flyable'] = module_obj.flyable
-            plane_data['group_size_max'] = module_obj.group_size_max
-            plane_data['large_parking_slot'] = module_obj.large_parking_slot
-            plane_data['helicopter'] = module_obj.helicopter
-            plane_data['fuel_max'] = module_obj.fuel_max
+            plane_data = {'flyable': module_obj.flyable, 'group_size_max': module_obj.group_size_max,
+                          'large_parking_slot': module_obj.large_parking_slot, 'helicopter': module_obj.helicopter,
+                          'fuel_max': module_obj.fuel_max, 'chaff': module_obj.chaff, 'flare': module_obj.flare,
+                          'charge_total': module_obj.charge_total, 'chaff_charge_size': module_obj.chaff_charge_size,
+                          'flare_charge_size': module_obj.flare_charge_size, 'category': module_obj.category,
+                          'tacan': module_obj.tacan, 'eplrs': module_obj.eplrs,
+                          'radio_frequency': module_obj.radio_frequency, 'pylons': {}}
             # plane_data['ammo_type'] = module_obj.ammo_type
-            plane_data['chaff'] = module_obj.chaff
-            plane_data['flare'] = module_obj.flare
-            plane_data['charge_total'] = module_obj.charge_total
-            plane_data['chaff_charge_size'] = module_obj.chaff_charge_size
-            plane_data['flare_charge_size'] = module_obj.flare_charge_size
-            plane_data['category'] = module_obj.category
-            plane_data['tacan'] = module_obj.tacan
-            plane_data['eplrs'] = module_obj.eplrs
-            plane_data['radio_frequency'] = module_obj.radio_frequency
-            plane_data['pylons'] = {}
             for plane_name, plane_obj in inspect.getmembers(module_obj):
                 if inspect.isclass(plane_obj) and plane_name[0:5] == "Pylon":
                     for pylon_name, pylon_obj in inspect.getmembers(plane_obj):
@@ -40,6 +31,19 @@ def map_planes():
                             plane_data['pylons'][pylon_number].append(pylon_name)
 
             result[module_obj.id] = plane_data
+
+    return result
+
+def map_ships():
+    result = {}
+    for module_name, module_obj in inspect.getmembers(sys.modules["dcs.ships"]):
+        if inspect.isclass(module_obj) and issubclass(module_obj, dcs.unittype.ShipType):
+            ship_data = {'name': module_obj.name,
+                         'detection_range': module_obj.detection_range if hasattr(module_obj, "detection_range") else 0,
+                         'threat_range': module_obj.threat_range if hasattr(module_obj, "threat_range") else 0,
+                         'air_weapon_dist': module_obj.air_weapon_dist if hasattr(module_obj, "air_weapon_dist") else 0}
+
+            result[module_obj.id] = ship_data
 
     return result
 
@@ -141,12 +145,14 @@ if __name__ == '__main__':
     planes = map_planes()
     weapons = map_weapons()
     vehicles = map_vehicles()
+    ships = map_ships()
     sidc = generate_sidc(vehicles)
 
     static_data = {
         'planes': planes,
         'weapons': weapons,
         'vehicles': vehicles,
+        'ships': ships,
         'sidc': sidc
     }
 

@@ -1,6 +1,7 @@
 import wu from 'wu';
-import { find } from 'lodash';
-import { Mission, Group, Coalitions, Dictionary, Skill, SessionData } from '.';
+import { filter, find } from 'lodash';
+import { Mission, Group, Coalitions, Dictionary, Skill, SessionData, Unit, DcsStaticData } from '.';
+import * as DcsStaticRawJson from '../data/dcs_static.json';
 
 export function* getGroupArrays(mission: Mission) {
   for (const coalitionKey in mission.coalition) {
@@ -100,4 +101,20 @@ export function getGroupsWithClients(mission: Mission) {
 export function findPilotNameForUnit(sessions: Dictionary<SessionData>, id: number) {
   const session = find(sessions, s => s.selected_unit_id === id);
   return session?.name;
-};
+}
+
+export function getThreatRangeForUnit(groupCategory: string, unit: Unit) {
+  const DcsStatic = (DcsStaticRawJson as any).default as DcsStaticData;
+  switch (groupCategory) {
+    case 'vehicle_group': {
+      const type = filter(DcsStatic.vehicles, vehicle => vehicle.id === unit.type).pop();
+      return type ? +type.air_weapon_dist : 0;
+    }
+    case 'ship_group': {
+      const type = DcsStatic.ships[unit.type];
+      return type ? +type.air_weapon_dist : 0;
+    }
+    default:
+      return 0;
+  }
+}
