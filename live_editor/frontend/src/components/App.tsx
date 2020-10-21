@@ -86,7 +86,7 @@ export function App() {
               {showRoleOverview && <RoleOverview />}
               {showBriefingForm && <BriefingForm />}
               {showAddFlightForm && <AddFlightForm />}
-              {selectedGroupId && selectedWaypoint && group && (
+              {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
                 <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
               )}
               {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}

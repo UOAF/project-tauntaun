@@ -3,10 +3,11 @@ import '../Window.css';
 import React, { useState } from 'react';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import { MenuItem, Select } from '@material-ui/core';
+import { MenuItem, Select, TextField } from '@material-ui/core';
 import { AltType, AppStateContainer, Group, MovingPoint, PointAction } from '../../../models';
 import { gameService } from '../../../services';
 import { c_MeterToFeet } from '../../../data/constants';
+import { clamp } from 'lodash';
 
 export interface EditWaypointFormProps {
   group: Group;
@@ -72,12 +73,29 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
   const onUnitsSystemChange = (event: React.ChangeEvent<HTMLInputElement>) => setImperial(event.target.checked);
   const onAltTypeChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setAltType(event.target.checked ? AltType.BARO : AltType.RADIO);
+  const onWpNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectValue = +event.target.value;
+    selectWaypoint(clamp(selectValue, 0, group.points.length - 1));
+  };
+  const onSetTargetClicked = () => {
+    setAltType(AltType.RADIO);
+    setAlt(0);
+  };
 
   return (
     <div className="Popup">
       <p>Group name: {group.name}</p>
-      <p>Waypoint number: {pointIndex}</p>
-      <p>
+      <TextField
+        id="waypoint-number"
+        label="Waypoint number"
+        type="number"
+        value={currentPointIndex}
+        InputLabelProps={{
+          shrink: true
+        }}
+        onChange={onWpNumberChange}
+      />
+      <div>
         Alt:{' '}
         <input
           type="text"
@@ -101,8 +119,9 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
             labelPlacement="end"
           />
         )}
-      </p>
-      <p>
+      </div>
+      <button onClick={onSetTargetClicked}>Set as ground target</button>
+      <div>
         Name:{' '}
         <input
           type="text"
@@ -111,8 +130,8 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
             setName(event.target.value);
           }}
         />
-      </p>
-      <p>
+      </div>
+      <div>
         Speed:
         <input
           type="text"
@@ -122,7 +141,7 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
             setSpeed(+event.target.value);
           }}
         />
-      </p>
+      </div>
       <React.Fragment>
         Action:
         <Select onChange={onActionChange} value={action}>
@@ -133,10 +152,10 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
           ))}
         </Select>
       </React.Fragment>
-      <p>
+      <div>
         <button onClick={saveWaypointOnClick}>Save waypoint</button>
         <button onClick={closeOnClick}>Close</button>
-      </p>
+      </div>
     </div>
   );
 }
