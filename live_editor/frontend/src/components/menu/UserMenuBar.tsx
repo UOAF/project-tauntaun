@@ -21,6 +21,7 @@ export function UserMenuBar() {
   const {
     showUnits,
     showThreatRings,
+    showFriendlyThreatRings,
     showOtherFlightPlans,
     showOtherWpNames,
     showAIFlightPlans,
@@ -30,6 +31,7 @@ export function UserMenuBar() {
     setShowUnits,
     setShowAIFlightPlans,
     setShowThreatRings,
+    setShowFriendlyThreatRings,
     setShowOtherFlightPlans,
     setShowOtherWpNames,
     setShowLegend,
@@ -57,6 +59,7 @@ export function UserMenuBar() {
 
   const onShowUnitsChange = (event: any) => setShowUnits(event.target.checked);
   const onShowThreatRingsChange = (event: any) => setShowThreatRings(event.target.checked);
+  const onShowFriendlyThreatRingsChange = (event: any) => setShowFriendlyThreatRings(event.target.checked);
   const onShowOtherFlightPlansChange = (event: any) => setShowOtherFlightPlans(event.target.checked);
   const onShowOtherWpNamesChange = (event: any) => setShowOtherWpNames(event.target.checked);
   const onShowAIFlightPlansChange = (event: any) => setShowAIFlightPlans(event.target.checked);
@@ -87,6 +90,12 @@ export function UserMenuBar() {
             value="start"
             control={<Checkbox checked={showThreatRings} color="primary" onChange={onShowThreatRingsChange} />}
             label="Threat rings"
+            labelPlacement="end"
+          />
+          <FormControlLabel
+            value="start"
+            control={<Checkbox checked={showFriendlyThreatRings} color="primary" onChange={onShowFriendlyThreatRingsChange} />}
+            label="Friendly threat rings"
             labelPlacement="end"
           />
           <FormControlLabel

@@ -6,17 +6,19 @@ import { Point } from '../../../../models/dcs';
 export type ThreatCircleProps = {
   radius: number;
   position: Point;
+  color?: string;
 };
 
 export function ThreatCircleNonMemo(props: ThreatCircleProps) {
-  const { radius, position } = props;
+  const { radius, position, color: colorProp } = props;
+  const color = colorProp ? colorProp : 'red';
 
   return (
     <Circle
       center={{ lat: position.lat, lng: position.lon }}
       radius={radius}
       stroke={true}
-      color="red"
+      color={color}
       fill={false}
       fillOpacity={0.01}
       opacity={0.25}

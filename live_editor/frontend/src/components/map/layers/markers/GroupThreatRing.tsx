@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 
-import { getThreatRangeForUnit, Group, Unit } from '../../../../models';
+import { AppStateContainer, getThreatRangeForUnit, Group, Unit } from '../../../../models';
 import { ThreatCircle } from './ThreatCircle';
 import { CategoryContext } from '../contexts';
+import { CoalitionContext } from '..';
 
 export type GroupThreatRingProps = {
   group: Group;
@@ -10,10 +11,14 @@ export type GroupThreatRingProps = {
 };
 
 export function GroupThreatRing(props: GroupThreatRingProps) {
+  const { coalition } = AppStateContainer.useContainer();
   const { showPerUnit: showPerUnitProp, group } = props;
 
   const showPerUnit = showPerUnitProp ? showPerUnitProp : false;
   const groupCategory = React.useContext(CategoryContext);
+  const groupCoalition = React.useContext(CoalitionContext);
+  const isSameCoalition = groupCoalition === coalition;
+  const color = isSameCoalition ? 'blue' : 'red';
 
   type UnitWithRange = {
     range: number;
@@ -34,6 +39,7 @@ export function GroupThreatRing(props: GroupThreatRingProps) {
           key={`threat_circle_${unitWithRange.unit.id}_${index}`}
           radius={unitWithRange.range}
           position={unitWithRange.unit.position}
+          color={color}
         />
       ))}
     </React.Fragment>
@@ -43,7 +49,9 @@ export function GroupThreatRing(props: GroupThreatRingProps) {
     const maxRangeUnit = [...unitsWithRange].sort((a, b) => a.range - b.range).pop();
     return (
       <React.Fragment>
-        {maxRangeUnit && <ThreatCircle radius={maxRangeUnit.range} position={maxRangeUnit.unit.position} />}
+        {maxRangeUnit && (
+          <ThreatCircle radius={maxRangeUnit.range} position={maxRangeUnit.unit.position} color={color} />
+        )}
       </React.Fragment>
     );
   };
