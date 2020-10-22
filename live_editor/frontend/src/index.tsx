@@ -11,13 +11,27 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import { App } from './components';
-import { AppStateContainer } from './models';
+import {
+  AppStateContainer,
+  MapStateContainer,
+  MissionStateContainer,
+  SelectionStateContainer,
+  SessionStateContainer
+} from './models';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
   <React.StrictMode>
     <AppStateContainer.Provider>
-      <App />
+      <MapStateContainer.Provider>
+        <MissionStateContainer.Provider>
+          <SelectionStateContainer.Provider>
+            <SessionStateContainer.Provider>
+              <App />
+            </SessionStateContainer.Provider>
+          </SelectionStateContainer.Provider>
+        </MissionStateContainer.Provider>
+      </MapStateContainer.Provider>
     </AppStateContainer.Provider>
   </React.StrictMode>,
   document.getElementById('root')

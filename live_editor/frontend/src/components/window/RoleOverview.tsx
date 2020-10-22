@@ -2,12 +2,18 @@ import './Window.css';
 import './RoleOverview.css';
 
 import React from 'react';
-import { AppStateContainer, findPilotNameForUnit, getGroupsWithClients } from '../../models';
+import {
+  AppStateContainer,
+  findPilotNameForUnit,
+  getGroupsWithClients,
+  MissionStateContainer,
+  SessionStateContainer
+} from '../../models';
 import { max } from 'lodash';
 export function RoleOverview() {
-  const { mission: missionState, session, setShowRoleOverview } = AppStateContainer.useContainer();
-  const { sessions } = session;
-  const { mission } = missionState;
+  const { setShowRoleOverview } = AppStateContainer.useContainer();
+  const { sessions } = SessionStateContainer.useContainer();
+  const { mission } = MissionStateContainer.useContainer();
 
   const groupsWithClients = getGroupsWithClients(mission);
   const numberOfUnitsPerGroup = groupsWithClients.map(g => g.units.length);

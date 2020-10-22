@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { Mission, emptyMission } from './';
 import { gameService } from '../services';
+import { createContainer } from 'unstated-next';
 
 export interface MissionState {
   isInitialized: boolean;
@@ -60,3 +61,5 @@ export function useMissionState(initialState = defaultState) {
     initialize
   };
 }
+
+export const MissionStateContainer = createContainer(useMissionState);

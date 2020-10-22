@@ -1,7 +1,14 @@
 import React, { ReactElement } from 'react';
 import { CoalitionContext } from '..';
 
-import { Group, AppStateContainer, matchCategoryToStaticCategory, Unit, DcsStaticData } from '../../../../models';
+import {
+  Group,
+  AppStateContainer,
+  matchCategoryToStaticCategory,
+  Unit,
+  DcsStaticData,
+  MapStateContainer
+} from '../../../../models';
 import { GroupThreatRing } from './GroupThreatRing';
 import { UnitMarker } from './UnitMarker';
 import * as DcsStaticRawJson from '../../../../data/dcs_static.json';
@@ -15,17 +22,18 @@ export type GroupProps = {
 
 export function DcsGroup(props: GroupProps): ReactElement {
   const DcsStatic = (DcsStaticRawJson as any).default as DcsStaticData;
-  const { coalition, map } = AppStateContainer.useContainer();
+  const { coalition } = AppStateContainer.useContainer();
   const {
     showUnits,
     showThreatRings: showThreatRingsConfig,
     showFriendlyThreatRings: showFriendlyThreatRingsConfig
-  } = map;
+  } = MapStateContainer.useContainer();
 
   const groupCoalition = React.useContext(CoalitionContext);
   const groupCategory = React.useContext(CategoryContext);
   const isSameCoalition = coalition === groupCoalition;
-  const showThreatRings = (showThreatRingsConfig && !isSameCoalition) || (showFriendlyThreatRingsConfig && isSameCoalition);
+  const showThreatRings =
+    (showThreatRingsConfig && !isSameCoalition) || (showFriendlyThreatRingsConfig && isSameCoalition);
 
   const { group, groupOnClick } = props;
 

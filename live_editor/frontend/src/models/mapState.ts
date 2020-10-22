@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { createContainer } from 'unstated-next';
+import { gameService } from '../services';
 
 export interface MapState {
   showUnits: boolean;
@@ -11,6 +13,7 @@ export interface MapState {
   showLegend: boolean;
   hideAllHostileUnits: boolean; // Temporary for potato PCs until clustering is implemented
   mapType: string;
+  mapToken: string | undefined;
 }
 
 export const defaultState: MapState = {
@@ -23,11 +26,34 @@ export const defaultState: MapState = {
   showAllGroups: false,
   showLegend: true,
   hideAllHostileUnits: false,
-  mapType: 'mapbox/outdoors-v11'
+  mapType: 'mapbox/outdoors-v11',
+  mapToken: undefined
 };
 
 export function useMapState(initialState = defaultState) {
   const [state, setState] = useState(initialState);
+  const [initialized, setInitialized] = useState(false);
+
+  const refreshMapToken = async (): Promise<void> => {
+    const mapToken = await gameService.getMapToken();
+    setState(state => ({
+      ...state,
+      mapToken: mapToken
+    }));
+  };
+  const initialize = async (): Promise<void> => {
+    if (initialized) return;
+
+    try {
+      await refreshMapToken();
+
+      setInitialized(true);
+      console.info('MapState initialized');
+    } catch (error) {
+      console.error(`couldn't initialize MapState`, error);
+      throw error;
+    }
+  };
 
   const setShowUnits = (showUnits: boolean) => {
     setState(state => ({
@@ -101,6 +127,7 @@ export function useMapState(initialState = defaultState) {
 
   return {
     ...state,
+    initialize,
     setShowUnits,
     setShowThreatRings,
     setShowFriendlyThreatRings,
@@ -113,3 +140,5 @@ export function useMapState(initialState = defaultState) {
     setHideAllHostileUnits
   };
 }
+
+export const MapStateContainer = createContainer(useMapState);

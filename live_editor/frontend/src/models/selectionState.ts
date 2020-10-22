@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createContainer } from 'unstated-next';
 
 export interface SelectionState {
   selectedGroupId: number | undefined;
@@ -43,3 +44,5 @@ export function useSelectionState(initialState = defaultSelectionState) {
     selectWaypoint
   };
 }
+
+export const SelectionStateContainer = createContainer(useSelectionState);

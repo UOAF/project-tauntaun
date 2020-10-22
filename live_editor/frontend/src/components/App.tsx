@@ -1,8 +1,16 @@
 import './App.css';
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { AppStateContainer, Coalitions, Group } from '../models';
+import {
+  AppStateContainer,
+  Coalitions,
+  Group,
+  MapStateContainer,
+  MissionStateContainer,
+  SelectionStateContainer,
+  SessionStateContainer
+} from '../models';
 import { findGroupById, getGroupOfUnit } from '../models/dcs_util';
 import { gameService } from '../services';
 import L from 'leaflet';
@@ -19,23 +27,23 @@ export function App() {
     showBriefingForm: showBriefingFormConfig,
     commanderMode,
     showLoadoutEditor,
-    showRoleOverview,
-    mission: missionState,
-    session: sessionState,
-    selection,
-    mapToken,
-    initialize
+    showRoleOverview
   } = AppStateContainer.useContainer();
-  const { mission } = missionState;
-  const { sessions, sessionId } = sessionState;
+
+  const { mission, initialize: initializeMission } = MissionStateContainer.useContainer();
+  const { mapToken, initialize: initializeMap } = MapStateContainer.useContainer();
+  const { sessions, sessionId, initialize: initializeSession } = SessionStateContainer.useContainer();
   const {
     selectedWaypoint,
     selectedGroupId: selectedGroupIdCommanderMode,
     selectedUnitId: selectedUnitIdCommanderMode,
     selectGroup
-  } = selection;
+  } = SelectionStateContainer.useContainer();
+  const [initialized, setInitialize] = useState(false);
 
   useEffect(() => {
+    if (initialized) return;
+
     const initGameService = async () => {
       await gameService.openSocket();
       console.info('update socket connected');
@@ -44,7 +52,10 @@ export function App() {
     (L as any).PM.initialize({ optIn: false });
 
     initGameService();
-    initialize();
+    initializeMap();
+    initializeMission();
+    initializeSession();
+    setInitialize(true);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const groupMarkerOnClick = (group: Group, event: any): void => {

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createContainer } from 'unstated-next';
 
 import { gameService } from '../services';
 import { Sessions } from './sessionData';
@@ -77,3 +78,5 @@ export function useSessionState(initialState = defaultState) {
     initialize
   };
 }
+
+export const SessionStateContainer = createContainer(useSessionState);

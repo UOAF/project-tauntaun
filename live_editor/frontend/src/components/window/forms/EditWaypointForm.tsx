@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import { MenuItem, Select, TextField } from '@material-ui/core';
-import { AltType, AppStateContainer, Group, MovingPoint, PointAction } from '../../../models';
+import { AltType, SelectionStateContainer, Group, MovingPoint, PointAction } from '../../../models';
 import { gameService } from '../../../services';
 import { c_MeterToFeet } from '../../../data/constants';
 import { clamp } from 'lodash';
@@ -15,8 +15,7 @@ export interface EditWaypointFormProps {
 }
 
 export function EditWaypointForm(props: EditWaypointFormProps) {
-  const { selection } = AppStateContainer.useContainer();
-  const { selectWaypoint } = selection;
+  const { selectWaypoint } = SelectionStateContainer.useContainer();
 
   const { group, pointIndex } = props;
   const point = group.points[pointIndex];
