@@ -14,6 +14,7 @@ from tauntaun_live_editor.sessions import SessionsEncoder
 from tauntaun_live_editor.util import get_data_path
 import tauntaun_live_editor.config as config
 from .mission_encoder import MissionEncoder
+from concurrent.futures import thread
 
 logger = logging.basicConfig(level=logging.DEBUG)
 
@@ -120,7 +121,7 @@ def create_app(campaign, session_manager):
 
                 await broadcast_update()
 
-            async def group_route_remove(group_data):
+            async def group_route_remove(group_data):                
                 group_route_request_handler.remove(
                     group_data['id'], group_data['point'])
 
@@ -192,12 +193,17 @@ def run(campaign, session_maanger, port=80):
     shutdown_event = asyncio.Event()
 
     def _signal_handler(*_):
-        quit() # TODO not nice but the graceful shutdown is not working
         shutdown_event.set()
 
+    def _exception_handler(loop, context):
+        exception = context.get("exception")
+        shutdown_event.set()
+        raise(exception)        
+
     loop = asyncio.get_event_loop()
-    signal.signal(signal.SIGINT, _signal_handler)
-    signal.signal(signal.SIGTERM, _signal_handler)
+    loop.set_exception_handler(_exception_handler)
+    loop.add_signal_handler(signal.SIGINT, _signal_handler)
+    loop.add_signal_handler(signal.SIGTERM, _signal_handler)
 
     config = Config()
     config.bind = ["0.0.0.0:" + str(port)]
