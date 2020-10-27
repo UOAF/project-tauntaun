@@ -1,6 +1,6 @@
 # Project tauntaun - Live editor
 
-Live editor is browser based collaborative mission planning tool. Having python, node.js, and yarn installed is required in order to run this project locally.
+Live editor is browser based collaborative mission planning tool for DCS. Having python, node.js, and yarn installed is required in order to run this project locally.
 
 ## Usage
 
@@ -28,8 +28,8 @@ copy dcs_static.json to live_editor/frontend/src/data/dcs_static.json
 ```
 **Run server**
 ```bash
-cd project_tauntaun
-py (insert path to camp.py in live_editor/backend/tauntaun_live_editor)
+cd project_tauntaun/backend
+py -m tauntaun_live_editor
 ```
 **Install yarn (one time)**  
 ```bash

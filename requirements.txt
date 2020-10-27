@@ -1,8 +1,7 @@
 wheel==0.35.1
 Quart==0.12.0
-git+https://github.com/pydcs/dcs.git@495ecd4996d69780de36c54a8c9e63b307442aa7 # pydcs
 numpy==1.19.2
 scipy==1.5.2
 pyinstaller==3.6
 dataclasses-json==0.5.2
-
+pydcs==0.11.0
