@@ -21,6 +21,12 @@ import { CampaignMap } from './map';
 import { RoleOverview } from './window/RoleOverview';
 import { MissionTime } from './ui/MissionTime';
 
+enum InitialzationState {
+  UNINITIALIZED,
+  INITIALIZED,
+  INITIALIZATION_FAILED
+}
+
 export function App() {
   const {
     showAddFlightForm,
@@ -39,26 +45,35 @@ export function App() {
     selectedUnitId: selectedUnitIdCommanderMode,
     selectGroup
   } = SelectionStateContainer.useContainer();
-  const [initialized, setInitialize] = useState(false);
+
+  const [initializedState, setInitializedState] = useState(InitialzationState.UNINITIALIZED);
 
   useEffect(() => {
-    if (initialized) return;
+    if (initializedState !== InitialzationState.UNINITIALIZED) return;
 
-    const initGameService = async () => {
-      await gameService.openSocket();
-      console.info('update socket connected');
+    const initApp = async () => {
+      try {
+        await gameService.openSocket();
+        console.info("GameService initialized");
+        await initializeMap();
+        await initializeMission();
+        await initializeSession();
+
+        console.info('App initialized successfully.');
+        setInitializedState(InitialzationState.INITIALIZED);
+      } catch (error) {
+        console.info('Failed to initialize app.');
+        setInitializedState(InitialzationState.INITIALIZATION_FAILED);
+      }
     };
 
     (L as any).PM.initialize({ optIn: false });
 
-    initGameService();
-    initializeMap();
-    initializeMission();
-    initializeSession();
-    setInitialize(true);
+    initApp();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const groupMarkerOnClick = (group: Group, event: any): void => {
+    console.log(commanderMode);
     if (!commanderMode) return;
 
     if (event && event.coalition !== Coalitions.BLUE) return;
@@ -89,30 +104,41 @@ export function App() {
 
   const showBriefingForm = sessionData !== undefined && !commanderMode && showBriefingFormConfig;
 
-  return (
-    <React.Fragment>
-      {mapToken ? (
-        <React.Fragment>
-          <MapContext.Provider value={{ map: undefined } as MapContextType}>
-            <ModeContext.Provider value={modeContext}>
-              <MissionTime />
-              {showRoleOverview && <RoleOverview />}
-              {showBriefingForm && <BriefingForm />}
-              {showAddFlightForm && <AddFlightForm />}
-              {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
-                <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
-              )}
-              {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
-              <MenuBar />
-              <CampaignMap lat={terrain.map_view_default.lat} lng={terrain.map_view_default.lon} zoom={9} />
-            </ModeContext.Provider>
-          </MapContext.Provider>
-        </React.Fragment>
-      ) : mapToken === undefined ? (
-        <span>Loading...</span>
-      ) : (
-        <span>Empty map token, server is not configured.</span>
-      )}
-    </React.Fragment>
-  );
+  const renderApp = () => {
+    return (
+      <React.Fragment>
+        {mapToken ? (
+          <React.Fragment>
+            <MapContext.Provider value={{ map: undefined } as MapContextType}>
+              <ModeContext.Provider value={modeContext}>
+                <MissionTime />
+                {showRoleOverview && <RoleOverview />}
+                {showBriefingForm && <BriefingForm />}
+                {showAddFlightForm && <AddFlightForm />}
+                {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
+                  <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
+                )}
+                {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
+                <MenuBar />
+                <CampaignMap lat={terrain.map_view_default.lat} lng={terrain.map_view_default.lon} zoom={9} />
+              </ModeContext.Provider>
+            </MapContext.Provider>
+          </React.Fragment>
+        ) : mapToken === undefined ? (
+          <span>Loading...</span>
+        ) : (
+          <span>Empty map token, server is not configured.</span>
+        )}
+      </React.Fragment>
+    );
+  };
+
+  switch (initializedState) {
+    case InitialzationState.UNINITIALIZED:
+      return <span>Loading...</span>;
+    case InitialzationState.INITIALIZATION_FAILED:
+      return <span>Something went wrong, unable to connect to server or initialize app.</span>;
+    case InitialzationState.INITIALIZED:
+      return renderApp();
+  }
 }

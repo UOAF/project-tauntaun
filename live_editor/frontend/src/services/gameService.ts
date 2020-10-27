@@ -70,6 +70,10 @@ function sendMessage(name: string, value: any) {
 async function getMission(): Promise<Mission> {
   try {
     const response = await fetch('/game/mission');
+    if (!response.ok) {
+      throw new Error('Response is not OK');
+    }
+
     const mission = (await response.json()) as Mission;
     return mission;
   } catch (error) {
@@ -81,6 +85,10 @@ async function getMission(): Promise<Mission> {
 async function getSessions(): Promise<Sessions> {
   try {
     const response = await fetch('/game/sessions');
+    if (!response.ok) {
+      throw new Error('Response is not OK');
+    }
+
     const sessions = (await response.json()) as Sessions;
     return sessions;
   } catch (error) {
@@ -92,6 +100,10 @@ async function getSessions(): Promise<Sessions> {
 async function getMapToken(): Promise<string> {
   try {
     const response = await fetch('/game/map_token');
+    if (!response.ok) {
+      throw new Error('Response is not OK');
+    }
+
     const mapToken = await response.text();
     return mapToken;
   } catch (error) {
@@ -130,6 +142,7 @@ async function openSocket(): Promise<void> {
       url.port = '8080';
       socket = new WebSocket(url.toString());
       socket.onopen = () => resolve();
+      socket.onerror = () => reject();
       socket.onmessage = receiveUpdateMessage;
     } catch (error) {
       reject(error);

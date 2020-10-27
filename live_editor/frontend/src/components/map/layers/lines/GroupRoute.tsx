@@ -82,7 +82,6 @@ export function GroupRoute(props: GroupRouteProps) {
     console.log('Point clicked.', index);
   };
 
-  // TODO order
   return (
     <React.Fragment>
       <EditablePolyline

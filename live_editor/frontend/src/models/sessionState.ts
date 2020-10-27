@@ -36,7 +36,7 @@ export function useSessionState(initialState = defaultState) {
       };
     });
 
-    console.info(`got sessionId data`);
+    console.info(`SessionId received.`);
   };
 
   const onSessionsUpdateReceived = (sessions: Sessions) => {
