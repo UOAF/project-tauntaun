@@ -11,6 +11,8 @@ export interface MapState {
   showAIFlightPlans: boolean;
   showAllGroups: boolean;
   showLegend: boolean;
+  showRadarRings: boolean;
+  showFriendlyRadarRings: boolean;
   hideAllHostileUnits: boolean; // Temporary for potato PCs until clustering is implemented
   mapType: string;
   mapToken: string | undefined;
@@ -25,6 +27,8 @@ export const defaultState: MapState = {
   showAIFlightPlans: false,
   showAllGroups: false,
   showLegend: true,
+  showRadarRings: true,
+  showFriendlyRadarRings: false,
   hideAllHostileUnits: false,
   mapType: 'mapbox/outdoors-v11',
   mapToken: undefined
@@ -125,6 +129,20 @@ export function useMapState(initialState = defaultState) {
     }));
   };
 
+  const setShowRadarRings = (showRadarRings: boolean) => {
+    setState(state => ({
+      ...state,
+      showRadarRings: showRadarRings
+    }));
+  };
+
+  const setShowFriendlyRadarRings = (showFriendlyRadarRings: boolean) => {
+    setState(state => ({
+      ...state,
+      showFriendlyRadarRings: showFriendlyRadarRings
+    }));
+  };
+
   return {
     ...state,
     initialize,
@@ -137,7 +155,9 @@ export function useMapState(initialState = defaultState) {
     setShowAllGroups,
     setMapType,
     setShowLegend,
-    setHideAllHostileUnits
+    setHideAllHostileUnits,
+    setShowRadarRings,
+    setShowFriendlyRadarRings
   };
 }
 

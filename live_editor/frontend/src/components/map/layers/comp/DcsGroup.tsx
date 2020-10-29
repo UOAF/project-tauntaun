@@ -1,32 +1,24 @@
 import React, { ReactElement } from 'react';
 import { CoalitionContext } from '..';
 
-import {
-  Group,
-  AppStateContainer,
-  matchCategoryToStaticCategory,
-  Unit,
-  DcsStaticData,
-  MapStateContainer,
-  Skill
-} from '../../../../models';
-import { GroupThreatRing } from '../markers/GroupThreatRing';
-import { UnitMarker } from '../markers/UnitMarker';
-import * as DcsStaticRawJson from '../../../../data/dcs_static.json';
-import { CategoryContext, ColorContext } from '../contexts';
-import { filter } from 'lodash';
+import { Group, AppStateContainer, MapStateContainer, Skill } from '../../../../models';
+import { ColorContext } from '../contexts';
 import { ColorPaletteContext, LegendContext } from '../../contexts';
 import { isLeadOfFlight } from '../../../common';
 import { ModeContext } from '../../../contexts';
 import { GroupRoute } from '../lines/GroupRoute';
+import { DcsUnit } from './DcsUnit';
+import { DcsUnitThreatRing } from './DcsUnitThreatRing';
+import { DcsUnitRadarRing } from './DcsUnitRadarRing';
+import { DcsGroupThreatRing } from './DcsGroupThreatRing';
+import { DcsGroupRadarRing } from './DcsGroupRadarRing';
 
-export type GroupProps = {
+export type DcsGroupProps = {
   group: Group;
   groupOnClick?: (group: Group, event: any) => void;
 };
 
-export function DcsGroup(props: GroupProps): ReactElement {
-  const DcsStatic = (DcsStaticRawJson as any).default as DcsStaticData;
+export function DcsGroup(props: DcsGroupProps): ReactElement {
   const { commanderMode, coalition } = AppStateContainer.useContainer();
   const {
     showOtherFlightPlans,
@@ -34,37 +26,25 @@ export function DcsGroup(props: GroupProps): ReactElement {
     showOtherWpNames,
     showUnits,
     showThreatRings: showThreatRingsConfig,
-    showFriendlyThreatRings: showFriendlyThreatRingsConfig
+    showFriendlyThreatRings: showFriendlyThreatRingsConfig,
+    showRadarRings: showRadarRingsConfig,
+    showFriendlyRadarRings: showFriendlyRadarRingsConfig
   } = MapStateContainer.useContainer();
 
   const { group, groupOnClick } = props;
 
   const groupCoalition = React.useContext(CoalitionContext);
-  const groupCategory = React.useContext(CategoryContext);
   const colorPalette = React.useContext(ColorPaletteContext);
   const legendContext = React.useContext(LegendContext);
   const isSameCoalition = coalition === groupCoalition;
   const { selectedGroupId, selectedUnitId } = React.useContext(ModeContext);
 
-  const showThreatRings =
-    (showThreatRingsConfig && !isSameCoalition) || (showFriendlyThreatRingsConfig && isSameCoalition);
   const isSelectedUnitLeadOfFlight = isLeadOfFlight(selectedUnitId, group);
   const isSelectedOrShowOther = group.id === selectedGroupId || showOtherFlightPlans;
   const isClientOrShowAI = group.units[0].skill === Skill.Client || showAIFlightPlans;
   const showRoute = isSameCoalition && isSelectedOrShowOther && isClientOrShowAI;
 
   const onClick = () => groupOnClick?.(group, { coalition: coalition });
-
-  const getUnitLabel = (unit: Unit) => {
-    const staticCategory = matchCategoryToStaticCategory(groupCategory);
-
-    if (staticCategory === 'vehicles') {
-      const staticUnit = filter(DcsStatic.vehicles, vehicle => vehicle.id === unit.type).pop();
-      return staticUnit ? staticUnit.name : unit.type;
-    }
-
-    return unit.type;
-  };
 
   const renderGroupRoute = () => {
     const color = colorPalette[group.id % colorPalette.length];
@@ -94,30 +74,28 @@ export function DcsGroup(props: GroupProps): ReactElement {
     );
   };
 
-  const renderAllUnits = () => (
-    <React.Fragment>
-      {group.units.map((unit, index) => (
-        <UnitMarker
-          key={`unit_marker_${unit.id}_${index}`}
-          label={getUnitLabel(unit)}
-          unit={unit}
-          unitMarkerOnClick={onClick}
-        />
-      ))}
-      {showThreatRings && <GroupThreatRing group={group} showPerUnit={true} />}
-    </React.Fragment>
-  );
-
-  const renderFirstUnit = () => (
-    <React.Fragment>
-      <UnitMarker unit={group.units[0]} label={getUnitLabel(group.units[0])} unitMarkerOnClick={onClick} />
-      {showThreatRings && <GroupThreatRing group={group} showPerUnit={false} />}
-    </React.Fragment>
-  );
+  const showThreatRings =
+    (showThreatRingsConfig && !isSameCoalition) || (showFriendlyThreatRingsConfig && isSameCoalition);
+  const showRadarRings =
+    (showRadarRingsConfig && !isSameCoalition) || (showFriendlyRadarRingsConfig && isSameCoalition);
 
   return (
     <React.Fragment>
-      {showUnits ? renderAllUnits() : renderFirstUnit()}
+      {showUnits ? (
+        group.units.map((unit, index) => (
+          <React.Fragment key={`dcs_unit_${unit.id}_${index}`}>
+            <DcsUnit unit={unit} unitOnClick={onClick} />
+            {showThreatRings && <DcsUnitThreatRing unit={unit} />}
+            {showRadarRings && <DcsUnitRadarRing unit={unit} />}
+          </React.Fragment>
+        ))
+      ) : (
+        <React.Fragment>
+          <DcsUnit unit={group.units[0]} unitOnClick={onClick} />
+          {showThreatRings && <DcsGroupThreatRing group={group} />}
+          {showRadarRings && <DcsGroupRadarRing group={group} />}
+        </React.Fragment>
+      )}
       {showRoute && renderGroupRoute()}
     </React.Fragment>
   );
