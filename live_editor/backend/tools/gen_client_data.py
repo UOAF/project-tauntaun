@@ -5,7 +5,9 @@ import dcs
 
 sidc_overrides = {
     'E-3A': 'SFAPMFRW--*****',
-    'Stennis': 'SFSPCLCV--****'
+    'Stennis': 'SFSPCLCV--****',
+    '55G6 EWR': 'SFGPUCDT----',
+    '1L13 EWR': 'SFGPUCDT----'
 }
 
 def map_planes():
