@@ -11,5 +11,5 @@ cd live_editor/backend
 rm -rf dist
 rm -rf tauntaun_live_editor.egg-info
 
-python3 setup.py sdist --formats=gztar,zip
+python3 setup.py bdist_wheel sdist --formats=gztar,zip
 

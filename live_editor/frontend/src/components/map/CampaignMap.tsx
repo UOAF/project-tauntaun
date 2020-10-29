@@ -4,7 +4,7 @@ import React from 'react';
 import { Map, TileLayer } from 'react-leaflet';
 import { pick } from 'lodash';
 
-import { AppStateContainer } from '../../models';
+import { MapStateContainer, MissionStateContainer } from '../../models';
 import { LeafletMouseEvent } from 'leaflet';
 import { useState } from 'react';
 import { MapContext } from '../contexts';
@@ -22,9 +22,8 @@ export interface CampaignMapProps {
 }
 
 export function CampaignMap(props: CampaignMapProps) {
-  const { map, mission: missionState, mapToken } = AppStateContainer.useContainer();
-  const { mission } = missionState;
-  const { mapType, showLegend } = map;
+  const { mission } = MissionStateContainer.useContainer();
+  const { mapType, showLegend, mapToken } = MapStateContainer.useContainer();
   const mapContext = React.useContext(MapContext);
 
   const [position, setPosition] = useState(null as ClickPosition | null);

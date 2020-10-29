@@ -1,23 +1,23 @@
 from glob import glob
 import setuptools
 
-with open("README.md", "r") as fh:
+with open("../../README.md", "r") as fh:
     long_description = fh.read()
 
 
 setuptools.setup(
     name="tauntaun-live-editor",
-    version="0.0.1",
+    version="0.1.0",
     author="UOAF",
-    author_email="uoaf@example.com",
+    author_email="uoaf@fakemail.invalid",
     description="Project Tauntaun Live Editor",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/UOAF/project-tauntaun",
     packages=setuptools.find_packages(exclude=["test", "data"]),
     classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
+        "Programming Language :: Python :: 3.8",
+        "License :: OSI Approved :: GNU General Public License v3",
         "Operating System :: OS Independent",
     ],
     include_package_data=True,
@@ -29,7 +29,7 @@ setuptools.setup(
     },
     install_requires=[
       'wheel>=0.35.1',
-      'pydcs@git+https://github.com/pydcs/dcs.git@495ecd4996d69780de36c54a8c9e63b307442aa7',
+      'pydcs>=0.11.0',
       'Quart>=0.12.0',
       'dataclasses-json>=0.5.2'
     ],
@@ -38,5 +38,5 @@ setuptools.setup(
             "tauntaun_live_editor = tauntaun_live_editor.camp:main"
         ]
     },
-    python_requires='>=3.6',
+    python_requires='>=3.8',
 )

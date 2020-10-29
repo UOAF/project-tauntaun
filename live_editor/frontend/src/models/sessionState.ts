@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { createContainer } from 'unstated-next';
 
 import { gameService } from '../services';
 import { Sessions } from './sessionData';
@@ -35,7 +36,7 @@ export function useSessionState(initialState = defaultState) {
       };
     });
 
-    console.info(`got sessionId data`);
+    console.info(`SessionId received.`);
   };
 
   const onSessionsUpdateReceived = (sessions: Sessions) => {
@@ -77,3 +78,5 @@ export function useSessionState(initialState = defaultState) {
     initialize
   };
 }
+
+export const SessionStateContainer = createContainer(useSessionState);

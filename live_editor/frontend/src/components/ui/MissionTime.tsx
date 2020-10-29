@@ -1,11 +1,11 @@
 import './MissionTime.css';
 
 import React from 'react';
-import { AppStateContainer } from '../../models';
+import { MissionStateContainer } from '../../models';
 
 export function MissionTime() {
-  const { mission: missionState } = AppStateContainer.useContainer();
-  const { start_time } = missionState.mission;
+  const { mission } = MissionStateContainer.useContainer();
+  const { start_time } = mission;
 
   return (
     <div className="MissionTime">

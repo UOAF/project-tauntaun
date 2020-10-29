@@ -1,11 +1,11 @@
 import React from 'react';
 import { gameService } from '../../services';
-import { AppStateContainer } from '../../models';
+import { AppStateContainer, MapStateContainer } from '../../models';
 import { Checkbox, FormControlLabel } from '@material-ui/core';
 
 export function AdminMenuBar() {
-  const { commanderMode, map, setCommanderMode } = AppStateContainer.useContainer();
-  const { showAllGroups, setShowAllGroups } = map;
+  const { commanderMode, setCommanderMode } = AppStateContainer.useContainer();
+  const { showAllGroups, setShowAllGroups } = MapStateContainer.useContainer();;
 
   const saveOnClick = () => {
     console.log('Saving mission.');

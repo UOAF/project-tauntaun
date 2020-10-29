@@ -4,17 +4,12 @@ import React, { useState } from 'react';
 
 import { LatLng } from 'leaflet';
 import { MenuItem, Select } from '@material-ui/core';
-import { AppStateContainer } from '../../../models';
+import { AppStateContainer, MissionStateContainer } from '../../../models';
 import { gameService } from '../../../services';
 
 export function AddFlightForm() {
-  const {
-    coalition: selectedCoalition,
-    location,
-    mission: missionState,
-    setShowAddFlightForm
-  } = AppStateContainer.useContainer();
-  const { mission } = missionState;
+  const { coalition: selectedCoalition, location, setShowAddFlightForm } = AppStateContainer.useContainer();
+  const { mission } = MissionStateContainer.useContainer();
 
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedAirport, setSelectedAirport] = useState(NaN);

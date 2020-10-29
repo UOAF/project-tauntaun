@@ -13,6 +13,7 @@ import {
   findGroupById,
   FlyingUnit,
   getGroupOfUnit,
+  MissionStateContainer,
   Unit
 } from '../../../models';
 import { gameService } from '../../../services';
@@ -27,8 +28,8 @@ export interface LoadoutEditorProps {
 }
 
 export function LoadoutEditor(props: LoadoutEditorProps) {
-  const { mission: missionState, setShowLoadoutEditor } = AppStateContainer.useContainer();
-  const { mission } = missionState;
+  const { setShowLoadoutEditor } = AppStateContainer.useContainer();
+  const { mission } = MissionStateContainer.useContainer();
 
   const { selectedGroupId, selectedUnitId } = React.useContext(ModeContext);
 

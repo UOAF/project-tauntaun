@@ -1,7 +1,7 @@
 import './MenuBar.css';
 
 import React from 'react';
-import { AppStateContainer } from '../../models';
+import { AppStateContainer, MapStateContainer } from '../../models';
 import { Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select } from '@material-ui/core';
 
 import { SelectOptionType } from '../../types/material_ui';
@@ -10,7 +10,6 @@ import { Foldable } from '../ui/Foldable';
 
 export function UserMenuBar() {
   const {
-    map,
     commanderMode,
     showBriefingForm,
     setShowLoadoutEditor,
@@ -37,7 +36,7 @@ export function UserMenuBar() {
     setShowLegend,
     setMapType,
     setHideAllHostileUnits
-  } = map;
+  } = MapStateContainer.useContainer();
 
   const { selectedUnitId } = React.useContext(ModeContext);
 

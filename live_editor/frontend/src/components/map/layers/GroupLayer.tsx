@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Group, Skill } from '../../../models';
+import { Group, MapStateContainer, MissionStateContainer, Skill } from '../../../models';
 import { AppStateContainer } from '../../../models';
 import { findGroupById } from '../../../models/dcs_util';
 import { isLeadOfFlight } from '../../common';
@@ -15,9 +15,15 @@ export type GroupLayerProps = {
   groups: Group[];
 };
 export function GroupLayer(props: GroupLayerProps) {
-  const { commanderMode, coalition, map, mission: missionState } = AppStateContainer.useContainer();
-  const { mission } = missionState;
-  const { showAllGroups, showOtherWpNames, showOtherFlightPlans, showAIFlightPlans, hideAllHostileUnits } = map;
+  const { commanderMode, coalition } = AppStateContainer.useContainer();
+  const { mission } = MissionStateContainer.useContainer();
+  const {
+    showAllGroups,
+    showOtherWpNames,
+    showOtherFlightPlans,
+    showAIFlightPlans,
+    hideAllHostileUnits
+  } = MapStateContainer.useContainer();
 
   const { selectedGroupId, selectedUnitId, groupOnClick } = React.useContext(ModeContext);
   const groupCoalition = React.useContext(CoalitionContext);
@@ -44,7 +50,8 @@ export function GroupLayer(props: GroupLayerProps) {
   const renderGroupRoute = (group: Group) => {
     const color = colorPalette[group.id % colorPalette.length];
     const isSelected = group.id === selectedGroupId;
-    const isRouteEditable = selectedGroupId !== undefined && (commanderMode || (isSelectedUnitLeadOfFlight && isSelected));
+    const isRouteEditable =
+      selectedGroupId !== undefined && (commanderMode || (isSelectedUnitLeadOfFlight && isSelected));
 
     legendContext.legends.push({ color: color, text: group.name, bold: isSelected });
 

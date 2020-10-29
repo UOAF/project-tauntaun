@@ -9,15 +9,17 @@ import {
   findPilotNameForUnit,
   getGroupOfUnit,
   getGroupsWithClients,
+  MissionStateContainer,
   SessionData,
+  SessionStateContainer,
   Skill
 } from '../../../models';
 import { gameService } from '../../../services';
 
 export function BriefingForm() {
-  const { session: sessionState, mission: missionState, setShowBriefingForm } = AppStateContainer.useContainer();
-  const { mission } = missionState;
-  const { sessionId, sessions } = sessionState;
+  const { setShowBriefingForm } = AppStateContainer.useContainer();
+  const { mission } = MissionStateContainer.useContainer();
+  const { sessionId, sessions } = SessionStateContainer.useContainer();
 
   const sessionData = sessions[sessionId];
   const selectedUnitId = sessionData.selected_unit_id;

@@ -4,6 +4,7 @@ import { Icon, Marker as CoreMarker, LeafletEvent, LatLng } from 'leaflet';
 import { Marker, Popup, MarkerProps, MarkerEvents } from 'react-leaflet';
 
 import { omit } from 'lodash';
+import { AppStateContainer } from '../../../../models/appState';
 
 export type SidcMarkerProps = MarkerProps &
   MarkerEvents & {
@@ -37,11 +38,14 @@ export function SidcMarker(props: SidcMarkerProps) {
   const { sidc, label, position } = props;
   const positionLatLng = position as LatLng;
 
+  const { commanderMode } = AppStateContainer.useContainer();
+
   const memorizedItem = useMemo(() => <SidcMarkerNonMemo {...props} />, [// eslint-disable-line react-hooks/exhaustive-deps    
     sidc,
     label,
     positionLatLng.lat,
-    positionLatLng.lng
+    positionLatLng.lng,
+    commanderMode
   ]);
 
   return memorizedItem;

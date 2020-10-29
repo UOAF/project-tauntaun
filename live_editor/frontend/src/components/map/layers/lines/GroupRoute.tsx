@@ -1,6 +1,6 @@
 import './GroupRoute.css';
 import React from 'react';
-import { AppStateContainer, Group } from '../../../../models';
+import { SelectionStateContainer, Group } from '../../../../models';
 import { LatLng } from 'leaflet';
 import { gameService } from '../../../../services';
 import { EditablePolyline } from './EditablePolyline';
@@ -16,8 +16,7 @@ export type GroupRouteProps = {
 };
 
 export function GroupRoute(props: GroupRouteProps) {
-  const { selection } = AppStateContainer.useContainer();
-  const { selectWaypoint } = selection;
+  const { selectWaypoint } = SelectionStateContainer.useContainer();
   const colors = React.useContext(ColorContext);
 
   const { isSelected: isSelectedProp, group, editable, showWaypointNames } = props;
@@ -83,7 +82,6 @@ export function GroupRoute(props: GroupRouteProps) {
     console.log('Point clicked.', index);
   };
 
-  // TODO order
   return (
     <React.Fragment>
       <EditablePolyline

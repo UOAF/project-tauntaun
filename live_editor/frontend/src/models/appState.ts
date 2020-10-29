@@ -2,11 +2,6 @@ import { LatLng } from 'leaflet';
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
 import { Coalitions } from '.';
-import { gameService } from '../services';
-import { useMapState } from './mapState';
-import { useMissionState } from './missionState';
-import { useSelectionState } from './selectionState';
-import { useSessionState } from './sessionState';
 
 export interface AppState {
   adminMode: boolean;
@@ -21,9 +16,7 @@ export interface AppState {
 
   showRoleOverview: boolean;
 
-  coalition: string;
-
-  mapToken: string | undefined;
+  coalition: string; // TODO move to SessionData
 }
 
 const defaultState: AppState = {
@@ -34,43 +27,11 @@ const defaultState: AppState = {
   showLoadoutEditor: false,
   showBriefingForm: false,
   showRoleOverview: false,
-  coalition: Coalitions.BLUE,
-  mapToken: undefined
+  coalition: Coalitions.BLUE
 };
 
 function useAppState(initialState = defaultState) {
   const [state, setState] = useState(initialState);
-  const [initialized, setInitialized] = useState(false);
-  const missionState = useMissionState();
-  const sessionState = useSessionState();
-  const mapState = useMapState();
-  const selectionState = useSelectionState();
-
-  const refreshMapToken = async (): Promise<void> => {
-    const mapToken = await gameService.getMapToken();
-    setState(state => ({
-      ...state,
-      mapToken: mapToken
-    }));
-  };
-
-  const initialize = async (): Promise<void> => {
-    try {
-      if (initialized) {
-        return;
-      }
-
-      await refreshMapToken();
-      await missionState.initialize();
-      await sessionState.initialize();
-
-      setInitialized(true);
-      console.info('AppState initialized');
-    } catch (error) {
-      console.error(`couldn't initialize AppState`, error);
-      throw error;
-    }
-  };
 
   const setLocation = (location: LatLng) => {
     setState(state => ({
@@ -137,7 +98,6 @@ function useAppState(initialState = defaultState) {
 
   return {
     ...state,
-    initialize,
     setAdminMode,
     setShowLoadoutEditor,
     setLocation,
@@ -146,19 +106,7 @@ function useAppState(initialState = defaultState) {
     setShowRoleOverview,
     setCoalition,
     setMapToken,
-    setCommanderMode,
-    session: {
-      ...sessionState
-    },
-    mission: {
-      ...missionState
-    },
-    map: {
-      ...mapState
-    },
-    selection: {
-      ...selectionState
-    }
+    setCommanderMode
   };
 }
 
