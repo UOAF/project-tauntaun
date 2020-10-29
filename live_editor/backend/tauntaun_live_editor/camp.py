@@ -365,7 +365,7 @@ class Campaign():
 
         self._trigger_copier.save_triggers(mizname)
 
-        self.mission.load_file(mizname)
+        self.mission.load_file(mizname, True)
         print("Mission loaded from", mizname)
 
 def save_mission(m, name='pytest'):
