@@ -73,7 +73,6 @@ export function App() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const groupMarkerOnClick = (group: Group, event: any): void => {
-    console.log(commanderMode);
     if (!commanderMode) return;
 
     if (event && event.coalition !== Coalitions.BLUE) return;

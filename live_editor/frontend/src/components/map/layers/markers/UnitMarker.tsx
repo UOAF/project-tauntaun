@@ -14,7 +14,12 @@ export function UnitMarker(props: UnitProps) {
 
   const { lat, lon: lng } = unit.position;
 
-  const onClick = () => unitMarkerOnClick?.(unit);
+  const onClick = () => {
+    // This is log is used to find unit type for sidc mapping
+    console.info('Unit type', `'${unit.type}'`);
+
+    unitMarkerOnClick?.(unit);
+  }
 
   return (
     <DcsSidcMarker
