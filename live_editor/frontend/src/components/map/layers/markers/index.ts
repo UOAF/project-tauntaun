@@ -1,4 +1,4 @@
-export * from './DcsGroup';
-export * from './GroupThreatRing';
+export * from '../comp/DcsGroup';
+export * from '../comp/DcsGroupRadarRing';
 export * from './DcsSidcMarker';
 export * from './TextMarker';

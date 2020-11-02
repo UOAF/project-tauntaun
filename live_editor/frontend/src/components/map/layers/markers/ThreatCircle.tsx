@@ -7,11 +7,13 @@ export type ThreatCircleProps = {
   radius: number;
   position: Point;
   color?: string;
+  weight?: number;
 };
 
 export function ThreatCircleNonMemo(props: ThreatCircleProps) {
-  const { radius, position, color: colorProp } = props;
+  const { radius, position, color: colorProp, weight: weightProp } = props;
   const color = colorProp ? colorProp : 'red';
+  const weight = weightProp ? weightProp : 3;
 
   return (
     <Circle
@@ -22,6 +24,7 @@ export function ThreatCircleNonMemo(props: ThreatCircleProps) {
       fill={false}
       fillOpacity={0.01}
       opacity={0.25}
+      weight={weight}
     />
   );
 }

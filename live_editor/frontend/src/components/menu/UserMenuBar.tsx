@@ -21,6 +21,8 @@ export function UserMenuBar() {
     showUnits,
     showThreatRings,
     showFriendlyThreatRings,
+    showRadarRings,
+    showFriendlyRadarRings,
     showOtherFlightPlans,
     showOtherWpNames,
     showAIFlightPlans,
@@ -31,6 +33,8 @@ export function UserMenuBar() {
     setShowAIFlightPlans,
     setShowThreatRings,
     setShowFriendlyThreatRings,
+    setShowRadarRings,
+    setShowFriendlyRadarRings,
     setShowOtherFlightPlans,
     setShowOtherWpNames,
     setShowLegend,
@@ -59,6 +63,8 @@ export function UserMenuBar() {
   const onShowUnitsChange = (event: any) => setShowUnits(event.target.checked);
   const onShowThreatRingsChange = (event: any) => setShowThreatRings(event.target.checked);
   const onShowFriendlyThreatRingsChange = (event: any) => setShowFriendlyThreatRings(event.target.checked);
+  const onShowRadarRingsChange = (event: any) => setShowRadarRings(event.target.checked);
+  const onShowFriendlyRadarRingsChange = (event: any) => setShowFriendlyRadarRings(event.target.checked);
   const onShowOtherFlightPlansChange = (event: any) => setShowOtherFlightPlans(event.target.checked);
   const onShowOtherWpNamesChange = (event: any) => setShowOtherWpNames(event.target.checked);
   const onShowAIFlightPlansChange = (event: any) => setShowAIFlightPlans(event.target.checked);
@@ -93,8 +99,24 @@ export function UserMenuBar() {
           />
           <FormControlLabel
             value="start"
-            control={<Checkbox checked={showFriendlyThreatRings} color="primary" onChange={onShowFriendlyThreatRingsChange} />}
+            control={
+              <Checkbox checked={showFriendlyThreatRings} color="primary" onChange={onShowFriendlyThreatRingsChange} />
+            }
             label="Friendly threat rings"
+            labelPlacement="end"
+          />
+          <FormControlLabel
+            value="start"
+            control={<Checkbox checked={showRadarRings} color="primary" onChange={onShowRadarRingsChange} />}
+            label="Radar rings"
+            labelPlacement="end"
+          />
+          <FormControlLabel
+            value="start"
+            control={
+              <Checkbox checked={showFriendlyRadarRings} color="primary" onChange={onShowFriendlyRadarRingsChange} />
+            }
+            label="Friendly radar rings"
             labelPlacement="end"
           />
           <FormControlLabel

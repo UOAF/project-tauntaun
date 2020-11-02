@@ -103,18 +103,16 @@ export function findPilotNameForUnit(sessions: Dictionary<SessionData>, id: numb
   return session?.name;
 }
 
-export function getThreatRangeForUnit(groupCategory: string, unit: Unit) {
+export function getStaticUnit(groupCategory: string, unit: Unit) {
   const DcsStatic = (DcsStaticRawJson as any).default as DcsStaticData;
   switch (groupCategory) {
     case 'vehicle_group': {
-      const type = filter(DcsStatic.vehicles, vehicle => vehicle.id === unit.type).pop();
-      return type ? +type.air_weapon_dist : 0;
+      return filter(DcsStatic.vehicles, vehicle => vehicle.id === unit.type).pop();
     }
     case 'ship_group': {
-      const type = DcsStatic.ships[unit.type];
-      return type ? +type.air_weapon_dist : 0;
+      return DcsStatic.ships[unit.type];
     }
     default:
-      return 0;
+      return undefined;
   }
 }

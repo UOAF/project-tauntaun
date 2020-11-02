@@ -53,6 +53,7 @@ export type Vehicle = {
   air_weapon_dist: string;
   eprls: boolean;
   category: string;
+  [key: string]: string | boolean;
 };
 
 export type Ship = {
@@ -61,6 +62,7 @@ export type Ship = {
   detection_range: string;
   threat_range: string;
   air_weapon_dist: string;
+  [key: string]: string;
 };
 
 export type DcsStaticData = {
