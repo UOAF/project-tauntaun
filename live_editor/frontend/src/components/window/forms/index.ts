@@ -1,4 +1,4 @@
 export * from './AddFlightForm';
 export * from './EditWaypointForm';
-export * from './BriefingForm';
+export * from './RoleSelectionForm';
 export * from './LoadoutEditor';

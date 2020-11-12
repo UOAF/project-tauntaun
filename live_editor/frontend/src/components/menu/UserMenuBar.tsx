@@ -11,9 +11,9 @@ import { Foldable } from '../ui/Foldable';
 export function UserMenuBar() {
   const {
     commanderMode,
-    showBriefingForm,
+    showRoleSelectionForm,
     setShowLoadoutEditor,
-    setShowBriefingForm,
+    setShowRoleSelectionForm,
     setShowRoleOverview
   } = AppStateContainer.useContainer();
 
@@ -69,7 +69,7 @@ export function UserMenuBar() {
   const onShowOtherWpNamesChange = (event: any) => setShowOtherWpNames(event.target.checked);
   const onShowAIFlightPlansChange = (event: any) => setShowAIFlightPlans(event.target.checked);
   const onShowLegendChange = (event: any) => setShowLegend(event.target.checked);
-  const unitSelectionOnClick = () => setShowBriefingForm(!showBriefingForm);
+  const unitSelectionOnClick = () => setShowRoleSelectionForm(!showRoleSelectionForm);
   const onHideAllHostileUnitsChange = (event: any) => setHideAllHostileUnits(event.target.checked);
 
   const onMapTypeSelected = (event: any) => {

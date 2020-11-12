@@ -4,7 +4,7 @@ import React from 'react';
 import { Map, TileLayer } from 'react-leaflet';
 import { pick } from 'lodash';
 
-import { MapStateContainer, MissionStateContainer } from '../../models';
+import { MapStateContainer, MissionStateContainer, SessionStateContainer } from '../../models';
 import { LeafletMouseEvent } from 'leaflet';
 import { useState } from 'react';
 import { MapContext } from '../contexts';
@@ -24,6 +24,11 @@ export interface CampaignMapProps {
 export function CampaignMap(props: CampaignMapProps) {
   const { mission } = MissionStateContainer.useContainer();
   const { mapType, showLegend, mapToken } = MapStateContainer.useContainer();
+
+  const { sessionId, sessions } = SessionStateContainer.useContainer();
+  const sessionData = sessions[sessionId];
+  const sessionCoalition = sessionData ? sessionData.coalition : '';
+
   const mapContext = React.useContext(MapContext);
 
   const [position, setPosition] = useState(null as ClickPosition | null);
@@ -62,10 +67,14 @@ export function CampaignMap(props: CampaignMapProps) {
               'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
             }
           />
-          <AirportLayer airports={mission.terrain.airports} />
-          {Object.keys(mission.coalition).map(key => (
-            <CoalitionLayer key={key} coalition={mission.coalition[key]} />
-          ))}
+          {sessionCoalition && (
+            <React.Fragment>
+              <AirportLayer airports={mission.terrain.airports} />
+              {Object.keys(mission.coalition).map(key => (
+                <CoalitionLayer key={key} coalition={mission.coalition[key]} />
+              ))}
+            </React.Fragment>
+          )}
         </Map>
         {showLegend && <Legend />}
       </LegendContext.Provider>

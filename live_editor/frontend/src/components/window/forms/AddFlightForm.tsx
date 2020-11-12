@@ -4,19 +4,22 @@ import React, { useState } from 'react';
 
 import { LatLng } from 'leaflet';
 import { MenuItem, Select } from '@material-ui/core';
-import { AppStateContainer, MissionStateContainer } from '../../../models';
+import { AppStateContainer, MissionStateContainer, SessionStateContainer } from '../../../models';
 import { gameService } from '../../../services';
 
 export function AddFlightForm() {
-  const { coalition: selectedCoalition, location, setShowAddFlightForm } = AppStateContainer.useContainer();
+  const { location, setShowAddFlightForm } = AppStateContainer.useContainer();
   const { mission } = MissionStateContainer.useContainer();
+  const { sessionId, sessions } = SessionStateContainer.useContainer();
+  const sessionData = sessions[sessionId];
+  const sessionCoalition = sessionData ? sessionData.coalition : '';
 
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedAirport, setSelectedAirport] = useState(NaN);
   const [selectedPlane, setSelectedPlane] = useState('');
   const [selectedNumber, setSelectedNumber] = useState(2);
 
-  const coalition = mission.coalition[selectedCoalition];
+  const coalition = mission.coalition[sessionCoalition];
   const countryOptions = coalition
     ? Object.keys(coalition.countries).map(countryName => ({ value: countryName, label: countryName }))
     : [];
@@ -51,7 +54,7 @@ export function AddFlightForm() {
     }
 
     gameService.sendAddFlight(
-      selectedCoalition,
+      sessionCoalition,
       selectedCountry,
       location as LatLng,
       selectedAirport,
