@@ -29,7 +29,7 @@ setuptools.setup(
     },
     install_requires=[
       'wheel>=0.35.1',
-      'pydcs@git+https://github.com/pydcs/dcs.git@d19f10443d6b35ad04e0590248abca7f7d4a9e38',
+      'pydcs>=0.12.0',
       'Quart>=0.12.0',
       'dataclasses-json>=0.5.2'
     ],

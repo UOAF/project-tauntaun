@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 import { InputLabel, Select, MenuItem, List, ListItem, ListItemText } from '@material-ui/core';
 import {
   AppStateContainer,
+  Coalitions,
   findGroupById,
   findPilotNameForUnit,
   getGroupOfUnit,
@@ -16,19 +17,22 @@ import {
 } from '../../../models';
 import { gameService } from '../../../services';
 
-export function BriefingForm() {
-  const { setShowBriefingForm } = AppStateContainer.useContainer();
+export function RoleSelectionForm() {
+  const { setShowRoleSelectionForm } = AppStateContainer.useContainer();
   const { mission } = MissionStateContainer.useContainer();
   const { sessionId, sessions } = SessionStateContainer.useContainer();
 
   const sessionData = sessions[sessionId];
+  const sessionCoalition = sessionData.coalition;
   const selectedUnitId = sessionData.selected_unit_id;
   const showLeaveUnit = sessionData && sessionData.selected_unit_id !== -1;
 
   const [name, setName] = useState(sessionData ? sessionData.name : '');
   const [group, setGroup] = useState(getGroupOfUnit(mission, selectedUnitId));
 
-  const groupsWithClients = getGroupsWithClients(mission);
+  const groupsWithClients = getGroupsWithClients(mission)
+    .filter(g => g.coalition === sessionCoalition)
+    .map(g => g.group);
 
   const onSetNameClicked = () => {
     if (name.length === 0) return;
@@ -82,16 +86,30 @@ export function BriefingForm() {
       selected_unit_id: -1
     } as SessionData);
   };
+  const onCoalitionSelected = (coalition: Coalitions) => {
+    gameService.sendSessionDataUpdate(sessionId, {
+      ...sessionData,
+      coalition: coalition
+    });
+  };
 
-  const onClose = () => setShowBriefingForm(false);
+  const onClose = () => setShowRoleSelectionForm(false);
 
-  return (
-    <div className="PopupBig">
-      <p>
+  const renderCoalitionSelector = () => (
+    <div>
+      Select coalition:
+      <button onClick={() => onCoalitionSelected(Coalitions.BLUE)}>Blue</button>
+      <button onClick={() => onCoalitionSelected(Coalitions.RED)}>Red</button>
+    </div>
+  );
+
+  const renderRoleSelection = () => (
+    <React.Fragment>
+      <div>
         Name
         <input type="text" value={name} onChange={onNameChange} />
         <button onClick={onSetNameClicked}>Set name</button>
-      </p>
+      </div>
       <div>
         <InputLabel id="group-select">Group</InputLabel>
         <Select onChange={onGroupChange} value={group?.id}>
@@ -113,6 +131,12 @@ export function BriefingForm() {
         </List>
       </div>
       {showLeaveUnit && <button onClick={onLeaveUnitClicked}>Leave unit</button>}
+    </React.Fragment>
+  );
+
+  return (
+    <div className="PopupBig">
+      {sessionCoalition ? renderRoleSelection() : renderCoalitionSelector()}
       <button onClick={onClose}>Close</button>
     </div>
   );

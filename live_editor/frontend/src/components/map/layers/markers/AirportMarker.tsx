@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Airport, AppStateContainer } from '../../../../models';
+import { Airport, SessionStateContainer } from '../../../../models';
 import { SidcMarker } from './SidcMarker';
 import { setSidcCoalition, calcAffiliation } from '../../../../models/dcs_util';
 
@@ -10,10 +10,13 @@ export type AirportProps = {
 };
 
 export function AirportMarker(props: AirportProps) {
-  const { coalition } = AppStateContainer.useContainer();
+  const { sessionId, sessions } = SessionStateContainer.useContainer();
+  const sessionData = sessions[sessionId];
+  const sessionCoalition = sessionData ? sessionData.coalition : '';
+
   const { airport, airportMarkerOnClick } = props;
 
-  const sidc = setSidcCoalition('SFGPIBA---H-', calcAffiliation(coalition, airport.coalition));
+  const sidc = setSidcCoalition('SFGPIBA---H-', calcAffiliation(sessionCoalition, airport.coalition));
   const { lat, lon: lng } = airport.position;
 
   const onClick = () => airportMarkerOnClick?.(airport);

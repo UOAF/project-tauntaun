@@ -316,16 +316,31 @@ class Campaign():
         return itertools.chain(*(countries[cname].ship_group for cname in countries))
 
     def lookup_unit(self, unit_id):
+        # TODO
         for unit in self.get_plane_group_units('blue'):
             if unit_id == unit.id:
                 return unit
 
+        for unit in self.get_plane_group_units('red'):
+            if unit_id == unit.id:
+                return unit
+
     def lookup_group(self, group_id):
+
+        # TODO
         for group in self.get_plane_groups('blue'):
             if group_id == group.id:
                 return group
 
         for group in self.get_ship_groups('blue'):
+            if group_id == group.id:
+                return group
+
+        for group in self.get_plane_groups('red'):
+            if group_id == group.id:
+                return group
+
+        for group in self.get_ship_groups('red'):
             if group_id == group.id:
                 return group
 

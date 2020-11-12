@@ -12,10 +12,14 @@ import {
 import { max } from 'lodash';
 export function RoleOverview() {
   const { setShowRoleOverview } = AppStateContainer.useContainer();
-  const { sessions } = SessionStateContainer.useContainer();
+  const { sessionId, sessions } = SessionStateContainer.useContainer();
   const { mission } = MissionStateContainer.useContainer();
 
-  const groupsWithClients = getGroupsWithClients(mission);
+  const sessionData = sessions[sessionId];
+  const sessionCoalition = sessionData ? sessionData.coalition : '';
+  const groupsWithClients = getGroupsWithClients(mission)
+    .filter(g => g.coalition === sessionCoalition)
+    .map(g => g.group);
   const numberOfUnitsPerGroup = groupsWithClients.map(g => g.units.length);
   const totalNumberOfSlots = numberOfUnitsPerGroup.reduce((pv, cv) => pv + cv, 0);
   const maxNumberOfUnitsPerGroup = max(numberOfUnitsPerGroup);

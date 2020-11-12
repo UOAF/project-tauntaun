@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 
 import {
   AppStateContainer,
-  Coalitions,
   Group,
   MapStateContainer,
   MissionStateContainer,
@@ -15,7 +14,7 @@ import { findGroupById, getGroupOfUnit } from '../models/dcs_util';
 import { gameService } from '../services';
 import L from 'leaflet';
 import { MapContext, MapContextType, ModeContext, ModeContextType } from './contexts';
-import { AddFlightForm, BriefingForm, EditWaypointForm, LoadoutEditor } from './window/forms';
+import { AddFlightForm, RoleSelectionForm, EditWaypointForm, LoadoutEditor } from './window/forms';
 import { MenuBar } from './menu';
 import { CampaignMap } from './map';
 import { RoleOverview } from './window/RoleOverview';
@@ -30,7 +29,7 @@ enum InitialzationState {
 export function App() {
   const {
     showAddFlightForm,
-    showBriefingForm: showBriefingFormConfig,
+    showRoleSelectionForm: showRoleSelectionFormConfig,
     commanderMode,
     showLoadoutEditor,
     showRoleOverview
@@ -45,6 +44,9 @@ export function App() {
     selectedUnitId: selectedUnitIdCommanderMode,
     selectGroup
   } = SelectionStateContainer.useContainer();
+  const sessionData = sessions[sessionId];
+  const sessionCoalition = sessionData ? sessionData.coalition : '';
+
 
   const [initializedState, setInitializedState] = useState(InitialzationState.UNINITIALIZED);
 
@@ -54,7 +56,7 @@ export function App() {
     const initApp = async () => {
       try {
         await gameService.openSocket();
-        console.info("GameService initialized");
+        console.info('GameService initialized');
         await initializeMap();
         await initializeMission();
         await initializeSession();
@@ -75,14 +77,13 @@ export function App() {
   const groupMarkerOnClick = (group: Group, event: any): void => {
     if (!commanderMode) return;
 
-    if (event && event.coalition !== Coalitions.BLUE) return;
+    if (event && event.coalition !== sessionCoalition) return;
 
     console.info(`selecting group`, group);
 
     selectGroup(selectedGroupId === group.id ? undefined : group.id);
   };
 
-  const sessionData = sessions[sessionId];
   const selected_unit_id = sessionData
     ? sessionData.selected_unit_id !== -1
       ? sessionData.selected_unit_id
@@ -101,7 +102,7 @@ export function App() {
   const unit = group && selectedUnitId ? group.units.find(u => u.id === selectedUnitId) : undefined;
   const terrain = mission.terrain;
 
-  const showBriefingForm = sessionData !== undefined && !commanderMode && showBriefingFormConfig;
+  const showRoleSelectionForm = sessionData !== undefined && !commanderMode && showRoleSelectionFormConfig;
 
   const renderApp = () => {
     return (
@@ -112,7 +113,7 @@ export function App() {
               <ModeContext.Provider value={modeContext}>
                 <MissionTime />
                 {showRoleOverview && <RoleOverview />}
-                {showBriefingForm && <BriefingForm />}
+                {showRoleSelectionForm && <RoleSelectionForm />}
                 {showAddFlightForm && <AddFlightForm />}
                 {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
                   <EditWaypointForm group={group} pointIndex={selectedWaypoint} />

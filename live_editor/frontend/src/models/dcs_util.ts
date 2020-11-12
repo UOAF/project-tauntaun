@@ -6,6 +6,7 @@ import * as DcsStaticRawJson from '../data/dcs_static.json';
 export function* getGroupArrays(mission: Mission) {
   for (const coalitionKey in mission.coalition) {
     const coalition = mission.coalition[coalitionKey];
+
     for (const countryKey in coalition.countries) {
       const country = coalition.countries[countryKey];
 
@@ -20,7 +21,12 @@ export function* getGroupArrays(mission: Mission) {
         const groupCategoryName = possibleGroupCategories[groupCategoryIndex];
         const groupCategory = country[groupCategoryName] as Array<Group>;
 
-        yield groupCategory;
+        yield groupCategory.map(g => ({
+          groupCategory: groupCategoryName,
+          group: g,
+          coalition: coalition.name,
+          country: country.name
+        }));
       }
     }
   }
@@ -34,8 +40,8 @@ export function* getGroups(mission: Mission) {
 
 export function findGroupById(mission: Mission, groupId: number): Group | undefined {
   for (const groupArray of getGroupArrays(mission)) {
-    const group = groupArray.find(g => g.id === groupId);
-    if (group) return group;
+    const group = groupArray.find(g => g.group.id === groupId);
+    if (group) return group.group;
   }
 
   return undefined;
@@ -75,7 +81,7 @@ export function calcAffiliation(from: string, to: string) {
 
 export function getGroupOfUnit(mission: Mission, unitId: number | undefined) {
   if (unitId === undefined || unitId === -1) return undefined;
-  return wu(getGroups(mission)).find(g => g.units.find(u => u.id === unitId) !== undefined);
+  return wu(getGroups(mission)).find(g => g.group.units.find(u => u.id === unitId) !== undefined)?.group;
 }
 
 export function matchCategoryToStaticCategory(category: string) {
@@ -94,7 +100,7 @@ export function matchCategoryToStaticCategory(category: string) {
 
 export function getGroupsWithClients(mission: Mission) {
   return wu(getGroups(mission))
-    .filter(g => g.units.find(u => u.skill === Skill.Client) !== undefined)
+    .filter(g => g.group.units.find(u => u.skill === Skill.Client) !== undefined)
     .toArray();
 }
 

@@ -6,7 +6,8 @@ class SessionsEncoder(JSONEncoder):
         def session_data(self, obj):
             return {
                 'name': obj.name,
-                'selected_unit_id': obj.selected_unit_id
+                'selected_unit_id': obj.selected_unit_id,
+                'coalition': obj.coalition
             }
 
         def default(self, obj):
@@ -19,6 +20,7 @@ class SessionData:
     def __init__(self):
         self.name = ''
         self.selected_unit_id = -1
+        self.coalition = ""
 
 class SessionManager:
     def __init__(self):
@@ -49,5 +51,6 @@ class SessionManager:
 
         self.sessions[id].name = name
         self.sessions[id].selected_unit_id = selected_unit_id
+        self.sessions[id].coalition = sessionData['coalition']
 
         print("Session updated")

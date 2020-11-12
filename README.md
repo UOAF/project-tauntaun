@@ -41,9 +41,19 @@ tauntaun_live_editor
 Open https://localhost:8080  
 Enter admin mode with right clicking the arrow in the top left corner and enter the admin password. 
 
+#### Update pydcs after new DCS patch
+Pydcs can be updated independently. First check if there was a "data-export" since the new patch released at: https://github.com/pydcs/dcs/commits/master, if yes upgrade to the latest github commit:
+
+```
+pip uninstall pydcs
+pip install git+https://github.com/pydcs/dcs.git
+```
+Note: If you install Tauntaun from pip you most likely want to do this step right after installation.
+
 #### License 
 GNU General Public License v3 (GPLv3) (GPL)
 
 #### Contact
 https://github.com/UOAF/project-tauntaun  
 https://discord.gg/ZkXCK3y
+

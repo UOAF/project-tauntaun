@@ -1,7 +1,6 @@
 import { LatLng } from 'leaflet';
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
-import { Coalitions } from '.';
 
 export interface AppState {
   adminMode: boolean;
@@ -12,11 +11,9 @@ export interface AppState {
 
   showLoadoutEditor: boolean;
 
-  showBriefingForm: boolean;
+  showRoleSelectionForm: boolean;
 
   showRoleOverview: boolean;
-
-  coalition: string; // TODO move to SessionData
 }
 
 const defaultState: AppState = {
@@ -25,9 +22,8 @@ const defaultState: AppState = {
   showAddFlightForm: false,
   location: new LatLng(0, 0),
   showLoadoutEditor: false,
-  showBriefingForm: false,
-  showRoleOverview: false,
-  coalition: Coalitions.BLUE
+  showRoleSelectionForm: false,
+  showRoleOverview: false
 };
 
 function useAppState(initialState = defaultState) {
@@ -61,17 +57,10 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
-  const setShowBriefingForm = (visible: boolean) => {
+  const setShowRoleSelectionForm = (visible: boolean) => {
     setState(state => ({
       ...state,
-      showBriefingForm: visible
-    }));
-  };
-
-  const setCoalition = (coalition: string) => {
-    setState(state => ({
-      ...state,
-      coalition: coalition
+      showRoleSelectionForm: visible
     }));
   };
 
@@ -102,9 +91,8 @@ function useAppState(initialState = defaultState) {
     setShowLoadoutEditor,
     setLocation,
     setShowAddFlightForm,
-    setShowBriefingForm,
+    setShowRoleSelectionForm,
     setShowRoleOverview,
-    setCoalition,
     setMapToken,
     setCommanderMode
   };

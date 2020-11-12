@@ -19,7 +19,7 @@ export type DcsGroupProps = {
 };
 
 export function DcsGroup(props: DcsGroupProps): ReactElement {
-  const { commanderMode, coalition } = AppStateContainer.useContainer();
+  const { commanderMode } = AppStateContainer.useContainer();
   const {
     showOtherFlightPlans,
     showAIFlightPlans,
@@ -33,10 +33,10 @@ export function DcsGroup(props: DcsGroupProps): ReactElement {
 
   const { group, groupOnClick } = props;
 
-  const groupCoalition = React.useContext(CoalitionContext);
+  const { sessionCoalition, groupCoalition } = React.useContext(CoalitionContext);
   const colorPalette = React.useContext(ColorPaletteContext);
   const legendContext = React.useContext(LegendContext);
-  const isSameCoalition = coalition === groupCoalition;
+  const isSameCoalition = sessionCoalition === groupCoalition;
   const { selectedGroupId, selectedUnitId } = React.useContext(ModeContext);
 
   const isSelectedUnitLeadOfFlight = isLeadOfFlight(selectedUnitId, group);
@@ -44,7 +44,7 @@ export function DcsGroup(props: DcsGroupProps): ReactElement {
   const isClientOrShowAI = group.units[0].skill === Skill.Client || showAIFlightPlans;
   const showRoute = isSameCoalition && isSelectedOrShowOther && isClientOrShowAI;
 
-  const onClick = () => groupOnClick?.(group, { coalition: coalition });
+  const onClick = () => groupOnClick?.(group, { coalition: groupCoalition });
 
   const renderGroupRoute = () => {
     const color = colorPalette[group.id % colorPalette.length];

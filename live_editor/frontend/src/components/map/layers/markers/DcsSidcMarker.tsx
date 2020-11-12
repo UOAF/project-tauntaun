@@ -5,7 +5,7 @@ import { SidcMarker } from './SidcMarker';
 import { SidcMarkerProps } from './SidcMarker';
 import { setSidcCoalition, calcAffiliation } from '../../../../models/dcs_util';
 import * as DcsStaticRawJson from '../../../../data/dcs_static.json';
-import { AppStateContainer, DcsStaticData } from '../../../../models';
+import { DcsStaticData } from '../../../../models';
 import { CoalitionContext } from '..';
 
 export type DcsSidcMarkerProps = SidcMarkerProps & {
@@ -13,17 +13,16 @@ export type DcsSidcMarkerProps = SidcMarkerProps & {
 };
 
 export function DcsSidcMarker(props: DcsSidcMarkerProps) {
-  const { coalition } = AppStateContainer.useContainer();
   const DcsStatic = (DcsStaticRawJson as any).default as DcsStaticData;
 
-  const markerCoalition = React.useContext(CoalitionContext);
+  const { sessionCoalition, groupCoalition } = React.useContext(CoalitionContext);
 
   const { type } = props;
 
   const sidc = useMemo(
     () =>
       type && Object.keys(DcsStatic.sidc).includes(type)
-        ? setSidcCoalition(DcsStatic.sidc[type], calcAffiliation(coalition, markerCoalition))
+        ? setSidcCoalition(DcsStatic.sidc[type], calcAffiliation(sessionCoalition, groupCoalition))
         : 'SOSP--------',
     [type] // eslint-disable-line react-hooks/exhaustive-deps
   );
