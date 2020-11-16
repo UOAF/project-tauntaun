@@ -50,6 +50,10 @@ pip install git+https://github.com/pydcs/dcs.git
 ```
 Note: If you install Tauntaun from pip you most likely want to do this step right after installation.
 
+#### Bug reporting and feature requests
+Use github issues:
+https://github.com/UOAF/project-tauntaun/issues
+
 #### License 
 GNU General Public License v3 (GPLv3) (GPL)
 
