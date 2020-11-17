@@ -35,7 +35,7 @@ setuptools.setup(
     ],
     entry_points={
         "console_scripts": [
-            "tauntaun_live_editor = tauntaun_live_editor.camp:main"
+            "tauntaun-live-editor = tauntaun_live_editor.camp:main"
         ]
     },
     python_requires='>=3.8',
