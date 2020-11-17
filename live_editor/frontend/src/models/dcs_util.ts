@@ -62,17 +62,26 @@ export function calcAffiliation(from: string, to: string) {
     [Coalitions.BLUE]: {
       [Coalitions.BLUE]: Affiliation.FRIENDLY,
       [Coalitions.RED]: Affiliation.HOSTILE,
-      [Coalitions.NEUTRAL]: Affiliation.NEUTRAL
+      [Coalitions.NEUTRAL]: Affiliation.NEUTRAL,
+      [Coalitions.NEUTRAL_2]: Affiliation.NEUTRAL
     },
     [Coalitions.RED]: {
       [Coalitions.BLUE]: Affiliation.HOSTILE,
       [Coalitions.RED]: Affiliation.FRIENDLY,
-      [Coalitions.NEUTRAL]: Affiliation.NEUTRAL
+      [Coalitions.NEUTRAL]: Affiliation.NEUTRAL,
+      [Coalitions.NEUTRAL_2]: Affiliation.NEUTRAL
     },
     [Coalitions.NEUTRAL]: {
       [Coalitions.BLUE]: Affiliation.NEUTRAL,
       [Coalitions.RED]: Affiliation.NEUTRAL,
-      [Coalitions.NEUTRAL]: Affiliation.FRIENDLY
+      [Coalitions.NEUTRAL]: Affiliation.FRIENDLY,
+      [Coalitions.NEUTRAL_2]: Affiliation.FRIENDLY
+    },
+    [Coalitions.NEUTRAL_2]: {
+      [Coalitions.BLUE]: Affiliation.NEUTRAL,
+      [Coalitions.RED]: Affiliation.NEUTRAL,
+      [Coalitions.NEUTRAL]: Affiliation.FRIENDLY,
+      [Coalitions.NEUTRAL_2]: Affiliation.FRIENDLY
     }
   };
 

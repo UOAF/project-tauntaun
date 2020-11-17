@@ -7,7 +7,9 @@ sidc_overrides = {
     'E-3A': 'SFAPMFRW--*****',
     'Stennis': 'SFSPCLCV--****',
     '55G6 EWR': 'SFGPUCDT----',
-    '1L13 EWR': 'SFGPUCDT----'
+    '1L13 EWR': 'SFGPUCDT----',
+    'Dry-cargo ship-1': 'SFSPXM------',
+    'Dry-cargo ship-2': 'SFSPXM------'
 }
 
 def map_planes():
