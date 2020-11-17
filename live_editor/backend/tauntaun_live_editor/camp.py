@@ -16,14 +16,11 @@ import dcs.mapping as mapping
 
 import tauntaun_live_editor.server as server
 import tauntaun_live_editor.config as config
-from .util import get_dcs_dir, get_data_path
+from .util import get_dcs_dir, get_data_path, is_posix
 from .coord import lat_lon_to_xz
 from .sessions import SessionManager
 
 _data_dir = get_data_path()
-
-def is_posix():
-    return os.name == 'posix'
 
 def _convert_point(terrain, p):
     lat = float(p['lat'])

@@ -8,7 +8,8 @@ export enum AltType {
 export enum Coalitions {
   BLUE = 'blue',
   RED = 'red',
-  NEUTRAL = 'neutral'
+  NEUTRAL = 'neutrals',
+  NEUTRAL_2 = 'neutral' // It's "neutral" for airbases
 }
 
 export enum Skill {

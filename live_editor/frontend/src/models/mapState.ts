@@ -27,7 +27,7 @@ export const defaultState: MapState = {
   showAIFlightPlans: false,
   showAllGroups: false,
   showLegend: true,
-  showRadarRings: true,
+  showRadarRings: false,
   showFriendlyRadarRings: false,
   hideAllHostileUnits: false,
   mapType: 'mapbox/outdoors-v11',

@@ -11,7 +11,7 @@ from hypercorn.config import Config
 from hypercorn.asyncio import serve
 
 from tauntaun_live_editor.sessions import SessionsEncoder
-from tauntaun_live_editor.util import get_data_path
+from tauntaun_live_editor.util import get_data_path, is_posix
 import tauntaun_live_editor.config as config
 from .mission_encoder import MissionEncoder
 from concurrent.futures import thread
@@ -195,15 +195,16 @@ def run(campaign, session_maanger, port=80):
     def _signal_handler(*_):
         shutdown_event.set()
 
-    def _exception_handler(loop, context):
+    def _exception_handler(context):
         exception = context.get("exception")
         shutdown_event.set()
         raise(exception)        
 
     loop = asyncio.get_event_loop()
     loop.set_exception_handler(_exception_handler)
-    loop.add_signal_handler(signal.SIGINT, _signal_handler)
-    loop.add_signal_handler(signal.SIGTERM, _signal_handler)
+    if is_posix():
+        loop.add_signal_handler(signal.SIGINT, _signal_handler)
+        loop.add_signal_handler(signal.SIGTERM, _signal_handler)
 
     config = Config()
     config.bind = ["0.0.0.0:" + str(port)]

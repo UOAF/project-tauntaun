@@ -1,13 +1,13 @@
 from glob import glob
 import setuptools
 
-with open("../../README.md", "r") as fh:
+with open("README.md", "r") as fh:
     long_description = fh.read()
 
 
 setuptools.setup(
     name="tauntaun-live-editor",
-    version="0.1.1",
+    version="0.1.2",
     author="UOAF",
     author_email="uoaf@fakemail.invalid",
     description="Project Tauntaun Live Editor",
@@ -35,7 +35,7 @@ setuptools.setup(
     ],
     entry_points={
         "console_scripts": [
-            "tauntaun_live_editor = tauntaun_live_editor.camp:main"
+            "tauntaun-live-editor = tauntaun_live_editor.camp:main"
         ]
     },
     python_requires='>=3.8',
