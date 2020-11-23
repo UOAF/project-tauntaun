@@ -7,7 +7,7 @@ Tauntaun Live Editor is browser based collaborative mission planning tool for DC
 
 #### Requirements
 Python 3.8  
-A MapBox access token (free tier is available)
+A [mapbox](https://www.mapbox.com/) access token (free tier is available)
 #### Installation
 ##### pip
 ```bash
