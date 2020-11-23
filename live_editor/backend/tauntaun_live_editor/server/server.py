@@ -64,14 +64,15 @@ def create_app(campaign, session_manager):
             async def wrapper(*args, **kwargs):
                 id = wrapper.id_counter
                 ws_clients[id] = websocket._get_current_object()
-                print(f"adding ws client {id}")
+                ws_url = ws_clients[id].host_url
+                print(f"adding ws client   |{id:3d}|{ws_url}|")
                 on_connect(id)
                 wrapper.id_counter += 1
 
                 try:
                     return await func(*args, **kwargs)
                 finally:
-                    print(f"removing ws client {id}")
+                    print(f"removing ws client |{id:03d}|{ws_url}|")
                     del ws_clients[id]
                     await on_disconnect(id)
 
@@ -81,9 +82,9 @@ def create_app(campaign, session_manager):
         return wrapper_0
 
     async def broadcast(message):
-         for ws_id in ws_clients:
-             ws = ws_clients[ws_id]
-             await ws.send(message)
+        for ws_id in list(ws_clients):
+            ws = ws_clients[ws_id]
+            await ws.send(message)
 
     async def broadcast_session_update():
         broadcast_data = {'key': 'sessions_updated', 'value': session_manager.sessions}
