@@ -71,6 +71,9 @@ def create_app(campaign, session_manager):
 
                 try:
                     return await func(*args, **kwargs)
+                except asyncio.CancelledError as error:
+                    print(f"ws client disconnected |{id:03d}|{ws_url}|")
+                    raise error
                 finally:
                     print(f"removing ws client |{id:03d}|{ws_url}|")
                     del ws_clients[id]
@@ -83,8 +86,15 @@ def create_app(campaign, session_manager):
 
     async def broadcast(message):
         for ws_id in list(ws_clients):
+            if ws_id not in ws_clients.keys():
+                print("Client was removed, continue.")
+                continue
+
             ws = ws_clients[ws_id]
-            await ws.send(message)
+            try:
+                await ws.send(message)
+            except ConnectionAbortedError:
+                print("Client disconnected during iteration, ignoring ConnectionAbortedError error!")
 
     async def broadcast_session_update():
         broadcast_data = {'key': 'sessions_updated', 'value': session_manager.sessions}
