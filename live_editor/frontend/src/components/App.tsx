@@ -47,7 +47,6 @@ export function App() {
   const sessionData = sessions[sessionId];
   const sessionCoalition = sessionData ? sessionData.coalition : '';
 
-
   const [initializedState, setInitializedState] = useState(InitialzationState.UNINITIALIZED);
 
   useEffect(() => {

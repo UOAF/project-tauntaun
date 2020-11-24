@@ -39,18 +39,22 @@ export function DcsGroup(props: DcsGroupProps): ReactElement {
   const isSameCoalition = sessionCoalition === groupCoalition;
   const { selectedGroupId, selectedUnitId } = React.useContext(ModeContext);
 
-  const isSelectedUnitLeadOfFlight = isLeadOfFlight(selectedUnitId, group);
-  const isSelectedOrShowOther = group.id === selectedGroupId || showOtherFlightPlans;
-  const isClientOrShowAI = group.units[0].skill === Skill.Client || showAIFlightPlans;
-  const showRoute = isSameCoalition && isSelectedOrShowOther && isClientOrShowAI;
+  const isSelectedUnitLeadOfFlight = !commanderMode && isLeadOfFlight(selectedUnitId, group);
+  const isAI = group.units[0].skill !== Skill.Client;
+  const isSelected = group.id === selectedGroupId;
+  const isShowOtherFlightPlans = showOtherFlightPlans && !isAI;
+  const isShowAIFlightPlans = showAIFlightPlans && isAI;
+  const isVisible = isSelected || isShowOtherFlightPlans || isShowAIFlightPlans;
+  const showRoute = isSameCoalition && isVisible;
 
   const onClick = () => groupOnClick?.(group, { coalition: groupCoalition });
 
   const renderGroupRoute = () => {
     const color = colorPalette[group.id % colorPalette.length];
     const isSelected = group.id === selectedGroupId;
-    const isRouteEditable =
-      selectedGroupId !== undefined && (commanderMode || (isSelectedUnitLeadOfFlight && isSelected));
+    const isCommanderSelected = commanderMode && isSelected;
+    const isPilotSelected = isSelectedUnitLeadOfFlight;
+    const isRouteEditable = selectedGroupId !== undefined && (isCommanderSelected || isPilotSelected);
 
     legendContext.legends.push({ color: color, text: group.name, bold: isSelected });
 
