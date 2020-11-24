@@ -40,7 +40,7 @@ export function convertLeafletMapToKml(map: any) {
       const geoJSON = layer.toGeoJSON();
       const options = layer.options as any;
 
-      const name = options.name ? options.name : options.icon ? (options.icon.name ? options.icon.name : '') : '';
+      const name = options.label ? options.label : options.icon ? (options.icon.label ? options.icon.label : '') : '';
       const color = options.color ? options.color : '';
 
       collection.features.push({

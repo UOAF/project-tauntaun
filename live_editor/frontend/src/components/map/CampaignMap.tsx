@@ -60,7 +60,7 @@ export function CampaignMap(props: CampaignMapProps) {
         >
           <TileLayer
             url={`https://api.mapbox.com/styles/v1/${mapType}/tiles/{z}/{x}/{y}?access_token=${mapToken}`}
-            maxZoom={15}
+            maxZoom={20}
             attribution={
               'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
               '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
