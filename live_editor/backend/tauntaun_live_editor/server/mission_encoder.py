@@ -34,9 +34,12 @@ class MissionEncoder(json.JSONEncoder):
         }
 
     def coalition(self, obj):
+        bullseye = obj.bullseye if not None else {'x': 0, 'y': 0}
+        bullseye = Point(bullseye['x'], bullseye['y'])
         return {
             'name': obj.name,
-            'countries':  self.default(obj.countries)
+            'bullseye': self.point(bullseye),
+            'countries': self.default(obj.countries)
         }
 
     def country(self, obj):
@@ -151,12 +154,18 @@ class MissionEncoder(json.JSONEncoder):
     def datetime(self, obj):
         return obj.strftime("%Y-%m-%d %H:%M:%S")
 
+    def float(self, obj):
+        return str(obj)
+
     def default(self, obj):
         if isinstance(obj, dict):
             return {k: self.default(v) for k, v in obj.items()}
 
         if isinstance(obj, list):
             return [self.default(v) for v in obj]
+
+        if isinstance(obj, float):
+            return self.float(obj)
 
         if isinstance(obj, bool):
             return self.boolean(obj)

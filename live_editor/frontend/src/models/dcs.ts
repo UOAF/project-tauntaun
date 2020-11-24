@@ -99,6 +99,7 @@ export type Country = {
 
 export type Coalition = {
   name: string;
+  bullseye: Point;
   countries: Dictionary<Country>;
 };
 

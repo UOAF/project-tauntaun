@@ -202,6 +202,15 @@ class GameService:
 
         print("update_unit_loadout", "success")
 
+    def set_bullseye(self, coalition, bullseye):
+        coalitions = self.campaign.mission.coalition
+        if coalition not in coalitions:
+            print(f"set_bullseye failed, invalid coalition {coalition}")
+
+        converted_point = _convert_point(self.campaign.mission.terrain, bullseye)
+        coalitions[coalition].bullseye = {'x': converted_point.x, 'y': converted_point.y}
+        print(f"Bullseye set {bullseye} for {coalition}")
+
     class GroupRouteRequestHandler:
         def __init__(self, campaign):
             self.campaign = campaign

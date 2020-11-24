@@ -36,6 +36,7 @@ export interface GameService {
     fuel: number,
     gun: number
   ): void;
+  sendSetBullseye(coalition: string, bullseye: LatLng): void;
   sendSessionDataUpdate(sessionId: number, sessionData: SessionData): void;
 
   getMission(): Promise<Mission>;
@@ -228,6 +229,14 @@ function sendUnitLoadoutUpdate(
   });
 }
 
+function sendSetBullseye(coalition: string, bullseye: LatLng) {
+  sendMessage('set_bullseye', {
+    coalition: coalition,
+    bullseye: { lat: bullseye.lat, lon: bullseye.lng }
+  });
+}
+
+
 function sendSessionDataUpdate(sessionId: number, sessionData: SessionData): void {
   sendMessage('session_data_update', {
     id: sessionId,
@@ -277,6 +286,7 @@ export const gameService: GameService = {
   sendRouteRemove,
   sendRouteModify,
   sendUnitLoadoutUpdate,
+  sendSetBullseye,
   sendSessionDataUpdate,
   sendSaveMission,
   sendLoadMission,

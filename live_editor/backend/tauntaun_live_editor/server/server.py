@@ -181,6 +181,13 @@ def create_app(campaign, session_manager):
                     'value': ws_id
                 }))
 
+            async def set_bullseye(data):
+                game_service.set_bullseye(
+                    data['coalition'],
+                    data['bullseye'])
+
+                await broadcast_update()
+
             dispatch_map = {
                 'group_route_insert_at': group_route_insert_at,
                 'group_route_remove': group_route_remove,
@@ -191,6 +198,7 @@ def create_app(campaign, session_manager):
                 'unit_loadout_update': unit_loadout_update,
                 'session_data_update': session_data_update,
                 'request_session_id': request_session_id,
+                'set_bullseye': set_bullseye
             }
 
             await dispatch_map[update_type](data['value'])
