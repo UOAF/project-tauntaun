@@ -363,7 +363,7 @@ class Campaign():
         return os.path.join(dcs_dir, "Missions", name + ".miz")
 
     def save_mission(self):
-        mizname = self._get_miz_path()
+        mizname = self._get_miz_path(config.config.mission_save_filename)
         self.mission.save(mizname)
 
         self._trigger_copier.replace_triggers(mizname)
@@ -373,7 +373,7 @@ class Campaign():
     def load_mission(self, filename=None):
         mizname = filename
         if filename is None:
-            mizname = self._get_miz_path()
+            mizname = self._get_miz_path(config.config.mission_load_filename)
 
         self._trigger_copier.save_triggers(mizname)
 
