@@ -13,7 +13,8 @@ export enum Coalitions {
 }
 
 export enum Skill {
-  Client = 'Skill.Client'
+  Client = 'Skill.Client',
+  Player = 'Skill.Player'
 }
 
 export type PlaneType = {
