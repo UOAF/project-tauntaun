@@ -13,8 +13,7 @@ import {
   isSkillAI,
   MissionStateContainer,
   SessionData,
-  SessionStateContainer,
-  Skill
+  SessionStateContainer
 } from '../../../models';
 import { gameService } from '../../../services';
 

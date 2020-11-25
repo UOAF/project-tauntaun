@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { CoalitionContext } from '..';
 
-import { Group, AppStateContainer, MapStateContainer, Skill, isSkillAI } from '../../../../models';
+import { Group, AppStateContainer, MapStateContainer, isSkillAI } from '../../../../models';
 import { ColorContext } from '../contexts';
 import { ColorPaletteContext, LegendContext } from '../../contexts';
 import { isLeadOfFlight } from '../../../common';
