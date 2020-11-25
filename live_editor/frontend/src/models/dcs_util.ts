@@ -109,7 +109,7 @@ export function matchCategoryToStaticCategory(category: string) {
 
 export function getGroupsWithClients(mission: Mission) {
   return wu(getGroups(mission))
-    .filter(g => g.group.units.find(u => u.skill === Skill.Client) !== undefined)
+    .filter(g => g.group.units.find(u => !isSkillAI(u.skill)) !== undefined)
     .toArray();
 }
 
@@ -130,4 +130,8 @@ export function getStaticUnit(groupCategory: string, unit: Unit) {
     default:
       return undefined;
   }
+}
+
+export function isSkillAI(skill: string) {
+  return skill !== Skill.Client && skill !== Skill.Player;
 }

@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react';
 import { CoalitionContext } from '..';
 
-import { Group, AppStateContainer, MapStateContainer, Skill } from '../../../../models';
+import { Group, AppStateContainer, MapStateContainer, isSkillAI } from '../../../../models';
 import { ColorContext } from '../contexts';
 import { ColorPaletteContext, LegendContext } from '../../contexts';
 import { isLeadOfFlight } from '../../../common';
@@ -40,7 +40,7 @@ export function DcsGroup(props: DcsGroupProps): ReactElement {
   const { selectedGroupId, selectedUnitId } = React.useContext(ModeContext);
 
   const isSelectedUnitLeadOfFlight = !commanderMode && isLeadOfFlight(selectedUnitId, group);
-  const isAI = group.units[0].skill !== Skill.Client;
+  const isAI = isSkillAI(group.units[0].skill);
   const isSelected = group.id === selectedGroupId;
   const isShowOtherFlightPlans = showOtherFlightPlans && !isAI;
   const isShowAIFlightPlans = showAIFlightPlans && isAI;

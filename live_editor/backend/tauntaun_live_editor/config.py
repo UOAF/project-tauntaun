@@ -8,6 +8,8 @@ from dataclasses_json import dataclass_json
 class Config:
     map_token: str = ""
     admin_password: str = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4" # SHA256, 1234
+    mission_load_filename: str = "tauntaun"
+    mission_save_filename: str = "tauntaun"
 
 def _get_datadir() -> pathlib.Path:
 
@@ -66,7 +68,11 @@ def load_config():
     loaded_config = _ConfigFileManager.load()
     if (loaded_config is None):
         loaded_config = Config()
-        _ConfigFileManager.save(loaded_config)
+
+    # Create new config file if not yet created and "auto deserialization version handling":
+    # re-save so new fields are added with their default values
+    _ConfigFileManager.save(loaded_config)
+
     config = loaded_config
 
 def save_config():

@@ -64,18 +64,17 @@ def create_app(campaign, session_manager):
             async def wrapper(*args, **kwargs):
                 id = wrapper.id_counter
                 ws_clients[id] = websocket._get_current_object()
-                ws_url = ws_clients[id].host_url
-                print(f"adding ws client   |{id:3d}|{ws_url}|")
+                print(f"adding ws client {id:3d}")
                 on_connect(id)
                 wrapper.id_counter += 1
 
                 try:
                     return await func(*args, **kwargs)
                 except asyncio.CancelledError as error:
-                    print(f"ws client disconnected |{id:03d}|{ws_url}|")
+                    print(f"ws client disconnected {id:03d}")
                     raise error
                 finally:
-                    print(f"removing ws client |{id:03d}|{ws_url}|")
+                    print(f"removing ws client {id:03d}")
                     del ws_clients[id]
                     await on_disconnect(id)
 
@@ -181,6 +180,13 @@ def create_app(campaign, session_manager):
                     'value': ws_id
                 }))
 
+            async def set_bullseye(data):
+                game_service.set_bullseye(
+                    data['coalition'],
+                    data['bullseye'])
+
+                await broadcast_update()
+
             dispatch_map = {
                 'group_route_insert_at': group_route_insert_at,
                 'group_route_remove': group_route_remove,
@@ -191,6 +197,7 @@ def create_app(campaign, session_manager):
                 'unit_loadout_update': unit_loadout_update,
                 'session_data_update': session_data_update,
                 'request_session_id': request_session_id,
+                'set_bullseye': set_bullseye
             }
 
             await dispatch_map[update_type](data['value'])

@@ -10,10 +10,10 @@ import {
   findPilotNameForUnit,
   getGroupOfUnit,
   getGroupsWithClients,
+  isSkillAI,
   MissionStateContainer,
   SessionData,
-  SessionStateContainer,
-  Skill
+  SessionStateContainer
 } from '../../../models';
 import { gameService } from '../../../services';
 
@@ -61,7 +61,7 @@ export function RoleSelectionForm() {
 
   const unitOptions = group
     ? group.units
-        .filter(u => u.skill === Skill.Client)
+        .filter(u => !isSkillAI(u.skill))
         .map(u => {
           const pilotName = findPilotNameForUnit(sessions, u.id);
 
