@@ -6,8 +6,7 @@ jobs:
       - image: nikolaik/python-nodejs:python3.8-nodejs12-slim
     steps:
       - checkout
-      - run: apt-get update; apt-get install -y git ssh 
-      - run: /usr/bin/git --version
+      - run: apt-get update; apt-get install -y git ssh
       - run: ./live_editor/scripts/build.sh
       - run: ./live_editor/scripts/build_pip_package.sh
       - run: ./live_editor/scripts/unittest.sh
