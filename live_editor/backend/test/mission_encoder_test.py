@@ -12,5 +12,3 @@ class MissionEncoderTestCase(unittest.TestCase):
         json.dumps(mission, terrain=mission.terrain,  convert_coords=True, add_sidc=True, cls=MissionEncoder)
         self.assertEqual(True, True)
 
-if __name__ == '__main__':
-    unittest.main()
