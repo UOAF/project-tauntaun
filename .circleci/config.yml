@@ -1,0 +1,27 @@
+version: 2.1
+  
+jobs:
+ build:
+    docker:
+      - image: nikolaik/python-nodejs:python3.8-nodejs15-alpine
+    steps:
+      - checkout
+      - run: python3 -m venv env      
+      - run: live_editor/scripts/build.sh > build.txt 2>&1 
+      - run: live_editor/scripts/build_pip_package.sh > build_pip_package.txt 2>&1 
+      - run: live_editor/scripts/unittest.sh > unittest.txt 2>&1 
+
+      - store_artifacts:
+          path: build.txt
+      - store_artifacts:
+          path: build_pip_package.txt 
+      - store_artifacts:
+          path: unittest.txt
+      - store_artifacts:
+          path: live_editor/backend/dist          
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
