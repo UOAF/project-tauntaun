@@ -1,0 +1,21 @@
+version: 2.1
+
+jobs:
+ build:
+    docker:
+      - image: nikolaik/python-nodejs:python3.8-nodejs12-slim
+    steps:
+      - checkout
+      - run: apt-get update; apt-get install -y git ssh
+      - run: ./live_editor/scripts/build.sh
+      - run: ./live_editor/scripts/build_pip_package.sh
+      - run: ./live_editor/scripts/unittest.sh
+
+      - store_artifacts:
+          path: live_editor/backend/dist          
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build

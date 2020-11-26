@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ $(basename "$PWD") != "project-tauntaun" ]
+if [ ! -d "./live_editor" ]
 then
-  echo "Must be run from project_tauntaun directory!"
+  echo "Must be run from project root directory!"
   exit
 fi
 
