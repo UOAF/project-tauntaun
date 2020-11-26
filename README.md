@@ -13,16 +13,21 @@ A [mapbox](https://www.mapbox.com/) access token (free tier is available)
 #### Installation
 ##### pip
 ```bash
-pip install wheel
+pip install wheel # Only on Linux
 pip install tauntaun_live_editor
 ```
 ##### archive
 ```bash
-pip install wheel
+pip install wheel # Only on Linux
 
 extract archive
 cd extracted archive
 pip install .
+```
+
+#### Upgrade
+```
+pip install --upgrade tauntaun_live_editor
 ```
 
 #### Configuration
@@ -37,6 +42,9 @@ admin_password: password in SHA256 format, default is 1234
 #### Run server
 ```
 tauntaun_live_editor
+# Or if that does not work for some reason
+py -m tauntaun_live_editor # Windows
+python3 -m tauntaun_live_editor # Linux
 ```
 
 #### Join to server
@@ -45,15 +53,6 @@ Enter admin mode with right clicking the arrow in the top left corner and enter 
 
 #### Wiki / How to use Tauntaun
 https://github.com/UOAF/project-tauntaun/wiki
-
-#### Update pydcs after new DCS patch
-Pydcs can be updated independently. First check if there was a "data-export" since the new patch released at: https://github.com/pydcs/dcs/commits/master, if yes upgrade to the latest github commit:
-
-```
-pip uninstall pydcs
-pip install git+https://github.com/pydcs/dcs.git
-```
-Note: If you install Tauntaun from pip you most likely want to do this step right after installation.
 
 #### Bug reporting and feature requests
 Use github issues:
