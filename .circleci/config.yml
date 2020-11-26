@@ -10,7 +10,7 @@ jobs:
       - image: nikolaik/python-nodejs:python3.8-nodejs12-slim
     steps:
       - checkout
-      - run: which git
+      - run: /usr/bin/git --version
       - run: ./live_editor/scripts/build.sh
       - run: ./live_editor/scripts/build_pip_package.sh
       - run: ./live_editor/scripts/unittest.sh
