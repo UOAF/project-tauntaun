@@ -1,15 +1,12 @@
 version: 2.1
 
-dependencies:
-  pre:
-    - sudo apt-get update; sudo apt-get install -y git ssh  
-
 jobs:
  build:
     docker:
       - image: nikolaik/python-nodejs:python3.8-nodejs12-slim
     steps:
       - checkout
+      - run: apt-get update; apt-get install -y git ssh 
       - run: /usr/bin/git --version
       - run: ./live_editor/scripts/build.sh
       - run: ./live_editor/scripts/build_pip_package.sh
