@@ -3,7 +3,7 @@ version: 2.1
 jobs:
  build:
     docker:
-      - image: nikolaik/python-nodejs:python3.8-nodejs15-alpine
+      - image: nikolaik/python-nodejs:python3.8-nodejs12-slim
     steps:
       - checkout
       - run: ./live_editor/scripts/build.sh
