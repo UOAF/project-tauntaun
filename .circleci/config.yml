@@ -7,6 +7,7 @@ jobs:
     steps:
       - checkout
       - run: python3 -m venv env      
+      - run: ls > build_pip_package.txt 2>&1 
       - run: live_editor/scripts/build.sh > build.txt 2>&1 
       - run: live_editor/scripts/build_pip_package.sh > build_pip_package.txt 2>&1 
       - run: live_editor/scripts/unittest.sh > unittest.txt 2>&1 
