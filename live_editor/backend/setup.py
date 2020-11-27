@@ -29,7 +29,6 @@ setuptools.setup(
     },
     install_requires=[
       'wheel>=0.35.1',
-      'pydcs>=0.12.0',
       'Quart>=0.12.0',
       'dataclasses-json>=0.5.2'
     ],
