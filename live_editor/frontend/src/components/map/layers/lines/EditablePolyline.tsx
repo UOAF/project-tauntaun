@@ -84,9 +84,10 @@ class LeafletPolylineEventHandler {
   };
 
   onVertedAdded = (event: any) => {
-    if (this.callbacks.onPositionInserted) {
-      this.callbacks.onPositionInserted(event.indexPath[0], event.latlng);
-    }
+    // Removed for better ux but could crash the client
+    // if (this.callbacks.onPositionInserted) {
+    //   this.callbacks.onPositionInserted(event.indexPath[0], event.latlng);
+    // }
   };
 
   private findChangedPositionIndex = (positions: LatLng[], oldPositions: LatLng[]): number => {
