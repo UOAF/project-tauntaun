@@ -10,6 +10,8 @@ fi
 # pip install virtualenv
 # npm install -g yarn
 
+git submodule update --init --recursive
+
 python3 -m venv env
 
 source env/bin/activate

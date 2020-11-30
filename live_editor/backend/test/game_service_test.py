@@ -20,7 +20,3 @@ class GameServiceTestCase(unittest.TestCase):
         self.assertEqual(unit.flare, 30)
         self.assertEqual(unit.gun, 90)
         self.assertEqual(unit.fuel, 4000)
-
-
-if __name__ == '__main__':
-    unittest.main()

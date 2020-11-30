@@ -84,21 +84,28 @@ def create_app(campaign, session_manager):
         return wrapper_0
 
     async def broadcast(message):
-        for ws_id in list(ws_clients):
-            if ws_id not in ws_clients.keys():
-                print("Client was removed, continue.")
-                continue
+        async def _broadcast():
+            async def broadcast_id(ws_id, message):
+                if ws_id not in ws_clients.keys():
+                    print("Client was removed, continue.")
+                    return
 
-            ws = ws_clients[ws_id]
-            try:
-                await ws.send(message)
-            except ConnectionAbortedError:
-                print("Client disconnected during iteration, ignoring ConnectionAbortedError error!")
+                ws = ws_clients[ws_id]
+
+                try:
+                    await ws.send(message)
+                except ConnectionAbortedError:
+                    print("Client disconnected during iteration, ignoring ConnectionAbortedError error!")
+
+            await asyncio.gather(
+                *(broadcast_id(ws_id, message) for ws_id in list(ws_clients))
+            )
+
+        asyncio.ensure_future(_broadcast())
 
     async def broadcast_session_update():
         broadcast_data = {'key': 'sessions_updated', 'value': session_manager.sessions}
         await broadcast(json.dumps(broadcast_data, cls=SessionsEncoder))
-
 
     async def on_ws_disconnect(id):
         session_manager.deregister(id)
@@ -121,27 +128,29 @@ def create_app(campaign, session_manager):
             game_service = campaign.game_service
             group_route_request_handler = game_service.group_route_request_handler
 
-            async def broadcast_update():
+            async def broadcast_mission_update():
                 broadcast_data = {'key': 'mission_updated', 'value': campaign.mission}
-                await broadcast(json.dumps(broadcast_data, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True, cls=MissionEncoder))
+                await broadcast(
+                    json.dumps(broadcast_data, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True,
+                               cls=MissionEncoder))
 
             async def group_route_insert_at(group_data):
                 group_route_request_handler.insert_at(
                     group_data['id'], group_data['new'], group_data['at'])
 
-                await broadcast_update()
+                await broadcast_mission_update()
 
             async def group_route_remove(group_data):                
                 group_route_request_handler.remove(
                     group_data['id'], group_data['point'])
 
-                await broadcast_update()
+                await broadcast_mission_update()
 
             async def group_route_modify(group_data):
                 group_route_request_handler.modify(
                     group_data['id'], group_data['old'], group_data['new'])
 
-                await broadcast_update()
+                await broadcast_mission_update()
 
             async def add_flight(group_data):
                 game_service.add_flight(
@@ -152,7 +161,7 @@ def create_app(campaign, session_manager):
                     group_data['plane'],
                     group_data['number_of_planes'])
 
-                await broadcast_update()
+                await broadcast_mission_update()
 
             async def save_mission(data):
                 campaign.save_mission()
@@ -160,13 +169,13 @@ def create_app(campaign, session_manager):
             async def load_mission(data):
                 campaign.load_mission()
 
-                await broadcast_update()
+                await broadcast_mission_update()
 
             async def unit_loadout_update(unit_data):
                 game_service.update_unit_loadout(
                     unit_data['id'], unit_data['pylons'], unit_data['chaff'], unit_data['flare'], unit_data['gun'], unit_data['fuel'])
 
-                await broadcast_update()
+                await broadcast_mission_update()
 
             async def session_data_update(data):
                 session_manager.update_session(
@@ -185,7 +194,7 @@ def create_app(campaign, session_manager):
                     data['coalition'],
                     data['bullseye'])
 
-                await broadcast_update()
+                await broadcast_mission_update()
 
             dispatch_map = {
                 'group_route_insert_at': group_route_insert_at,

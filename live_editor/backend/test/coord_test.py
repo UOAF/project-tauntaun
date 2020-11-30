@@ -68,7 +68,3 @@ class CoordTestCase(unittest.TestCase):
         self.assert_coords(terrain, 33400, -162391.76, 35.263605017125, 34.107511304999)
         self.assert_coords(terrain, 194600, -533586.64, 36.466937119472, 29.899096794585)
         self.assert_coords(terrain, 293800, 498799.12, 37.684786957526, 41.44955141892)
-
-
-if __name__ == '__main__':
-    unittest.main()

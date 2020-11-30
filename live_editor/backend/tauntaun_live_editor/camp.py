@@ -3,6 +3,9 @@ import os.path
 import zipfile
 import itertools
 
+import sys
+sys.path.append(sys.path.append(f"{os.path.dirname(os.path.realpath(__file__))}/dcs"))
+
 import dcs
 from dcs.flyingunit import FlyingUnit
 from dcs.point import PointAction, MovingPoint

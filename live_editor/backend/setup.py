@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="tauntaun-live-editor",
-    version="0.1.2",
+    version="0.2.0",
     author="UOAF",
     author_email="uoaf@fakemail.invalid",
     description="Project Tauntaun Live Editor",
@@ -29,7 +29,6 @@ setuptools.setup(
     },
     install_requires=[
       'wheel>=0.35.1',
-      'pydcs>=0.12.0',
       'Quart>=0.12.0',
       'dataclasses-json>=0.5.2'
     ],
