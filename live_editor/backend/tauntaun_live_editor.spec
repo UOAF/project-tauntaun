@@ -2,14 +2,14 @@
 
 block_cipher = None
 
-# TODO not working
-
 a = Analysis(['tauntaun_live_editor/camp.py'],
              pathex=['live_editor/backend/tauntaun_live_editor'],
              binaries=[],
-             datas=[        
-        ('../../env/lib/python3.8/site-packages/dcs/terrain/caucasus.p', 'dcs/terrain/'),
-('../../env/lib/python3.8/site-packages/dcs/terrain/nevada.p', 'dcs/terrain/')        ],
+             datas=[
+                 ('tauntaun_live_editor/data', 'tauntaun_live_editor/data'),
+                 ('tauntaun_live_editor/dcs/dcs/terrain/caucasus.p', 'dcs/terrain/'),
+                 ('tauntaun_live_editor/dcs/dcs/terrain/nevada.p', 'dcs/terrain/')
+                         ],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],
@@ -24,7 +24,7 @@ exe = EXE(pyz,
           a.scripts,
           [],
           exclude_binaries=True,
-          name='live_editor',
+          name='tauntaun_live_editor',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
@@ -37,4 +37,4 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                upx_exclude=[],
-               name='live_editor')
+               name='tauntaun_live_editor')
