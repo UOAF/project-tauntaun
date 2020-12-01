@@ -2,6 +2,7 @@ import os
 import os.path
 import zipfile
 import itertools
+import pkg_resources # pyinstaller
 
 import sys
 sys.path.append(sys.path.append(f"{os.path.dirname(os.path.realpath(__file__))}/dcs"))
@@ -19,9 +20,9 @@ import dcs.mapping as mapping
 
 import tauntaun_live_editor.server as server
 import tauntaun_live_editor.config as config
-from .util import get_dcs_dir, get_data_path, is_posix
-from .coord import lat_lon_to_xz
-from .sessions import SessionManager
+from tauntaun_live_editor.util import get_dcs_dir, get_data_path, is_posix
+from tauntaun_live_editor.coord import lat_lon_to_xz
+from tauntaun_live_editor.sessions import SessionManager
 
 _data_dir = get_data_path()
 
