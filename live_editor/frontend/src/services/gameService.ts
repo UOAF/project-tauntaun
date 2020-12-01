@@ -6,6 +6,8 @@ import { LatLng } from 'leaflet';
 
 import * as DcsStaticRawJson from '../data/dcs_static.json';
 import { Sessions, SessionData } from '../models/sessionData';
+import { inflate } from 'zlib';
+import { promisify } from 'util';
 
 export type MissionUpdateListener = (updatedMission: Mission) => void;
 export type SessionsUpdateListener = (updatedSessions: Sessions) => void;
@@ -124,8 +126,12 @@ async function authAdminPassword(password: string): Promise<boolean> {
   }
 }
 
-function receiveUpdateMessage(event: any) {
-  const message = JSON.parse(event.data);
+async function receiveUpdateMessage(event: any) {
+  const data = Buffer.from(Buffer.from(event.data, 'base64'), 4);
+  const do_unzip = promisify(inflate);
+  const unzipped_data = await do_unzip(data);
+
+  const message = JSON.parse(unzipped_data as string);
   if (message.key === 'mission_updated') {
     Object.keys(missionUpdateListeners).forEach(key => missionUpdateListeners[key](message.value));
   } else if (message.key === 'sessionid') {
@@ -142,6 +148,7 @@ async function openSocket(): Promise<void> {
       url.protocol = url.protocol.replace('http', 'ws');
       url.port = '8080';
       socket = new WebSocket(url.toString());
+      socket.binaryType = 'arraybuffer';
       socket.onopen = () => resolve();
       socket.onerror = () => reject();
       socket.onmessage = receiveUpdateMessage;
@@ -235,7 +242,6 @@ function sendSetBullseye(coalition: string, bullseye: LatLng) {
     bullseye: { lat: bullseye.lat, lon: bullseye.lng }
   });
 }
-
 
 function sendSessionDataUpdate(sessionId: number, sessionData: SessionData): void {
   sendMessage('session_data_update', {

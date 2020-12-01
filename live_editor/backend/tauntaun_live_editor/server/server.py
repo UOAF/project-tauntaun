@@ -3,18 +3,19 @@ import signal
 import json
 import asyncio
 import logging
+import zlib
 from functools import wraps
 
 from quart import Quart, send_from_directory, make_response
 from quart import websocket
+
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
 
 from tauntaun_live_editor.sessions import SessionsEncoder
-from tauntaun_live_editor.util import get_data_path, is_posix
+from tauntaun_live_editor.util import get_data_path, is_posix, Timer
 import tauntaun_live_editor.config as config
 from .mission_encoder import MissionEncoder
-from concurrent.futures import thread
 
 logger = logging.basicConfig(level=logging.DEBUG)
 
@@ -29,6 +30,16 @@ def create_app(campaign, session_manager):
 
     app = Quart(__name__, static_folder=os.path.join(data_dir, 'client', 'static'),
                 template_folder=os.path.join(data_dir, 'client'))
+
+    async def autosave_callback():
+        campaign.save_mission()
+        print("Autosave: mission saved.")
+
+    autosave_timer = Timer(15, autosave_callback, True)
+
+    def zlib_message(message):
+        message_zlib = zlib.compress(message.encode("utf-8"))
+        return message_zlib
 
     @app.route('/', defaults={'path': 'index.html'})
     async def send_root(path):
@@ -97,8 +108,10 @@ def create_app(campaign, session_manager):
                 except ConnectionAbortedError:
                     print("Client disconnected during iteration, ignoring ConnectionAbortedError error!")
 
+            message_zlib = zlib_message(message)
+
             await asyncio.gather(
-                *(broadcast_id(ws_id, message) for ws_id in list(ws_clients))
+                *(broadcast_id(ws_id, message_zlib) for ws_id in list(ws_clients))
             )
 
         asyncio.ensure_future(_broadcast())
@@ -130,8 +143,8 @@ def create_app(campaign, session_manager):
 
             async def broadcast_mission_update():
                 broadcast_data = {'key': 'mission_updated', 'value': campaign.mission}
-                await broadcast(
-                    json.dumps(broadcast_data, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True,
+
+                await broadcast(json.dumps(broadcast_data, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True,
                                cls=MissionEncoder))
 
             async def group_route_insert_at(group_data):
@@ -167,7 +180,14 @@ def create_app(campaign, session_manager):
                 campaign.save_mission()
 
             async def load_mission(data):
+                if autosave_timer.is_running():
+                    autosave_timer.cancel()
+
                 campaign.load_mission()
+
+                if config.config.autosave:
+                    print("Autosave enabled: starting timer.")
+                    autosave_timer.start()
 
                 await broadcast_mission_update()
 
@@ -184,10 +204,10 @@ def create_app(campaign, session_manager):
                 await broadcast_session_update()
 
             async def request_session_id(data):
-                await ws.send(json.dumps({
+                await ws.send(zlib_message(json.dumps({
                     'key': 'sessionid',
                     'value': ws_id
-                }))
+                })))
 
             async def set_bullseye(data):
                 game_service.set_bullseye(

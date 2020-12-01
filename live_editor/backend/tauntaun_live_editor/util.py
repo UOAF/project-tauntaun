@@ -1,4 +1,29 @@
 import os
+import asyncio
+
+class Timer:
+    def __init__(self, timeout, callback, periodic = False):
+        self._timeout = timeout
+        self._callback = callback
+        self._running = False
+        self._periodic = periodic
+
+    async def _job(self):
+        await asyncio.sleep(self._timeout)
+        await self._callback()
+        if self._periodic:
+            self._task = asyncio.ensure_future(self._job())
+
+    def start(self):
+        self._task = asyncio.ensure_future(self._job())
+        self._running = True
+
+    def cancel(self):
+        self._task.cancel()
+        self._running = False
+
+    def is_running(self):
+        return self._running
 
 def get_saved_games_dir():
     saved_games = os.path.abspath(os.path.join(os.environ['USERPROFILE'],
