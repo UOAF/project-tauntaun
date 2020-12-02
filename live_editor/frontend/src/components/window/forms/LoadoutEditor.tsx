@@ -156,7 +156,7 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
           style={pylonStyle}
           labelId={'pylon-select-label-' + pylonNumber}
           id={'pylon-select-' + pylonNumber}
-          defaultValue={pylons[pylonNumber]}
+          value={pylons[pylonNumber] ? pylons[pylonNumber] : ''}
           onChange={(event: any) => onPylonWeaponSelected(event, pylonNumber)}
         >
           {pylonOption.options.map((v: SelectOptionType, i: number) => (
