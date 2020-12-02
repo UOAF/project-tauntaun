@@ -1,6 +1,7 @@
 import json
 from json import JSONEncoder
 
+import tauntaun_live_editor.config as config
 
 class SessionsEncoder(JSONEncoder):
         def session_data(self, obj):
@@ -28,6 +29,7 @@ class SessionManager:
 
     def register(self, id):
         self.sessions[id] = SessionData()
+        self.sessions[id].coalition = config.config.default_coalition
         self.sessions[id].name = "Pilot " + str(id)
 
     def deregister(self, id):
