@@ -16,6 +16,7 @@ from tauntaun_live_editor.sessions import SessionsEncoder
 from tauntaun_live_editor.util import get_data_path, is_posix, Timer
 import tauntaun_live_editor.config as config
 from .mission_encoder import MissionEncoder
+from dcs import Point
 
 logger = logging.basicConfig(level=logging.DEBUG)
 
@@ -138,23 +139,51 @@ def create_app(campaign, session_manager):
                 json.dumps(broadcast_data, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True,
                            cls=MissionEncoder))
 
+        async def broadcast_route_update(group):
+            broadcast_data = {'key': 'route_update',
+                              'group_id': group.id,
+                              'points': group.points}
+
+            await broadcast(
+                json.dumps(broadcast_data, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True,
+                           cls=MissionEncoder))
+
+        async def broadcast_bullseye_update(coalition, bullseye):
+            broadcast_data = {'key': 'bullseye_update',
+                              'coalition': coalition,
+                              'bullseye': bullseye}
+
+            await broadcast(
+                json.dumps(broadcast_data, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True,
+                           cls=MissionEncoder))
+
+        async def broadcast_unit_update(unit):
+            broadcast_data = {'key': 'unit_update',
+                              'id': unit.id,
+                              'unit': unit}
+
+            await broadcast(
+                json.dumps(broadcast_data, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True,
+                           cls=MissionEncoder))
+
+
         async def group_route_insert_at(group_data):
-            group_route_request_handler.insert_at(
+            group = group_route_request_handler.insert_at(
                 group_data['id'], group_data['new'], group_data['at'])
 
-            await broadcast_mission_update()
+            await broadcast_route_update(group)
 
         async def group_route_remove(group_data):
-            group_route_request_handler.remove(
+            group = group_route_request_handler.remove(
                 group_data['id'], group_data['point'])
 
-            await broadcast_mission_update()
+            await broadcast_route_update(group)
 
         async def group_route_modify(group_data):
-            group_route_request_handler.modify(
+            group = group_route_request_handler.modify(
                 group_data['id'], group_data['old'], group_data['new'])
 
-            await broadcast_mission_update()
+            await broadcast_route_update(group)
 
         async def add_flight(group_data):
             game_service.add_flight(
@@ -183,11 +212,11 @@ def create_app(campaign, session_manager):
             await broadcast_mission_update()
 
         async def unit_loadout_update(unit_data):
-            game_service.update_unit_loadout(
+            unit = game_service.update_unit_loadout(
                 unit_data['id'], unit_data['pylons'], unit_data['chaff'], unit_data['flare'], unit_data['gun'],
                 unit_data['fuel'])
 
-            await broadcast_mission_update()
+            await broadcast_unit_update(unit)
 
         async def session_data_update(data):
             session_manager.update_session(
@@ -202,11 +231,13 @@ def create_app(campaign, session_manager):
             })))
 
         async def set_bullseye(data):
-            game_service.set_bullseye(
+            bulls = game_service.set_bullseye(
                 data['coalition'],
                 data['bullseye'])
 
-            await broadcast_mission_update()
+            await broadcast_bullseye_update(
+                data['coalition'],
+                Point(bulls['x'], bulls['y']))
 
         dispatch_map = {
             'group_route_insert_at': group_route_insert_at,

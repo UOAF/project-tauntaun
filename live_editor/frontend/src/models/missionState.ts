@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Mission, emptyMission } from './';
+import { Mission, emptyMission, findGroupById, MovingPoint, StaticPoint, Point, getGroupOfUnit, Unit } from './';
 import { gameService } from '../services';
 import { createContainer } from 'unstated-next';
 
@@ -36,6 +36,64 @@ export function useMissionState(initialState = defaultState) {
     console.info(`got mission update`);
   };
 
+  const onGenericUpdate = (message: any) => {
+    if (message.key === 'route_update') {
+      setState(state => {
+        const updatedMission = { ...state.mission };
+        const group = findGroupById(updatedMission, message.group_id);
+
+        if (group === undefined) {
+          console.error(`route_update, group not found! id: ${message.group_id}`);
+          return { ...state };
+        }
+
+        group.points = message.points as Array<MovingPoint | StaticPoint>;
+
+        return {
+          ...state,
+          mission: updatedMission
+        };
+      });
+
+      console.info(`got route_update`);
+    } else if (message.key === 'bullseye_update') {
+      setState(state => {
+        const updatedMission = { ...state.mission };
+        updatedMission.coalition[message.coalition].bullseye = message.bullseye as Point;
+
+        return {
+          ...state,
+          mission: updatedMission
+        };
+      });
+
+      console.info(`got bullseye_update`);
+    } else if (message.key === 'unit_update') {
+      setState(state => {
+        const updatedMission = { ...state.mission };
+
+        const group = getGroupOfUnit(updatedMission, message.id);
+        if (group === undefined) {
+          console.error(`unit_update, group not found for unit! id: ${message.id}`);
+          return { ...state };
+        }
+
+        const unit_index = group.units.findIndex(u => u.id === message.id);
+
+        group.units[unit_index] = message.unit as Unit;
+
+        return {
+          ...state,
+          mission: updatedMission
+        };
+      });
+
+      console.info(`got unit_update`);
+    } else {
+      console.info(`unhandled generic update`);
+    }
+  };
+
   const initialize = async (): Promise<void> => {
     try {
       if (state.isInitialized) {
@@ -43,6 +101,7 @@ export function useMissionState(initialState = defaultState) {
       }
 
       gameService.registerForMissionUpdates(onMissionUpdate);
+      gameService.registerForGenericUpdates(onGenericUpdate);
       await refreshMission();
 
       setState(state => ({
