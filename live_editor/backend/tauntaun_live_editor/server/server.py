@@ -124,6 +124,105 @@ def create_app(campaign, session_manager):
         session_manager.deregister(id)
         await broadcast_session_update()
 
+    async def process_message_request(ws, ws_id, data):
+        print(f"$Client_id: {ws_id}, Data: ${data}")
+        data = json.loads(data)
+        update_type = data['key']
+        game_service = campaign.game_service
+        group_route_request_handler = game_service.group_route_request_handler
+
+        async def broadcast_mission_update():
+            broadcast_data = {'key': 'mission_updated', 'value': campaign.mission}
+
+            await broadcast(
+                json.dumps(broadcast_data, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True,
+                           cls=MissionEncoder))
+
+        async def group_route_insert_at(group_data):
+            group_route_request_handler.insert_at(
+                group_data['id'], group_data['new'], group_data['at'])
+
+            await broadcast_mission_update()
+
+        async def group_route_remove(group_data):
+            group_route_request_handler.remove(
+                group_data['id'], group_data['point'])
+
+            await broadcast_mission_update()
+
+        async def group_route_modify(group_data):
+            group_route_request_handler.modify(
+                group_data['id'], group_data['old'], group_data['new'])
+
+            await broadcast_mission_update()
+
+        async def add_flight(group_data):
+            game_service.add_flight(
+                group_data['coalition'],
+                group_data['country'],
+                group_data['location'],
+                group_data['airport'],
+                group_data['plane'],
+                group_data['number_of_planes'])
+
+            await broadcast_mission_update()
+
+        async def save_mission(data):
+            campaign.save_mission()
+
+        async def load_mission(data):
+            if autosave_timer.is_running():
+                autosave_timer.cancel()
+
+            campaign.load_mission()
+
+            if config.config.autosave:
+                print("Autosave enabled: starting timer.")
+                autosave_timer.start()
+
+            await broadcast_mission_update()
+
+        async def unit_loadout_update(unit_data):
+            game_service.update_unit_loadout(
+                unit_data['id'], unit_data['pylons'], unit_data['chaff'], unit_data['flare'], unit_data['gun'],
+                unit_data['fuel'])
+
+            await broadcast_mission_update()
+
+        async def session_data_update(data):
+            session_manager.update_session(
+                data['id'], data['session_data'])
+
+            await broadcast_session_update()
+
+        async def request_session_id(data):
+            await ws.send(zlib_message(json.dumps({
+                'key': 'sessionid',
+                'value': ws_id
+            })))
+
+        async def set_bullseye(data):
+            game_service.set_bullseye(
+                data['coalition'],
+                data['bullseye'])
+
+            await broadcast_mission_update()
+
+        dispatch_map = {
+            'group_route_insert_at': group_route_insert_at,
+            'group_route_remove': group_route_remove,
+            'group_route_modify': group_route_modify,
+            'save_mission': save_mission,
+            'load_mission': load_mission,
+            'add_flight': add_flight,
+            'unit_loadout_update': unit_loadout_update,
+            'session_data_update': session_data_update,
+            'request_session_id': request_session_id,
+            'set_bullseye': set_bullseye
+        }
+
+        await dispatch_map[update_type](data['value'])
+
     @app.websocket('/ws/message')
     @collect_websocket(session_manager.register, on_ws_disconnect)
     async def client_update_ws():
@@ -135,101 +234,7 @@ def create_app(campaign, session_manager):
                 return
 
             data = await websocket.receive()
-            print(f"$Client_id: {ws_id}, Data: ${data}")
-            data = json.loads(data)
-            update_type = data['key']
-            game_service = campaign.game_service
-            group_route_request_handler = game_service.group_route_request_handler
-
-            async def broadcast_mission_update():
-                broadcast_data = {'key': 'mission_updated', 'value': campaign.mission}
-
-                await broadcast(json.dumps(broadcast_data, terrain=campaign.mission.terrain, convert_coords=True, add_sidc=True,
-                               cls=MissionEncoder))
-
-            async def group_route_insert_at(group_data):
-                group_route_request_handler.insert_at(
-                    group_data['id'], group_data['new'], group_data['at'])
-
-                await broadcast_mission_update()
-
-            async def group_route_remove(group_data):                
-                group_route_request_handler.remove(
-                    group_data['id'], group_data['point'])
-
-                await broadcast_mission_update()
-
-            async def group_route_modify(group_data):
-                group_route_request_handler.modify(
-                    group_data['id'], group_data['old'], group_data['new'])
-
-                await broadcast_mission_update()
-
-            async def add_flight(group_data):
-                game_service.add_flight(
-                    group_data['coalition'],
-                    group_data['country'],
-                    group_data['location'],
-                    group_data['airport'],
-                    group_data['plane'],
-                    group_data['number_of_planes'])
-
-                await broadcast_mission_update()
-
-            async def save_mission(data):
-                campaign.save_mission()
-
-            async def load_mission(data):
-                if autosave_timer.is_running():
-                    autosave_timer.cancel()
-
-                campaign.load_mission()
-
-                if config.config.autosave:
-                    print("Autosave enabled: starting timer.")
-                    autosave_timer.start()
-
-                await broadcast_mission_update()
-
-            async def unit_loadout_update(unit_data):
-                game_service.update_unit_loadout(
-                    unit_data['id'], unit_data['pylons'], unit_data['chaff'], unit_data['flare'], unit_data['gun'], unit_data['fuel'])
-
-                await broadcast_mission_update()
-
-            async def session_data_update(data):
-                session_manager.update_session(
-                    data['id'], data['session_data'])
-
-                await broadcast_session_update()
-
-            async def request_session_id(data):
-                await ws.send(zlib_message(json.dumps({
-                    'key': 'sessionid',
-                    'value': ws_id
-                })))
-
-            async def set_bullseye(data):
-                game_service.set_bullseye(
-                    data['coalition'],
-                    data['bullseye'])
-
-                await broadcast_mission_update()
-
-            dispatch_map = {
-                'group_route_insert_at': group_route_insert_at,
-                'group_route_remove': group_route_remove,
-                'group_route_modify': group_route_modify,
-                'save_mission': save_mission,
-                'load_mission': load_mission,
-                'add_flight': add_flight,
-                'unit_loadout_update': unit_loadout_update,
-                'session_data_update': session_data_update,
-                'request_session_id': request_session_id,
-                'set_bullseye': set_bullseye
-            }
-
-            await dispatch_map[update_type](data['value'])
+            await process_message_request(ws, ws_id, data)
 
     return app
 

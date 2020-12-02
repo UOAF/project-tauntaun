@@ -80,7 +80,6 @@ export function RoleSelectionForm() {
   };
 
   const onLeaveUnitClicked = () => {
-    console.log(sessionId, selectedUnitId);
     gameService.sendSessionDataUpdate(sessionId, {
       ...sessionData,
       selected_unit_id: -1

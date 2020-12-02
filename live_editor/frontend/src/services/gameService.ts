@@ -60,6 +60,7 @@ let socket: WebSocket | null = null;
 const missionUpdateListeners: Dictionary<MissionUpdateListener> = {};
 const sessionsUpdateListeners: Dictionary<SessionsUpdateListener> = {};
 const SessionIdUpdateListeners: Dictionary<SessionIdUpdateListener> = {};
+let time_start: number | null = null;
 
 function sendMessage(name: string, value: any) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
@@ -67,6 +68,7 @@ function sendMessage(name: string, value: any) {
     return;
   }
 
+  time_start = performance.now();
   socket.send(JSON.stringify({ key: name, value: value }));
 }
 
@@ -127,6 +129,12 @@ async function authAdminPassword(password: string): Promise<boolean> {
 }
 
 async function receiveUpdateMessage(event: any) {
+  const time_end = performance.now();
+  if (time_start !== null) {
+    console.log(`Roundtrip: ${time_end - time_start}ms`);
+    time_start = null;
+  }
+
   const data = Buffer.from(Buffer.from(event.data, 'base64'), 4);
   const do_unzip = promisify(inflate);
   const unzipped_data = await do_unzip(data);
