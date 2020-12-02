@@ -191,7 +191,7 @@ export function EditablePolylineNonMemo(props: EditablePolylineProps) {
   } else {
     return (
       <React.Fragment>
-        <Polyline {...omit(props, 'onadd', 'editable')} onadd={onPolylineAdded} />
+        <Polyline {...omit(props, 'onadd', 'editable')} onadd={onPolylineAdded} interactive={false}/>
         {!editable && positions.map((p, i) => renderNonEditableWp(p, i))}
       </React.Fragment>
     );
