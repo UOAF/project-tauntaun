@@ -7,7 +7,6 @@ import { pick } from 'lodash';
 import { MapStateContainer, MissionStateContainer, SessionStateContainer } from '../../models';
 import { LeafletMouseEvent } from 'leaflet';
 import { useState } from 'react';
-import { MapContext } from '../contexts';
 import { ClickPosition, PointXY } from '../contextmenu';
 import { LegendContext } from './contexts';
 import { MapContextMenu } from './MapContextMenu';
@@ -29,8 +28,6 @@ export function CampaignMap(props: CampaignMapProps) {
   const sessionData = sessions[sessionId];
   const sessionCoalition = sessionData ? sessionData.coalition : '';
 
-  const mapContext = React.useContext(MapContext);
-
   const [position, setPosition] = useState(null as ClickPosition | null);
 
   const onContextMenuClick = (event: any) => {
@@ -45,13 +42,8 @@ export function CampaignMap(props: CampaignMapProps) {
 
   return (
     <div data-testid="campaign-map">
-      <LegendContext.Provider value={{ legends: [] }}>
-        {position && <MapContextMenu position={position} />}
+      <LegendContext.Provider value={{ legends: [] }}>        
         <Map
-          ref={ref => {
-            const map = ref ? (ref.contextValue ? ref.contextValue.map : null) : null;
-            mapContext.map = map;
-          }}
           center={pick(props, ['lat', 'lng'])}
           zoom={props.zoom}
           preferCanvas={true}
@@ -75,6 +67,7 @@ export function CampaignMap(props: CampaignMapProps) {
               ))}
             </React.Fragment>
           )}
+          {position && <MapContextMenu position={position} />}
         </Map>
         {showLegend && <Legend />}
       </LegendContext.Provider>

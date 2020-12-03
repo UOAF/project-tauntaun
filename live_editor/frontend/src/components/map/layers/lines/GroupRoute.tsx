@@ -7,6 +7,7 @@ import { EditablePolyline } from './EditablePolyline';
 import { TextMarker } from '../markers';
 import { ColorContext } from '../contexts';
 import { c_MeterToNm } from '../../../../data/constants';
+import { CircleMarker } from 'react-leaflet';
 
 export type GroupRouteProps = {
   group: Group;
@@ -77,10 +78,23 @@ export function GroupRoute(props: GroupRouteProps) {
   };
 
   const handlePositionClicked = (index: number) => {
+    // TODO check for isleadofflight / commander -> ableToSelect -> extract to context
     selectWaypoint(index);
 
     console.log('Point clicked.', index);
   };
+
+  const renderNonEditableWp = (position: LatLng, index: number) => (
+    <CircleMarker
+      interactive={false}
+      key={`WpMarker_${index}`}
+      center={position}
+      radius={isSelected ? 7 : 4}
+      fillOpacity={0}
+      color={colors.color}
+      weight={1}
+    />
+  );
 
   return (
     <React.Fragment>
@@ -94,10 +108,10 @@ export function GroupRoute(props: GroupRouteProps) {
         onPositionInserted={handlePositionInserted}
         onPositionModified={handlePositionModified}
         onPositionRemoved={handlePositionRemoved}
-        onPositionClicked={handlePositionClicked}
-        editable={editable}
-        nonEditableWpRadius={isSelected ? 7 : 4}
+        onPositionClicked={handlePositionClicked}  
+        drawMarkers={editable}                      
       />
+      {!editable && positions.map((p, i) => renderNonEditableWp(p, i))}
       {isSelected &&
         distanceTextPositions.map((p, i) => (
           <TextMarker

@@ -4,10 +4,10 @@
   "private": true,
   "proxy": "",
   "dependencies": {
+    "@types/leaflet": "^1.5.19",
     "bluebird-global": "^1.0.1",
     "js-sha256": "^0.9.0",
     "leaflet": "^1.6.0",
-    "leaflet.pm": "^2.2.0",
     "lodash": "^4.17.19",
     "milsymbol": "^2.0.0",
     "react": "^16.13.1",
