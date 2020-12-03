@@ -21,5 +21,14 @@ export function AirportMarker(props: AirportProps) {
 
   const onClick = () => airportMarkerOnClick?.(airport);
 
-  return <SidcMarker position={{ lat, lng }} sidc={sidc} label={airport.name} onclick={onClick} />;
+  return (
+    <SidcMarker
+      position={{ lat, lng }}
+      sidc={sidc}
+      label={airport.name}
+      eventHandlers={{
+        click: onClick
+      }}
+    />
+  );
 }

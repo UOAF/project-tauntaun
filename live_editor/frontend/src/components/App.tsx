@@ -12,7 +12,6 @@ import {
 } from '../models';
 import { findGroupById, getGroupOfUnit } from '../models/dcs_util';
 import { gameService } from '../services';
-import L from 'leaflet';
 import { ModeContext, ModeContextType } from './contexts';
 import { AddFlightForm, RoleSelectionForm, EditWaypointForm, LoadoutEditor } from './window/forms';
 import { MenuBar } from './menu';
@@ -68,10 +67,8 @@ export function App() {
       }
     };
 
-    (L as any).PM.initialize({ optIn: false });
-
     initApp();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const groupMarkerOnClick = (group: Group, event: any): void => {
     if (!commanderMode) return;

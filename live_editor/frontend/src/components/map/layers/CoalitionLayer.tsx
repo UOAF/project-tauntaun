@@ -43,7 +43,15 @@ export function CoalitionLayer(props: CoalitionLayerProps) {
       {Object.keys(coalition.countries).map(countryKey => (
         <CountryLayer key={countryKey} country={coalition.countries[countryKey]} />
       ))}
-      {showBullseye && <BullseyeMarker position={bullseye} ondragend={onMarkerDragEnd} draggable={commanderMode} />}
+      {showBullseye && (
+        <BullseyeMarker
+          position={bullseye}
+          eventHandlers={{
+            dragend: onMarkerDragEnd
+          }}
+          draggable={commanderMode}
+        />
+      )}
     </CoalitionContext.Provider>
   );
 }

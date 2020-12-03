@@ -31,7 +31,7 @@ export function ThreatCircleNonMemo(props: ThreatCircleProps) {
 export function ThreatCircle(props: ThreatCircleProps) {
   const { radius, position } = props;
 
-  const memorizedItem = useMemo(() => <ThreatCircleNonMemo {...props} />, [radius, position.lat, position.lon]); // eslint-disable-line react-hooks/exhaustive-deps
+  const memorizedItem = useMemo(() => <ThreatCircleNonMemo {...props} />, [radius, position.lat, position.lon]);
 
   return memorizedItem;
 }

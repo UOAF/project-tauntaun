@@ -19,7 +19,7 @@ export function UnitMarker(props: UnitProps) {
     console.info('Unit type', `'${unit.type}'`);
 
     unitMarkerOnClick?.(unit);
-  }
+  };
 
   return (
     <DcsSidcMarker
@@ -27,7 +27,9 @@ export function UnitMarker(props: UnitProps) {
       position={{ lat, lng }}
       type={unit.type}
       label={label ? label : unit.name}
-      onclick={onClick}
+      eventHandlers={{
+        click: onClick
+      }}
     />
   );
 }

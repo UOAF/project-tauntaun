@@ -2,15 +2,15 @@ import { convertLeafletMapToKml, getGoogleEarthUrl, openInNewTab, saveKmlFile } 
 import React from 'react';
 import { AppStateContainer } from '../../models';
 import { ClickPosition, ContextMenu, ContextMenuOption } from '../contextmenu';
-import { useLeaflet } from 'react-leaflet';
+import { useMap } from 'react-leaflet';
 
 export interface MapContextMenuProps {
   position: ClickPosition;
 }
 
 export function MapContextMenu(props: MapContextMenuProps) {
-  const { commanderMode, setShowAddFlightForm, setLocation } = AppStateContainer.useContainer();  
-  const { map } = useLeaflet();
+  const { commanderMode, setShowAddFlightForm, setLocation } = AppStateContainer.useContainer();
+  const map = useMap();
 
   const contextMenuOptionsAdmin: Array<ContextMenuOption> = [{ label: 'Add Flight', value: 'add_flight' }];
   const contextMenuOptionsNormal: Array<ContextMenuOption> = [{ label: 'Recon', value: 'recon' }];

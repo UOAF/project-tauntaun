@@ -14,12 +14,11 @@ export function BullseyeMarkerNonMemo(props: MarkerProps) {
   return <Marker {...omit(props, 'onadd', 'icon')} icon={icon} />;
 }
 
-
 export function BullseyeMarker(props: MarkerProps) {
   const { draggable } = props;
   const position = props.position as LatLng;
 
-  const memorizedItem = useMemo(() => <BullseyeMarkerNonMemo {...props} />, [position.lat, position.lng, draggable]); // eslint-disable-line react-hooks/exhaustive-deps
+  const memorizedItem = useMemo(() => <BullseyeMarkerNonMemo {...props} />, [position.lat, position.lng, draggable]);
 
   return memorizedItem;
 }

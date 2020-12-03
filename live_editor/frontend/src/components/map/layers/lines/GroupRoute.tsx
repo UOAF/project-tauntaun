@@ -108,8 +108,8 @@ export function GroupRoute(props: GroupRouteProps) {
         onPositionInserted={handlePositionInserted}
         onPositionModified={handlePositionModified}
         onPositionRemoved={handlePositionRemoved}
-        onPositionClicked={handlePositionClicked}  
-        drawMarkers={editable}                      
+        onPositionClicked={handlePositionClicked}
+        drawMarkers={editable}
       />
       {!editable && positions.map((p, i) => renderNonEditableWp(p, i))}
       {isSelected &&
