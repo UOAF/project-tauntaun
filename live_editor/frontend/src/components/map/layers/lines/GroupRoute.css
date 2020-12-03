@@ -15,10 +15,10 @@
 .marker-icon-middle,
 .marker-icon-middle:focus {
   opacity: 0.7 !important;
-  margin: -5px 0 0 -5px !important;
+  margin: -6px 0 0 -6px !important;
   background-color: #ffffff !important;
-  width: 7px !important;
-  height: 7px !important;  
+  width: 8px !important;
+  height: 8px !important;  
   z-index: 100 !important;  
   border-radius: 0% !important;
 }
