@@ -12,6 +12,7 @@ import { promisify } from 'util';
 export type MissionUpdateListener = (updatedMission: Mission) => void;
 export type SessionsUpdateListener = (updatedSessions: Sessions) => void;
 export type SessionIdUpdateListener = (id: number) => void;
+export type GenericUpdateListener = (message: any) => void;
 
 export interface GameService {
   openSocket(): Promise<void>;
@@ -54,12 +55,17 @@ export interface GameService {
 
   registerForSessionIdUpdate(listener: SessionIdUpdateListener): string;
   unregisterSessionIdUpdateListener(id: string): void;
+
+  registerForGenericUpdates(listener: GenericUpdateListener): string;
+  unregisterGenericUpdateListener(id: string): void;
 }
 
 let socket: WebSocket | null = null;
 const missionUpdateListeners: Dictionary<MissionUpdateListener> = {};
 const sessionsUpdateListeners: Dictionary<SessionsUpdateListener> = {};
-const SessionIdUpdateListeners: Dictionary<SessionIdUpdateListener> = {};
+const sessionIdUpdateListeners: Dictionary<SessionIdUpdateListener> = {};
+const genericUpdateListeners: Dictionary<GenericUpdateListener> = {};
+let time_start: number | null = null;
 
 function sendMessage(name: string, value: any) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
@@ -67,6 +73,7 @@ function sendMessage(name: string, value: any) {
     return;
   }
 
+  time_start = performance.now();
   socket.send(JSON.stringify({ key: name, value: value }));
 }
 
@@ -127,17 +134,25 @@ async function authAdminPassword(password: string): Promise<boolean> {
 }
 
 async function receiveUpdateMessage(event: any) {
+  const time_end = performance.now();
+  if (time_start !== null) {
+    console.log(`Roundtrip: ${time_end - time_start}ms`);
+    time_start = null;
+  }
+
   const data = Buffer.from(Buffer.from(event.data, 'base64'), 4);
   const do_unzip = promisify(inflate);
   const unzipped_data = await do_unzip(data);
 
-  const message = JSON.parse(unzipped_data as string);
+  const message = JSON.parse((unzipped_data as unknown) as string);
   if (message.key === 'mission_updated') {
     Object.keys(missionUpdateListeners).forEach(key => missionUpdateListeners[key](message.value));
   } else if (message.key === 'sessionid') {
-    Object.keys(SessionIdUpdateListeners).forEach(key => SessionIdUpdateListeners[key](message.value));
+    Object.keys(sessionIdUpdateListeners).forEach(key => sessionIdUpdateListeners[key](message.value));
   } else if (message.key === 'sessions_updated') {
     Object.keys(sessionsUpdateListeners).forEach(key => sessionsUpdateListeners[key](message.value));
+  } else {
+    Object.keys(genericUpdateListeners).forEach(key => genericUpdateListeners[key](message));
   }
 }
 
@@ -276,13 +291,25 @@ function unregisterSessionsUpdateListener(id: string): void {
 
 function registerForSessionIdUpdate(listener: SessionIdUpdateListener): string {
   const id = uuidv4();
-  SessionIdUpdateListeners[id] = listener;
+  sessionIdUpdateListeners[id] = listener;
   return id;
 }
 
 function unregisterSessionIdUpdateListener(id: string): void {
-  if (SessionIdUpdateListeners[id]) {
-    delete SessionIdUpdateListeners[id];
+  if (sessionIdUpdateListeners[id]) {
+    delete sessionIdUpdateListeners[id];
+  }
+}
+
+function registerForGenericUpdates(listener: GenericUpdateListener): string {
+  const id = uuidv4();
+  genericUpdateListeners[id] = listener;
+  return id;
+}
+
+function unregisterGenericUpdateListener(id: string): void {
+  if (genericUpdateListeners[id]) {
+    delete genericUpdateListeners[id];
   }
 }
 
@@ -307,5 +334,7 @@ export const gameService: GameService = {
   registerForSessionsUpdate,
   unregisterSessionsUpdateListener,
   registerForSessionIdUpdate,
-  unregisterSessionIdUpdateListener
+  unregisterSessionIdUpdateListener,
+  registerForGenericUpdates,
+  unregisterGenericUpdateListener
 };

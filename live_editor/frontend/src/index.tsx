@@ -4,9 +4,6 @@ import 'bluebird-global';
 
 import 'leaflet';
 
-import 'leaflet.pm';
-import 'leaflet.pm/dist/leaflet.pm.css';
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 

@@ -51,15 +51,17 @@ export function RoleOverview() {
         <h1>{`Total ${totalNumberOfOccupiedUnits}/${totalNumberOfSlots}`}</h1>
       </div>
       <table className="minimalistBlack">
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Total</th>
-          {[...Array(maxNumberOfUnitsPerGroup).keys()].map(i => (
-            <th key={i}>{i + 1}</th>
-          ))}
-        </tr>
-        {rows}
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Total</th>
+            {[...Array(maxNumberOfUnitsPerGroup).keys()].map(i => (
+              <th key={i}>{i + 1}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>{rows}</tbody>
       </table>
 
       <div className="CloseButton">

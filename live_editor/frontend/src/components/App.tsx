@@ -12,8 +12,7 @@ import {
 } from '../models';
 import { findGroupById, getGroupOfUnit } from '../models/dcs_util';
 import { gameService } from '../services';
-import L from 'leaflet';
-import { MapContext, MapContextType, ModeContext, ModeContextType } from './contexts';
+import { ModeContext, ModeContextType } from './contexts';
 import { AddFlightForm, RoleSelectionForm, EditWaypointForm, LoadoutEditor } from './window/forms';
 import { MenuBar } from './menu';
 import { CampaignMap } from './map';
@@ -68,10 +67,8 @@ export function App() {
       }
     };
 
-    (L as any).PM.initialize({ optIn: false });
-
     initApp();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, []);
 
   const groupMarkerOnClick = (group: Group, event: any): void => {
     if (!commanderMode) return;
@@ -108,20 +105,18 @@ export function App() {
       <React.Fragment>
         {mapToken ? (
           <React.Fragment>
-            <MapContext.Provider value={{ map: undefined } as MapContextType}>
-              <ModeContext.Provider value={modeContext}>
-                <MissionTime />
-                {showRoleOverview && <RoleOverview />}
-                {showRoleSelectionForm && <RoleSelectionForm />}
-                {showAddFlightForm && <AddFlightForm />}
-                {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
-                  <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
-                )}
-                {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
-                <MenuBar />
-                <CampaignMap lat={terrain.map_view_default.lat} lng={terrain.map_view_default.lon} zoom={9} />
-              </ModeContext.Provider>
-            </MapContext.Provider>
+            <ModeContext.Provider value={modeContext}>
+              <MissionTime />
+              {showRoleOverview && <RoleOverview />}
+              {showRoleSelectionForm && <RoleSelectionForm />}
+              {showAddFlightForm && <AddFlightForm />}
+              {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
+                <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
+              )}
+              {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
+              <MenuBar />
+              <CampaignMap lat={terrain.map_view_default.lat} lng={terrain.map_view_default.lon} zoom={9} />
+            </ModeContext.Provider>
           </React.Fragment>
         ) : mapToken === undefined ? (
           <span>Loading...</span>

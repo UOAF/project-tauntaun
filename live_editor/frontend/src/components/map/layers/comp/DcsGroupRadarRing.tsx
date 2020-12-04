@@ -14,10 +14,9 @@ export function DcsGroupRadarRing(props: DcsGroupRadarRingProps) {
 
   const groupCategory = React.useContext(CategoryContext);
 
-  const unitsWithDetectionRange = useMemo(
-    () => unitsWithPropGreaterThanZero(group, groupCategory, 'detection_range'),
-    [group.id] // eslint-disable-line react-hooks/exhaustive-deps
-  );
+  const unitsWithDetectionRange = useMemo(() => unitsWithPropGreaterThanZero(group, groupCategory, 'detection_range'), [
+    group.id
+  ]);
 
   const maxDetectionRangeUnit = [...unitsWithDetectionRange].sort((a, b) => a.range - b.range).pop();
 

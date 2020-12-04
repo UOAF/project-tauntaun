@@ -1,211 +1,204 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Polyline as CorePolyline, LeafletEvent, LatLng, Marker } from 'leaflet';
-import { Polyline, PolylineProps, CircleMarker } from 'react-leaflet';
-import { omit } from 'lodash';
+import React, { useMemo } from 'react';
+import { LatLng, Polyline, Marker, divIcon } from 'leaflet';
+import { useMap, PolylineProps } from 'react-leaflet';
 
-type EditablePolylineCallbacks = {
+export type EditablePolylineProps = PolylineProps & {
   onPositionInserted?: (index: number, pos: LatLng) => void;
   onPositionModified?: (index: number, pos: LatLng) => void;
   onPositionRemoved?: (index: number) => void;
   onPositionClicked?: (index: number) => void;
+  drawMarkers?: boolean;
+  drawMidmarkers?: boolean;
 };
 
-export type EditablePolylineProps = EditablePolylineCallbacks &
-  PolylineProps & {
-    // TODO obviously this flag should not be here, quick hack for mvp
-    editable: boolean;
-    nonEditableWpRadius?: number;
-  };
-
-class LeafletPolylineEventHandler {
-  positions: LatLng[];
-  callbacks: EditablePolylineCallbacks;
-  redraw: () => void;
-  minimumLenght: number;
-
-  constructor(positions: LatLng[], callbacks: EditablePolylineCallbacks, redraw: () => void, minimumLenght = 1) {
-    this.positions = positions;
-    this.callbacks = callbacks;
-    this.redraw = redraw;
-    this.minimumLenght = minimumLenght;
-  }
-
-  onEdit = (event: LeafletEvent) => {
-    const line = event.target as CorePolyline;
-    const newPositions = [...(line.getLatLngs() as LatLng[])];
-    const oldPositions = this.positions;
-
-    if (newPositions.length < oldPositions.length) {
-      if (newPositions.length < this.minimumLenght) {
-        console.log('Cannot remove position, minimum lenght is ' + this.minimumLenght);
-        this.redraw();
-        return;
-      }
-
-      const index = this.findChangedPositionIndex(oldPositions, newPositions);
-      if (index === 0) {
-        console.error('Wp 0 cannot be removed.');
-        this.redraw();
-        return;
-      }
-      this.callbacks.onPositionRemoved?.(index);
-
-      this.positions = newPositions;
-    }
-  };
-
-  onClick = (event: LeafletEvent) => {
-    const marker = event.target as Marker;
-    const markerLatLng = marker.getLatLng();
-    const index = this.positions.findIndex(p => p.equals(markerLatLng));
-    this.callbacks.onPositionClicked?.(index);
-  };
-
-  onMarkerDragEnd = (event: LeafletEvent) => {
-    const line = event.target as CorePolyline;
-    const newPositions = [...(line.getLatLngs() as LatLng[])];
-    const oldPositions = this.positions;
-
-    if (newPositions.length > oldPositions.length) {
-      const index = this.findChangedPositionIndex(newPositions, oldPositions);
-      if (this.callbacks.onPositionInserted) {
-        this.callbacks.onPositionInserted(index, newPositions[index]);
-      }
-
-      this.positions = newPositions;
-    } else if (newPositions.length === oldPositions.length) {
-      const index = this.findChangedPositionIndex(newPositions, oldPositions);
-      if (this.callbacks.onPositionModified) {
-        this.callbacks.onPositionModified(index, newPositions[index]);
-      }
-
-      this.positions = newPositions;
-    }
-  };
-
-  onVertedAdded = (event: any) => {
-    // Removed for better ux but could crash the client
-    // if (this.callbacks.onPositionInserted) {
-    //   this.callbacks.onPositionInserted(event.indexPath[0], event.latlng);
-    // }
-  };
-
-  private findChangedPositionIndex = (positions: LatLng[], oldPositions: LatLng[]): number => {
-    const isModified = (pos: LatLng) => oldPositions.some(oldPos => pos.equals(oldPos)) === false;
-
-    const modifiedPositions = positions.filter(newPos => isModified(newPos));
-    if (modifiedPositions === undefined || modifiedPositions.length !== 1) {
-      console.error('Invalid change: 0 or more than one element changed!');
-      return -1;
-    }
-
-    const modifiedPosition = modifiedPositions[0];
-
-    const index = positions.findIndex(pos => modifiedPosition.equals(pos));
-    console.assert(index !== -1);
-    return index;
-  };
-}
-
-export function EditablePolylineNonMemo(props: EditablePolylineProps) {
+function editablePolylineCtor(map: any, props: EditablePolylineProps) {
   const {
-    nonEditableWpRadius: nonEditableWpRadiusProp,
-    editable,
     color,
+    stroke,
+    weight,
+    opacity,
+    dashArray,
     onPositionInserted,
     onPositionModified,
     onPositionRemoved,
     onPositionClicked
   } = props;
   const positions = props.positions as LatLng[];
-  const nonEditableWpRadius = nonEditableWpRadiusProp ? nonEditableWpRadiusProp : 5;
 
-  // Note: There is a bug(?) in Polyline it will not update the markers on change,
-  // only the polyline is redrawn.
-  // requestRedraw will recreate/redraw the polyline at every change which is not optimal
-  // but at least it works with all 3 scenarios and external updates.
-  const [savedPositions, setSavedPositions] = useState(positions);
-  const [requestRedraw, setRequestRedraw] = useState(false);
+  const drawMarkers = props.drawMarkers !== undefined ? props.drawMarkers : true;
+  const drawMidmarkers = props.drawMidmarkers !== undefined ? props.drawMidmarkers : true;
 
-  const redraw = () => {
-    setRequestRedraw(true);
+  let polyline: Polyline | null = null;
+  let markers = [] as Marker[];
+  let mid_markers = [] as Marker[];
+  let dragging = false;
+
+  const onDragStart = () => {
+    dragging = true;
   };
 
-  const onPolylineAdded = (event: LeafletEvent) => {
-    const line = event.target as CorePolyline;
+  const onDrag = (index: number, e: any) => {
+    if (polyline === null) return;
 
-    const polyLineEventHandler = new LeafletPolylineEventHandler(
-      positions,
-      {
-        onPositionInserted: onPositionInserted,
-        onPositionModified: onPositionModified,
-        onPositionRemoved: onPositionRemoved,
-        onPositionClicked: onPositionClicked
-      },
-      redraw
-    );
+    const polylineLatLngs = polyline.getLatLngs();
+    polylineLatLngs[index] = e.target._latlng;
+    positions[index].lat = e.target._latlng.lat;
+    positions[index].lng = e.target._latlng.lng;
+    polyline.setLatLngs(polylineLatLngs);
+    if (index !== markers.length - 1) {
+      updateMidMarker(index);
+    }
+    if (index !== 0) {
+      updateMidMarker(+index - 1);
+    }
+  };
 
-    line.pm.enable({
-      allowSelfIntersections: true,
-      preventMarkerRemoval: !editable,
-      snappable: false
-    });
-
-    if (editable) {
-      line.pm._markers[0].dragging.disable();
-    } else {
-      line.pm.disable();
+  const onContextMenu = (index: number, e: any) => {
+    if (markers.length < 3) {
+      return;
     }
 
-    line.pm._markers.forEach(m => m.on('click', polyLineEventHandler.onClick));
+    positions.splice(index, 1);
+    createMarkers();
+    createPolyline();
 
-    // https://github.com/geoman-io/leaflet-geoman
-    line.on('pm:edit', polyLineEventHandler.onEdit);
-    line.on('pm:markerdragend', polyLineEventHandler.onMarkerDragEnd);
-    line.on('pm:vertexadded', polyLineEventHandler.onVertedAdded);
+    onPositionRemoved?.(index);
   };
 
-  useEffect(() => {
-    setRequestRedraw(false);
-  }, [requestRedraw]);
+  const onMidDragStart = (index: number, e: any) => {
+    if (polyline === null) return;
 
-  // Only redraw when positions change
-  if (positions !== savedPositions) {
-    setSavedPositions(positions);
-    setRequestRedraw(true);
-  }
+    const polylineLatLngs = polyline.getLatLngs();
+    polylineLatLngs.splice(index + 1, 0, e.target._latlng);
+    polyline.setLatLngs(polylineLatLngs);
+  };
 
-  const renderNonEditableWp = (position: LatLng, index: number) => (
-    <CircleMarker
-      key={`WpMarker_${index}`}
-      center={position}
-      radius={nonEditableWpRadius}
-      fillOpacity={0}
-      color={color}
-      weight={1}
-    />
-  );
+  const onMidDrag = (index: number, e: any) => {
+    if (polyline === null) return;
 
-  if (requestRedraw) {
-    return <React.Fragment></React.Fragment>;
-  } else {
-    return (
-      <React.Fragment>
-        <Polyline {...omit(props, 'onadd', 'editable')} onadd={onPolylineAdded} />
-        {!editable && positions.map((p, i) => renderNonEditableWp(p, i))}
-      </React.Fragment>
-    );
-  }
+    const polylineLatLngs = polyline.getLatLngs();
+    polylineLatLngs[index + 1] = e.target._latlng;
+    polyline.setLatLngs(polylineLatLngs);
+  };
+
+  const onMidDragEnd = (index: number, e: any) => {
+    const latlng = e.target._latlng;
+    positions.splice(index + 1, 0, latlng);
+    createMarkers();
+
+    onPositionInserted?.(index + 1, latlng);
+  };
+
+  const updateMidMarker = (index: number) => {
+    if (!drawMidmarkers) {
+      return;
+    }
+
+    const a = markers[+index].getLatLng();
+    const b = markers[+index + 1].getLatLng();
+    const mid = new LatLng((a.lat + b.lat) / 2.0, (a.lng + b.lng) / 2.0);
+    mid_markers[index].setLatLng(mid);
+  };
+
+  const onMarkerClick = (index: number, e: any) => {
+    if (dragging) {
+      dragging = false;
+      return;
+    }
+
+    onPositionClicked?.(index);
+  };
+
+  const clearMarkers = () => {
+    markers.forEach(m => map.removeLayer(m));
+    markers = [];
+    mid_markers.forEach(m => map.removeLayer(m));
+    mid_markers = [];
+  };
+
+  const createPolyline = () => {
+    if (polyline !== null) {
+      map.removeLayer(polyline);
+    }
+    polyline = new Polyline(positions, {
+      color: color,
+      weight: weight,
+      opacity: opacity,
+      interactive: false,
+      stroke: stroke,
+      dashArray: dashArray
+    }).addTo(map);
+  };
+
+  const clearPolyline = () => {
+    map.removeLayer(polyline);
+  };
+
+  const createMarkers = () => {
+    clearMarkers();
+
+    if (!drawMarkers) {
+      return;
+    }
+
+    const markerIcon = divIcon({ className: 'pl-marker-icon' });
+    for (const index in positions) {
+      markers[index] = new Marker(positions[index], { draggable: true, icon: markerIcon }).addTo(map);
+
+      markers[index].on('dragstart', onDragStart);
+      markers[index].on('dragend', e => onPositionModified?.(+index, e.target._latlng));
+      markers[index].on('drag', e => onDrag(+index, e));
+      markers[index].on('contextmenu', e => onContextMenu(+index, e));
+      markers[index].on('mouseup', e => onMarkerClick(+index, e));
+    }
+
+    if (drawMidmarkers) {
+      const midMarkerIcon = divIcon({ className: 'pl-mid-marker-icon' });
+      for (let index = 0; index < positions.length - 1; ++index) {
+        const a = positions[index];
+        const b = positions[index + 1];
+        const mid = new LatLng((a.lat + b.lat) / 2.0, (a.lng + b.lng) / 2.0);
+        mid_markers[index] = new Marker(mid, { draggable: true, icon: midMarkerIcon }).addTo(map);
+        const index_const = +index;
+        mid_markers[index].on('dragstart', e => onMidDragStart(index_const, e));
+        mid_markers[index].on('drag', e => onMidDrag(index_const, e));
+        mid_markers[index].on('dragend', e => onMidDragEnd(index_const, e));
+      }
+    }
+  };
+
+  const dtor = () => {
+    clearMarkers();
+    clearPolyline();
+  };
+
+  createPolyline();
+  createMarkers();
+
+  return dtor;
+}
+
+export function EditablePolylineNonMemo(props: EditablePolylineProps) {
+  // https://github.com/bbecquet/Leaflet.PolylineDecorator
+  const map = useMap();
+
+  React.useEffect(() => {
+    if (!map) {
+      console.error('Map is undefined!');
+      return;
+    }
+
+    return editablePolylineCtor(map, props);
+  });
+
+  return null;
 }
 
 export function EditablePolyline(props: EditablePolylineProps) {
-  const { editable, positions } = props;
+  const { drawMarkers, positions } = props;
   const latLngArray = JSON.stringify(positions as LatLng[]);
 
-  const memorizedItem = useMemo(() => <EditablePolylineNonMemo {...props} />, [ // eslint-disable-line react-hooks/exhaustive-deps
-    editable,
-    latLngArray
-  ]);
+  const memorizedItem = useMemo(() => <EditablePolylineNonMemo {...props} />, [drawMarkers, latLngArray]);
 
   return memorizedItem;
 }

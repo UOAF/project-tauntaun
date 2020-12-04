@@ -10,4 +10,5 @@ mission.lua
 dcs_static.json
 tauntaun.miz
 node_modules
+live_editor/frontend/.eslintcache
 

@@ -11,6 +11,7 @@ class Config:
     mission_load_filename: str = "tauntaun"
     mission_save_filename: str = "tauntaun"
     autosave: bool = True
+    default_coalition: str = ""
 
 def _get_datadir() -> pathlib.Path:
 

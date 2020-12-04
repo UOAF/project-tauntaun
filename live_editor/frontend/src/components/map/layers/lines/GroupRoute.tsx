@@ -6,7 +6,8 @@ import { gameService } from '../../../../services';
 import { EditablePolyline } from './EditablePolyline';
 import { TextMarker } from '../markers';
 import { ColorContext } from '../contexts';
-import { c_MeterToNm } from '../../../../data/constants';
+import { CircleMarker } from 'react-leaflet';
+import { DistanceMarkers } from './DistanceMarkers';
 
 export type GroupRouteProps = {
   group: Group;
@@ -27,21 +28,6 @@ export function GroupRoute(props: GroupRouteProps) {
     text: `[${i.toString()}] ${point.name}`,
     position: new LatLng(point.position.lat, point.position.lon)
   }));
-
-  const midPoint = (a: LatLng, b: LatLng) => {
-    const lat = a.lat + (b.lat - a.lat) * 0.5;
-    const lng = a.lng + (b.lng - a.lng) * 0.5;
-    return new LatLng(lat, lng);
-  };
-
-  const distances = positions.reduce(
-    (p, c, i, array) => (i < array.length - 1 ? [...p, c.distanceTo(array[i + 1]) * c_MeterToNm] : [...p]),
-    [] as number[]
-  );
-  const distanceTextPositions = positions.reduce(
-    (p, c, i, array) => (i < array.length - 1 ? [...p, midPoint(c, array[i + 1])] : [...p]),
-    [] as LatLng[]
-  );
 
   const handlePositionInserted = (index: number, pos: LatLng) => {
     const oldPoint = group.points[index];
@@ -77,10 +63,23 @@ export function GroupRoute(props: GroupRouteProps) {
   };
 
   const handlePositionClicked = (index: number) => {
+    // TODO check for isleadofflight / commander -> ableToSelect -> extract to context
     selectWaypoint(index);
 
     console.log('Point clicked.', index);
   };
+
+  const renderNonEditableWp = (position: LatLng, index: number) => (
+    <CircleMarker
+      interactive={false}
+      key={`WpMarker_${index}`}
+      center={position}
+      radius={isSelected ? 7 : 4}
+      fillOpacity={0}
+      color={colors.color}
+      weight={1}
+    />
+  );
 
   return (
     <React.Fragment>
@@ -95,20 +94,10 @@ export function GroupRoute(props: GroupRouteProps) {
         onPositionModified={handlePositionModified}
         onPositionRemoved={handlePositionRemoved}
         onPositionClicked={handlePositionClicked}
-        editable={editable}
-        nonEditableWpRadius={isSelected ? 7 : 4}
+        drawMarkers={editable}
       />
-      {isSelected &&
-        distanceTextPositions.map((p, i) => (
-          <TextMarker
-            key={`distance_text${i}`}
-            text={distances[i].toFixed(1)}
-            position={p}
-            color={'white'}
-            backgroundColor={'black'}
-            size={11}
-          />
-        ))}
+      {!editable && positions.map((p, i) => renderNonEditableWp(p, i))}
+      {isSelected && <DistanceMarkers positions={positions} />}
       {showWaypointNames &&
         labels.map((v, i) => (
           <TextMarker

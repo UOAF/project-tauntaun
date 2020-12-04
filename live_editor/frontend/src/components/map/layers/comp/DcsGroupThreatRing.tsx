@@ -16,7 +16,7 @@ export function DcsGroupThreatRing(props: DcsGroupThreatRingProps) {
 
   const unitsWithAirWeaponDistance = useMemo(
     () => unitsWithPropGreaterThanZero(group, groupCategory, 'air_weapon_dist'),
-    [group.id] // eslint-disable-line react-hooks/exhaustive-deps
+    [group.id]
   );
 
   const maxAirWeaponDistanceUnit = [...unitsWithAirWeaponDistance].sort((a, b) => a.range - b.range).pop();

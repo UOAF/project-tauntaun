@@ -14,7 +14,7 @@ export type TextMarkerProps = {
 };
 
 export function TextMarker(props: TextMarkerProps) {
-  const { text, position, color: colorProp, size: sizeProp, backgroundColor: backgroundColorProp } = props;  
+  const { text, position, color: colorProp, size: sizeProp, backgroundColor: backgroundColorProp } = props;
   const color = colorProp ? colorProp : 'black';
   const backgroundColor = backgroundColorProp ? backgroundColorProp : 'transparent';
   const size = sizeProp ? `${sizeProp}px` : '12px';

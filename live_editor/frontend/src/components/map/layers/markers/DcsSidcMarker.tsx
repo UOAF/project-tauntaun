@@ -24,7 +24,7 @@ export function DcsSidcMarker(props: DcsSidcMarkerProps) {
       type && Object.keys(DcsStatic.sidc).includes(type)
         ? setSidcCoalition(DcsStatic.sidc[type], calcAffiliation(sessionCoalition, groupCoalition))
         : 'SOSP--------',
-    [type] // eslint-disable-line react-hooks/exhaustive-deps
+    [type]
   );
 
   return <SidcMarker {...omit(props, 'type')} sidc={sidc} />;

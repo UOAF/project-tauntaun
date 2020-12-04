@@ -99,6 +99,8 @@ class GameService:
 
         print("update_unit_loadout", "success")
 
+        return unit
+
     def set_bullseye(self, coalition, bullseye):
         coalitions = self.campaign.mission.coalition
         if coalition not in coalitions:
@@ -107,6 +109,8 @@ class GameService:
         converted_point = _convert_point(self.campaign.mission.terrain, bullseye)
         coalitions[coalition].bullseye = {'x': converted_point.x, 'y': converted_point.y}
         print(f"Bullseye set {bullseye} for {coalition}")
+
+        return coalitions[coalition].bullseye
 
     class GroupRouteRequestHandler:
         def __init__(self, campaign):
@@ -132,6 +136,8 @@ class GameService:
             else:
                 print("Failed to remove waypoint")
 
+            return group
+
         def insert_at(self, group_id, new_wp, at_wp):
             group = self.campaign.lookup_group(group_id)            
             if group is None:
@@ -153,6 +159,8 @@ class GameService:
                 group.points.insert(at_index, wp)
             else:
                 print("Failed to add new waypoint")
+
+            return group
 
         def _get_next_wp_key(self):
             wpt_key = "DictKey_WptName_"
@@ -194,6 +202,8 @@ class GameService:
                     wp.alt_type = new_wp['alt_type']
             else:
                 print("Failed to modify waypoint")
+
+            return group
 
 class Campaign():
     def __init__(self):

@@ -80,7 +80,6 @@ export function RoleSelectionForm() {
   };
 
   const onLeaveUnitClicked = () => {
-    console.log(sessionId, selectedUnitId);
     gameService.sendSessionDataUpdate(sessionId, {
       ...sessionData,
       selected_unit_id: -1
@@ -112,7 +111,7 @@ export function RoleSelectionForm() {
       </div>
       <div>
         <InputLabel id="group-select">Group</InputLabel>
-        <Select onChange={onGroupChange} value={group?.id}>
+        <Select onChange={onGroupChange} value={group ? group.id : ''}>
           {groupOptions.map((option, i) => (
             <MenuItem key={`groupOptions${i}`} value={option.key}>
               {option.value}

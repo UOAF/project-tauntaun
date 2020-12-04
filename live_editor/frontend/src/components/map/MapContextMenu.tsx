@@ -1,8 +1,8 @@
 import { convertLeafletMapToKml, getGoogleEarthUrl, openInNewTab, saveKmlFile } from '../../models/util';
 import React from 'react';
 import { AppStateContainer } from '../../models';
-import { MapContext } from '../contexts';
 import { ClickPosition, ContextMenu, ContextMenuOption } from '../contextmenu';
+import { useMap } from 'react-leaflet';
 
 export interface MapContextMenuProps {
   position: ClickPosition;
@@ -10,7 +10,7 @@ export interface MapContextMenuProps {
 
 export function MapContextMenu(props: MapContextMenuProps) {
   const { commanderMode, setShowAddFlightForm, setLocation } = AppStateContainer.useContainer();
-  const mapContext = React.useContext(MapContext);
+  const map = useMap();
 
   const contextMenuOptionsAdmin: Array<ContextMenuOption> = [{ label: 'Add Flight', value: 'add_flight' }];
   const contextMenuOptionsNormal: Array<ContextMenuOption> = [{ label: 'Recon', value: 'recon' }];
@@ -27,7 +27,7 @@ export function MapContextMenu(props: MapContextMenuProps) {
 
   const reconOnClick = (position: ClickPosition) => {
     if (position.latlon) {
-      const kml = convertLeafletMapToKml(mapContext.map);
+      const kml = convertLeafletMapToKml(map);
       saveKmlFile('markers.kml', kml);
       openInNewTab(getGoogleEarthUrl(position.latlon));
     }

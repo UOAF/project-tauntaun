@@ -7,9 +7,4 @@ export type ModeContextType = {
   selectedUnitId?: number;
 };
 
-export type MapContextType = {
-  map: any;
-};
-
 export const ModeContext = createContext({} as ModeContextType); // TODO ?
-export const MapContext = createContext({} as MapContextType); // TODO rename LeafletMapContext
