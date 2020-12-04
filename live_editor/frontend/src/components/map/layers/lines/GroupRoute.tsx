@@ -6,8 +6,8 @@ import { gameService } from '../../../../services';
 import { EditablePolyline } from './EditablePolyline';
 import { TextMarker } from '../markers';
 import { ColorContext } from '../contexts';
-import { c_MeterToNm } from '../../../../data/constants';
 import { CircleMarker } from 'react-leaflet';
+import { DistanceMarkers } from './DistanceMarkers';
 
 export type GroupRouteProps = {
   group: Group;
@@ -28,21 +28,6 @@ export function GroupRoute(props: GroupRouteProps) {
     text: `[${i.toString()}] ${point.name}`,
     position: new LatLng(point.position.lat, point.position.lon)
   }));
-
-  const midPoint = (a: LatLng, b: LatLng) => {
-    const lat = a.lat + (b.lat - a.lat) * 0.5;
-    const lng = a.lng + (b.lng - a.lng) * 0.5;
-    return new LatLng(lat, lng);
-  };
-
-  const distances = positions.reduce(
-    (p, c, i, array) => (i < array.length - 1 ? [...p, c.distanceTo(array[i + 1]) * c_MeterToNm] : [...p]),
-    [] as number[]
-  );
-  const distanceTextPositions = positions.reduce(
-    (p, c, i, array) => (i < array.length - 1 ? [...p, midPoint(c, array[i + 1])] : [...p]),
-    [] as LatLng[]
-  );
 
   const handlePositionInserted = (index: number, pos: LatLng) => {
     const oldPoint = group.points[index];
@@ -112,17 +97,7 @@ export function GroupRoute(props: GroupRouteProps) {
         drawMarkers={editable}
       />
       {!editable && positions.map((p, i) => renderNonEditableWp(p, i))}
-      {isSelected &&
-        distanceTextPositions.map((p, i) => (
-          <TextMarker
-            key={`distance_text${i}`}
-            text={distances[i].toFixed(1)}
-            position={p}
-            color={'white'}
-            backgroundColor={'black'}
-            size={11}
-          />
-        ))}
+      {isSelected && <DistanceMarkers positions={positions} />}
       {showWaypointNames &&
         labels.map((v, i) => (
           <TextMarker

@@ -16,6 +16,7 @@ export interface MapState {
   hideAllHostileUnits: boolean; // Temporary for potato PCs until clustering is implemented
   mapType: string;
   mapToken: string | undefined;
+  showRuler: boolean;
 }
 
 export const defaultState: MapState = {
@@ -31,7 +32,8 @@ export const defaultState: MapState = {
   showFriendlyRadarRings: false,
   hideAllHostileUnits: false,
   mapType: 'mapbox/outdoors-v11',
-  mapToken: undefined
+  mapToken: undefined,
+  showRuler: false
 };
 
 export function useMapState(initialState = defaultState) {
@@ -143,6 +145,13 @@ export function useMapState(initialState = defaultState) {
     }));
   };
 
+  const setShowRuler = (showRuler: boolean) => {
+    setState(state => ({
+      ...state,
+      showRuler: showRuler
+    }));
+  };
+
   return {
     ...state,
     initialize,
@@ -157,7 +166,8 @@ export function useMapState(initialState = defaultState) {
     setShowLegend,
     setHideAllHostileUnits,
     setShowRadarRings,
-    setShowFriendlyRadarRings
+    setShowFriendlyRadarRings,
+    setShowRuler
   };
 }
 

@@ -12,6 +12,7 @@ import { LegendContext } from './contexts';
 import { MapContextMenu } from './MapContextMenu';
 import { AirportLayer, CoalitionLayer } from './layers';
 import { Legend } from './Legend';
+import { Ruler } from './layers/lines/Ruler';
 
 export interface CampaignMapProps {
   lat: number;
@@ -22,7 +23,7 @@ export interface CampaignMapProps {
 
 export function CampaignMap(props: CampaignMapProps) {
   const { mission } = MissionStateContainer.useContainer();
-  const { mapType, showLegend, mapToken } = MapStateContainer.useContainer();
+  const { mapType, showLegend, mapToken, showRuler } = MapStateContainer.useContainer();
 
   const { sessionId, sessions } = SessionStateContainer.useContainer();
   const sessionData = sessions[sessionId];
@@ -81,6 +82,7 @@ export function CampaignMap(props: CampaignMapProps) {
             </React.Fragment>
           )}
           {position && <MapContextMenu position={position} />}
+          {showRuler && <Ruler />}
         </MapContainer>
         {showLegend && <Legend />}
       </LegendContext.Provider>

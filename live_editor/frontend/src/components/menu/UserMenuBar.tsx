@@ -29,6 +29,7 @@ export function UserMenuBar() {
     showLegend,
     hideAllHostileUnits,
     mapType,
+    showRuler,
     setShowUnits,
     setShowAIFlightPlans,
     setShowThreatRings,
@@ -39,7 +40,8 @@ export function UserMenuBar() {
     setShowOtherWpNames,
     setShowLegend,
     setMapType,
-    setHideAllHostileUnits
+    setHideAllHostileUnits,
+    setShowRuler
   } = MapStateContainer.useContainer();
 
   const { selectedUnitId } = React.useContext(ModeContext);
@@ -71,6 +73,7 @@ export function UserMenuBar() {
   const onShowLegendChange = (event: any) => setShowLegend(event.target.checked);
   const unitSelectionOnClick = () => setShowRoleSelectionForm(!showRoleSelectionForm);
   const onHideAllHostileUnitsChange = (event: any) => setHideAllHostileUnits(event.target.checked);
+  const onShowRulerChange = (event: any) => setShowRuler(event.target.checked);
 
   const onMapTypeSelected = (event: any) => {
     const value = event.target.value;
@@ -168,6 +171,12 @@ export function UserMenuBar() {
             ))}
           </Select>
         </FormControl>
+        <FormControlLabel
+          value="start"
+          control={<Checkbox checked={showRuler} color="primary" onChange={onShowRulerChange} />}
+          label="Show ruler"
+          labelPlacement="end"
+        />
       </div>
     </React.Fragment>
   );

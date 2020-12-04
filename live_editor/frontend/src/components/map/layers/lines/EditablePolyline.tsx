@@ -8,6 +8,7 @@ export type EditablePolylineProps = PolylineProps & {
   onPositionRemoved?: (index: number) => void;
   onPositionClicked?: (index: number) => void;
   drawMarkers?: boolean;
+  drawMidmarkers?: boolean;
 };
 
 function editablePolylineCtor(map: any, props: EditablePolylineProps) {
@@ -25,6 +26,7 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
   const positions = props.positions as LatLng[];
 
   const drawMarkers = props.drawMarkers !== undefined ? props.drawMarkers : true;
+  const drawMidmarkers = props.drawMidmarkers !== undefined ? props.drawMidmarkers : true;
 
   let polyline: Polyline | null = null;
   let markers = [] as Marker[];
@@ -88,6 +90,10 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
   };
 
   const updateMidMarker = (index: number) => {
+    if (!drawMidmarkers) {
+      return;
+    }
+
     const a = markers[+index].getLatLng();
     const b = markers[+index + 1].getLatLng();
     const mid = new LatLng((a.lat + b.lat) / 2.0, (a.lng + b.lng) / 2.0);
@@ -146,16 +152,18 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
       markers[index].on('mouseup', e => onMarkerClick(+index, e));
     }
 
-    const midMarkerIcon = divIcon({ className: 'pl-mid-marker-icon' });
-    for (let index = 0; index < positions.length - 1; ++index) {
-      const a = positions[index];
-      const b = positions[index + 1];
-      const mid = new LatLng((a.lat + b.lat) / 2.0, (a.lng + b.lng) / 2.0);
-      mid_markers[index] = new Marker(mid, { draggable: true, icon: midMarkerIcon }).addTo(map);
-      const index_const = +index;
-      mid_markers[index].on('dragstart', e => onMidDragStart(index_const, e));
-      mid_markers[index].on('drag', e => onMidDrag(index_const, e));
-      mid_markers[index].on('dragend', e => onMidDragEnd(index_const, e));
+    if (drawMidmarkers) {
+      const midMarkerIcon = divIcon({ className: 'pl-mid-marker-icon' });
+      for (let index = 0; index < positions.length - 1; ++index) {
+        const a = positions[index];
+        const b = positions[index + 1];
+        const mid = new LatLng((a.lat + b.lat) / 2.0, (a.lng + b.lng) / 2.0);
+        mid_markers[index] = new Marker(mid, { draggable: true, icon: midMarkerIcon }).addTo(map);
+        const index_const = +index;
+        mid_markers[index].on('dragstart', e => onMidDragStart(index_const, e));
+        mid_markers[index].on('drag', e => onMidDrag(index_const, e));
+        mid_markers[index].on('dragend', e => onMidDragEnd(index_const, e));
+      }
     }
   };
 
