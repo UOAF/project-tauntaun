@@ -13,6 +13,7 @@ export type MissionUpdateListener = (updatedMission: Mission) => void;
 export type SessionsUpdateListener = (updatedSessions: Sessions) => void;
 export type SessionIdUpdateListener = (id: number) => void;
 export type GenericUpdateListener = (message: any) => void;
+export type OnCloseListener = (ev: CloseEvent) => void;
 
 export interface GameService {
   openSocket(): Promise<void>;
@@ -59,6 +60,9 @@ export interface GameService {
 
   registerForGenericUpdates(listener: GenericUpdateListener): string;
   unregisterGenericUpdateListener(id: string): void;
+
+  registerForOnClose(listener: GenericUpdateListener): string;
+  unregisterOnCloseListener(id: string): void;
 }
 
 let socket: WebSocket | null = null;
@@ -66,6 +70,7 @@ const missionUpdateListeners: Dictionary<MissionUpdateListener> = {};
 const sessionsUpdateListeners: Dictionary<SessionsUpdateListener> = {};
 const sessionIdUpdateListeners: Dictionary<SessionIdUpdateListener> = {};
 const genericUpdateListeners: Dictionary<GenericUpdateListener> = {};
+const onCloseListeners: Dictionary<OnCloseListener> = {};
 let time_start: number | null = null;
 
 function sendMessage(name: string, value: any) {
@@ -183,6 +188,9 @@ async function openSocket(): Promise<void> {
       socket.onopen = () => resolve();
       socket.onerror = () => reject();
       socket.onmessage = receiveUpdateMessage;
+      socket.onclose = (ev: CloseEvent) => {
+        Object.keys(onCloseListeners).forEach(key => onCloseListeners[key](ev));
+      };
     } catch (error) {
       reject(error);
     }
@@ -322,6 +330,18 @@ function unregisterGenericUpdateListener(id: string): void {
   }
 }
 
+function registerForOnClose(listener: OnCloseListener): string {
+  const id = uuidv4();
+  onCloseListeners[id] = listener;
+  return id;
+}
+
+function unregisterOnCloseListener(id: string): void {
+  if (onCloseListeners[id]) {
+    delete onCloseListeners[id];
+  }
+}
+
 export const gameService: GameService = {
   openSocket,
   sendRouteInsertAt,
@@ -346,5 +366,7 @@ export const gameService: GameService = {
   registerForSessionIdUpdate,
   unregisterSessionIdUpdateListener,
   registerForGenericUpdates,
-  unregisterGenericUpdateListener
+  unregisterGenericUpdateListener,
+  registerForOnClose,
+  unregisterOnCloseListener
 };

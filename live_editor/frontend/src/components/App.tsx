@@ -49,14 +49,22 @@ export function App() {
   const sessionCoalition = sessionData ? sessionData.coalition : '';
 
   const [initializedState, setInitializedState] = useState(InitialzationState.UNINITIALIZED);
+  const [connected, setConnected] = useState(false);
+
+  const onConnectionClosed = () => {
+    console.log('Websocket closed!');
+    setConnected(false);
+  };
 
   useEffect(() => {
     if (initializedState !== InitialzationState.UNINITIALIZED) return;
 
     const initApp = async () => {
       try {
+        gameService.registerForOnClose(onConnectionClosed);
         await gameService.openSocket();
         console.info('GameService initialized');
+        setConnected(true);
         await initializeDcsStaticData();
         await initializeMap();
         await initializeMission();
@@ -135,7 +143,9 @@ export function App() {
       return <span>Loading...</span>;
     case InitialzationState.INITIALIZATION_FAILED:
       return <span>Something went wrong, unable to connect to server or initialize app.</span>;
-    case InitialzationState.INITIALIZED:
-      return renderApp();
+    case InitialzationState.INITIALIZED: {
+      if (!connected) return <span>Disconnected from server refresh page in order to reconnect.</span>;
+      else return renderApp();
+    }
   }
 }
