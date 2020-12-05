@@ -13,7 +13,8 @@ import {
   MapStateContainer,
   MissionStateContainer,
   SelectionStateContainer,
-  SessionStateContainer
+  SessionStateContainer,
+  DcsStaticDataStateContainer
 } from './models';
 import * as serviceWorker from './serviceWorker';
 
@@ -24,7 +25,9 @@ ReactDOM.render(
         <MissionStateContainer.Provider>
           <SelectionStateContainer.Provider>
             <SessionStateContainer.Provider>
-              <App />
+              <DcsStaticDataStateContainer.Provider>
+                <App />
+              </DcsStaticDataStateContainer.Provider>
             </SessionStateContainer.Provider>
           </SelectionStateContainer.Provider>
         </MissionStateContainer.Provider>

@@ -1,6 +1,6 @@
 import { Dictionary } from './util';
 
-// TODO move data to dcs_static.json
+// TODO move data to dcs_static
 export const PointAction: Dictionary<string> = {
   TurningPoint: 'Turning Point',
   FlyOverPoint: 'Fly Over Point',
@@ -71,4 +71,12 @@ export type DcsStaticData = {
   vehicles: Dictionary<Vehicle>;
   ships: Dictionary<Ship>;
   sidc: Dictionary<string>;
+};
+
+export const emptyDcsStaticData: DcsStaticData = {
+  planes: {},
+  weapons: {},
+  vehicles: {},
+  ships: {},
+  sidc: {}
 };

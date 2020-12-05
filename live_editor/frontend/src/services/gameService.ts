@@ -4,10 +4,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { Dictionary, Point, Mission, Group, emptyMission, MovingPoint, Unit, StaticPoint } from '../models';
 import { LatLng } from 'leaflet';
 
-import * as DcsStaticRawJson from '../data/dcs_static.json';
 import { Sessions, SessionData } from '../models/sessionData';
 import { inflate } from 'zlib';
 import { promisify } from 'util';
+import { DcsStaticData, emptyDcsStaticData } from '../models/dcs_static';
 
 export type MissionUpdateListener = (updatedMission: Mission) => void;
 export type SessionsUpdateListener = (updatedSessions: Sessions) => void;
@@ -45,6 +45,7 @@ export interface GameService {
   getMission(): Promise<Mission>;
   getSessions(): Promise<Sessions>;
   getMapToken(): Promise<string>;
+  getStaticData(): Promise<DcsStaticData>;
   authAdminPassword(password: string): Promise<boolean>;
 
   registerForMissionUpdates(listener: MissionUpdateListener): string;
@@ -119,6 +120,21 @@ async function getMapToken(): Promise<string> {
   } catch (error) {
     console.error(`Couldn't fetch mapToken`, error);
     return '';
+  }
+}
+
+async function getStaticData(): Promise<DcsStaticData> {
+  try {
+    const response = await fetch('/game/static_data');
+    if (!response.ok) {
+      throw new Error('Response is not OK');
+    }
+
+    const staticData = (await response.json()) as DcsStaticData;
+    return staticData;
+  } catch (error) {
+    console.error(`Couldn't fetch static_data`, error);
+    return emptyDcsStaticData as DcsStaticData;
   }
 }
 
@@ -234,16 +250,9 @@ function sendUnitLoadoutUpdate(
   fuel: number,
   gun: number
 ): void {
-  const weaponsData = (DcsStaticRawJson as any).default.weapons;
   sendMessage('unit_loadout_update', {
     id: unit.id,
-    pylons: Object.keys(pylons)
-      .map(k => {
-        return { [k]: weaponsData[pylons[k]].weapon_id };
-      })
-      .reduce((a, c) => {
-        return { ...a, ...c };
-      }, {}),
+    pylons: pylons,
     chaff: chaff,
     flare: flare,
     gun: gun,
@@ -328,6 +337,7 @@ export const gameService: GameService = {
   getMission,
   getSessions,
   getMapToken,
+  getStaticData,
   authAdminPassword,
   registerForMissionUpdates,
   unregisterMissionUpdateListener,

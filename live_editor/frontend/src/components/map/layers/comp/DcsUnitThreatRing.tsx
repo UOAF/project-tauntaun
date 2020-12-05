@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 
-import { Unit, getStaticUnit } from '../../../../models';
+import { Unit, getStaticUnit, DcsStaticDataStateContainer } from '../../../../models';
 import { CategoryContext } from '../contexts';
 import { ThreatCircle } from '../markers/ThreatCircle';
 import { CoalitionContext } from '..';
@@ -11,12 +11,14 @@ export type DcsUnitThreatRingProps = {
 
 export function DcsUnitThreatRing(props: DcsUnitThreatRingProps): ReactElement {
   const { unit } = props;
+  const { dcsStaticData } = DcsStaticDataStateContainer.useContainer();
+
   const groupCategory = React.useContext(CategoryContext);
 
   const { sessionCoalition, groupCoalition } = React.useContext(CoalitionContext);
   const isSameCoalition = sessionCoalition === groupCoalition;
 
-  const staticUnit = getStaticUnit(groupCategory, unit);
+  const staticUnit = getStaticUnit(dcsStaticData, groupCategory, unit);
   const airWeaponRange = staticUnit ? +staticUnit.air_weapon_dist : 0;
 
   return (

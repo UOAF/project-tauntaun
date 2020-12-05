@@ -8,3 +8,4 @@ export * from './mapState';
 export * from './missionState';
 export * from './selectionState';
 export * from './sessionState';
+export * from './dcsStaticDataState';

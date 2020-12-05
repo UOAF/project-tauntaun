@@ -15,7 +15,8 @@ from hypercorn.asyncio import serve
 from tauntaun_live_editor.sessions import SessionsEncoder
 from tauntaun_live_editor.util import get_data_path, is_posix, Timer
 import tauntaun_live_editor.config as config
-from .mission_encoder import MissionEncoder
+from tauntaun_live_editor.static_data import get_static_json
+from tauntaun_live_editor.server.mission_encoder import MissionEncoder
 from dcs import Point
 
 logger = logging.basicConfig(level=logging.DEBUG)
@@ -69,6 +70,10 @@ def create_app(campaign, session_manager):
     @app.route('/game/auth_admin/<password>')
     async def render_auth_admin_password(password):
         return 'true' if config.config.admin_password == password else 'false'
+
+    @app.route('/game/static_data')
+    async def render_static_datan():
+        return get_static_json()
 
     def collect_websocket(on_connect, on_disconnect):
         def wrapper_0(func):
@@ -270,8 +275,8 @@ def create_app(campaign, session_manager):
     return app
 
 
-def run(campaign, session_maanger, port=80):
-    app = create_app(campaign, session_maanger)
+def run(campaign, session_manager, port=80):
+    app = create_app(campaign, session_manager)
 
     shutdown_event = asyncio.Event()
 

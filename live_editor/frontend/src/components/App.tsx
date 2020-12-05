@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 import {
   AppStateContainer,
+  DcsStaticDataStateContainer,
   Group,
   MapStateContainer,
   MissionStateContainer,
@@ -36,6 +37,7 @@ export function App() {
 
   const { mission, initialize: initializeMission } = MissionStateContainer.useContainer();
   const { mapToken, initialize: initializeMap } = MapStateContainer.useContainer();
+  const { initialize: initializeDcsStaticData } = DcsStaticDataStateContainer.useContainer();
   const { sessions, sessionId, initialize: initializeSession } = SessionStateContainer.useContainer();
   const {
     selectedWaypoint,
@@ -55,6 +57,7 @@ export function App() {
       try {
         await gameService.openSocket();
         console.info('GameService initialized');
+        await initializeDcsStaticData();
         await initializeMap();
         await initializeMission();
         await initializeSession();

@@ -7,7 +7,6 @@ then
 fi
 
 live_editor/scripts/setup_env.sh
-live_editor/scripts/gen_static.sh
 
 rm -rf live_editor/frontend/node_modules
 
