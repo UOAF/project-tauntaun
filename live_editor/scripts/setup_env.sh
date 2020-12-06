@@ -20,5 +20,3 @@ pip install -r requirements.txt
 
 pushd live_editor/frontend && yarn install && popd
 
-mkdir live_editor/frontend/src/data/
-
