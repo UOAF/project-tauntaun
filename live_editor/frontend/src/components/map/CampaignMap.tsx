@@ -1,8 +1,7 @@
 import './CampaignMap.css';
 
 import React from 'react';
-import { MapContainer, TileLayer, MapConsumer, useMapEvents } from 'react-leaflet';
-import { pick } from 'lodash';
+import { MapContainer, TileLayer, MapConsumer } from 'react-leaflet';
 
 import { MapStateContainer, MissionStateContainer, SessionStateContainer } from '../../models';
 import { LatLng, LeafletMouseEvent } from 'leaflet';
@@ -34,7 +33,7 @@ export function CampaignMap(props: CampaignMapProps) {
   const [center, setCenter] = useState(new LatLng(props.lat, props.lng));
 
   const onContextMenuClick = (event: any) => {
-    console.log('adss');
+    event.originalEvent.preventDefault();
     setPosition({
       xy: {
         x: event.originalEvent.clientX,
@@ -47,7 +46,7 @@ export function CampaignMap(props: CampaignMapProps) {
   return (
     <div data-testid="campaign-map">
       <LegendContext.Provider value={{ legends: [] }}>
-        <MapContainer center={center} zoom={props.zoom} preferCanvas={true} doubleClickZoom={false}>
+        <MapContainer center={center} zoom={props.zoom} preferCanvas={true} doubleClickZoom={false} inertia={false}>
           <CampaignMapEventHandler
             eventHandlers={{
               contextmenu: onContextMenuClick
