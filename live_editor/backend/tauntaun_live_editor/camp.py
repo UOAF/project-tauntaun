@@ -248,6 +248,14 @@ class Campaign():
         countries = self.get_countries(side)
         return itertools.chain(*(countries[cname].ship_group for cname in countries))
 
+    def get_helicopter_groups(self, side):
+        countries = self.get_countries(side)
+        return itertools.chain(*(countries[cname].helicopter_group for cname in countries))
+
+    def get_vehicle_groups(self, side):
+        countries = self.get_countries(side)
+        return itertools.chain(*(countries[cname].vehicle_group for cname in countries))
+
     def lookup_unit(self, unit_id):
         # TODO
         for unit in self.get_plane_group_units('blue'):
@@ -269,11 +277,27 @@ class Campaign():
             if group_id == group.id:
                 return group
 
+        for group in self.get_helicopter_groups('blue'):
+            if group_id == group.id:
+                return group
+
+        for group in self.get_vehicle_groups('blue'):
+            if group_id == group.id:
+                return group
+
         for group in self.get_plane_groups('red'):
             if group_id == group.id:
                 return group
 
         for group in self.get_ship_groups('red'):
+            if group_id == group.id:
+                return group
+
+        for group in self.get_helicopter_groups('red'):
+            if group_id == group.id:
+                return group
+
+        for group in self.get_vehicle_groups('red'):
             if group_id == group.id:
                 return group
 
