@@ -43,7 +43,7 @@ class _ConfigFileManager:
 
     @staticmethod
     def load(p_config_path = None):
-        config_path =  p_config_path if p_config_path is not None else _ConfigFileManager.config_path
+        config_path = p_config_path if p_config_path is not None else _ConfigFileManager.config_path
 
         if p_config_path:
             if not os.path.isfile(config_path):
@@ -77,7 +77,7 @@ config = None
 
 def load_config(config_path_str = None):
     global config
-    config_path = os.path.normpath(config_path_str) if config_path_str else None
+    config_path =  pathlib.Path(config_path_str) if config_path_str else None
     loaded_config = _ConfigFileManager.load(config_path)
     if (loaded_config is None):
         loaded_config = Config()
