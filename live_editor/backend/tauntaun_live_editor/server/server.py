@@ -13,7 +13,7 @@ from hypercorn.config import Config
 from hypercorn.asyncio import serve
 
 from tauntaun_live_editor.sessions import SessionsEncoder
-from tauntaun_live_editor.util import get_data_path, is_posix, Timer
+from tauntaun_live_editor.util import get_data_path, is_posix
 import tauntaun_live_editor.config as config
 from tauntaun_live_editor.static_data import get_static_json
 from tauntaun_live_editor.server.mission_encoder import MissionEncoder
@@ -32,12 +32,6 @@ def create_app(campaign, session_manager):
 
     app = Quart(__name__, static_folder=os.path.join(data_dir, 'client', 'static'),
                 template_folder=os.path.join(data_dir, 'client'))
-
-    async def autosave_callback():
-        campaign.save_mission()
-        print("Autosave: mission saved.")
-
-    autosave_timer = Timer(15, autosave_callback, True)
 
     def zlib_message(message):
         message_zlib = zlib.compress(message.encode("utf-8"))
@@ -205,14 +199,7 @@ def create_app(campaign, session_manager):
             campaign.save_mission()
 
         async def load_mission(data):
-            if autosave_timer.is_running():
-                autosave_timer.cancel()
-
             campaign.load_mission()
-
-            if config.config.autosave:
-                print("Autosave enabled: starting timer.")
-                autosave_timer.start()
 
             await broadcast_mission_update()
 

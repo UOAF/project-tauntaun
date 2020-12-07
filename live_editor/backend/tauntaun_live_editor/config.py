@@ -1,4 +1,5 @@
 import sys
+import os
 import pathlib
 from dataclasses import dataclass
 from dataclasses_json import dataclass_json
@@ -12,6 +13,7 @@ class Config:
     mission_save_filename: str = "tauntaun"
     autosave: bool = True
     default_coalition: str = ""
+    default_mission: str = ""
 
 def _get_datadir() -> pathlib.Path:
 
@@ -40,44 +42,49 @@ class _ConfigFileManager:
     config_path = datadir / "config.json"
 
     @staticmethod
-    def load():
-        if not _ConfigFileManager.datadir.exists():
-            return None
+    def load(p_config_path = None):
+        config_path =  p_config_path if p_config_path is not None else _ConfigFileManager.config_path
 
-        if _ConfigFileManager.config_path.exists():
-            with open(_ConfigFileManager.config_path, 'r') as fp:
+        if p_config_path:
+            if not os.path.isfile(config_path):
+                return None
+        else:
+            if not _ConfigFileManager.datadir.exists():
+                return None
+
+        if config_path.exists():
+            with open(config_path, 'r') as fp:
                 config_json = fp.read()
                 return Config.from_json(config_json)
-
         else:
             return None
 
     @staticmethod
-    def save(config: Config):
-        try:
-            _ConfigFileManager.datadir.mkdir(parents=True)
-        except FileExistsError:
-            pass
+    def save(config: Config, p_config_path = None):
+        config_path = p_config_path if p_config_path is not None else _ConfigFileManager.config_path
 
-        with open(_ConfigFileManager.config_path, 'w') as fp:
+        if not p_config_path:
+            try:
+                _ConfigFileManager.datadir.mkdir(parents=True)
+            except FileExistsError:
+                pass
+
+        with open(config_path, 'w') as fp:
             config_json = config.to_json()
             fp.write(config_json)
 
 config = None
 
-def load_config():
+def load_config(config_path_str = None):
     global config
-    loaded_config = _ConfigFileManager.load()
+    config_path = os.path.normpath(config_path_str) if config_path_str else None
+    loaded_config = _ConfigFileManager.load(config_path)
     if (loaded_config is None):
         loaded_config = Config()
 
     # Create new config file if not yet created and "auto deserialization version handling":
     # re-save so new fields are added with their default values
-    _ConfigFileManager.save(loaded_config)
+    _ConfigFileManager.save(loaded_config, config_path)
 
     config = loaded_config
-
-def save_config():
-    global config
-    _ConfigFileManager.save(config)
 
