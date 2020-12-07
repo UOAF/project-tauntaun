@@ -1,7 +1,7 @@
 import './CampaignMap.css';
 
 import React from 'react';
-import { MapContainer, TileLayer, MapConsumer } from 'react-leaflet';
+import { MapContainer, TileLayer, MapConsumer, useMapEvents } from 'react-leaflet';
 import { pick } from 'lodash';
 
 import { MapStateContainer, MissionStateContainer, SessionStateContainer } from '../../models';
@@ -13,6 +13,7 @@ import { MapContextMenu } from './MapContextMenu';
 import { AirportLayer, CoalitionLayer } from './layers';
 import { Legend } from './Legend';
 import { Ruler } from './layers/lines/Ruler';
+import { CampaignMapEventHandler } from './CampaignMapEventHandler';
 
 export interface CampaignMapProps {
   lat: number;
@@ -33,6 +34,7 @@ export function CampaignMap(props: CampaignMapProps) {
   const [center, setCenter] = useState(new LatLng(props.lat, props.lng));
 
   const onContextMenuClick = (event: any) => {
+    console.log('adss');
     setPosition({
       xy: {
         x: event.originalEvent.clientX,
@@ -45,15 +47,12 @@ export function CampaignMap(props: CampaignMapProps) {
   return (
     <div data-testid="campaign-map">
       <LegendContext.Provider value={{ legends: [] }}>
-        <MapContainer
-          center={center}
-          zoom={props.zoom}
-          preferCanvas={true}
-          eventHandlers={{
-            click: props.onMapClick,
-            contextmenu: onContextMenuClick
-          }}
-        >
+        <MapContainer center={center} zoom={props.zoom} preferCanvas={true} doubleClickZoom={false}>
+          <CampaignMapEventHandler
+            eventHandlers={{
+              contextmenu: onContextMenuClick
+            }}
+          />
           <MapConsumer>
             {map => {
               const newCenter = new LatLng(props.lat, props.lng);
