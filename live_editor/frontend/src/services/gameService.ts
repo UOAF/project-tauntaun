@@ -4,15 +4,16 @@ import { v4 as uuidv4 } from 'uuid';
 import { Dictionary, Point, Mission, Group, emptyMission, MovingPoint, Unit, StaticPoint } from '../models';
 import { LatLng } from 'leaflet';
 
-import * as DcsStaticRawJson from '../data/dcs_static.json';
 import { Sessions, SessionData } from '../models/sessionData';
 import { inflate } from 'zlib';
 import { promisify } from 'util';
+import { DcsStaticData, emptyDcsStaticData } from '../models/dcs_static';
 
 export type MissionUpdateListener = (updatedMission: Mission) => void;
 export type SessionsUpdateListener = (updatedSessions: Sessions) => void;
 export type SessionIdUpdateListener = (id: number) => void;
 export type GenericUpdateListener = (message: any) => void;
+export type OnCloseListener = (ev: CloseEvent) => void;
 
 export interface GameService {
   openSocket(): Promise<void>;
@@ -45,6 +46,7 @@ export interface GameService {
   getMission(): Promise<Mission>;
   getSessions(): Promise<Sessions>;
   getMapToken(): Promise<string>;
+  getStaticData(): Promise<DcsStaticData>;
   authAdminPassword(password: string): Promise<boolean>;
 
   registerForMissionUpdates(listener: MissionUpdateListener): string;
@@ -58,6 +60,9 @@ export interface GameService {
 
   registerForGenericUpdates(listener: GenericUpdateListener): string;
   unregisterGenericUpdateListener(id: string): void;
+
+  registerForOnClose(listener: GenericUpdateListener): string;
+  unregisterOnCloseListener(id: string): void;
 }
 
 let socket: WebSocket | null = null;
@@ -65,6 +70,7 @@ const missionUpdateListeners: Dictionary<MissionUpdateListener> = {};
 const sessionsUpdateListeners: Dictionary<SessionsUpdateListener> = {};
 const sessionIdUpdateListeners: Dictionary<SessionIdUpdateListener> = {};
 const genericUpdateListeners: Dictionary<GenericUpdateListener> = {};
+const onCloseListeners: Dictionary<OnCloseListener> = {};
 let time_start: number | null = null;
 
 function sendMessage(name: string, value: any) {
@@ -122,6 +128,21 @@ async function getMapToken(): Promise<string> {
   }
 }
 
+async function getStaticData(): Promise<DcsStaticData> {
+  try {
+    const response = await fetch('/game/static_data');
+    if (!response.ok) {
+      throw new Error('Response is not OK');
+    }
+
+    const staticData = (await response.json()) as DcsStaticData;
+    return staticData;
+  } catch (error) {
+    console.error(`Couldn't fetch static_data`, error);
+    return emptyDcsStaticData as DcsStaticData;
+  }
+}
+
 async function authAdminPassword(password: string): Promise<boolean> {
   try {
     const response = await fetch(`/game/auth_admin/${password}`);
@@ -167,6 +188,9 @@ async function openSocket(): Promise<void> {
       socket.onopen = () => resolve();
       socket.onerror = () => reject();
       socket.onmessage = receiveUpdateMessage;
+      socket.onclose = (ev: CloseEvent) => {
+        Object.keys(onCloseListeners).forEach(key => onCloseListeners[key](ev));
+      };
     } catch (error) {
       reject(error);
     }
@@ -234,16 +258,9 @@ function sendUnitLoadoutUpdate(
   fuel: number,
   gun: number
 ): void {
-  const weaponsData = (DcsStaticRawJson as any).default.weapons;
   sendMessage('unit_loadout_update', {
     id: unit.id,
-    pylons: Object.keys(pylons)
-      .map(k => {
-        return { [k]: weaponsData[pylons[k]].weapon_id };
-      })
-      .reduce((a, c) => {
-        return { ...a, ...c };
-      }, {}),
+    pylons: pylons,
     chaff: chaff,
     flare: flare,
     gun: gun,
@@ -313,6 +330,18 @@ function unregisterGenericUpdateListener(id: string): void {
   }
 }
 
+function registerForOnClose(listener: OnCloseListener): string {
+  const id = uuidv4();
+  onCloseListeners[id] = listener;
+  return id;
+}
+
+function unregisterOnCloseListener(id: string): void {
+  if (onCloseListeners[id]) {
+    delete onCloseListeners[id];
+  }
+}
+
 export const gameService: GameService = {
   openSocket,
   sendRouteInsertAt,
@@ -328,6 +357,7 @@ export const gameService: GameService = {
   getMission,
   getSessions,
   getMapToken,
+  getStaticData,
   authAdminPassword,
   registerForMissionUpdates,
   unregisterMissionUpdateListener,
@@ -336,5 +366,7 @@ export const gameService: GameService = {
   registerForSessionIdUpdate,
   unregisterSessionIdUpdateListener,
   registerForGenericUpdates,
-  unregisterGenericUpdateListener
+  unregisterGenericUpdateListener,
+  registerForOnClose,
+  unregisterOnCloseListener
 };

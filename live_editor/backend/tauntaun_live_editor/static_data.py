@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append(f"{os.path.dirname(os.path.realpath(__file__))}/../tauntaun_live_editor/dcs")
+sys.path.append(f"{os.path.dirname(os.path.realpath(__file__))}/dcs")
 
 import inspect
 import json
@@ -15,7 +15,7 @@ sidc_overrides = {
     'Dry-cargo ship-2': 'SFSPXM------'
 }
 
-def map_planes():
+def _map_planes():
     result = {}
     for module_name, module_obj in inspect.getmembers(sys.modules["dcs.planes"]):
         if inspect.isclass(module_obj) and issubclass(module_obj, dcs.unittype.FlyingType):
@@ -41,7 +41,7 @@ def map_planes():
 
     return result
 
-def map_ships():
+def _map_ships():
     result = {}
     for module_name, module_obj in inspect.getmembers(sys.modules["dcs.ships"]):
         if inspect.isclass(module_obj) and issubclass(module_obj, dcs.unittype.ShipType):
@@ -55,7 +55,7 @@ def map_ships():
     return result
 
 
-def map_weapons():
+def _map_weapons():
     def get_weapon_id(value):
         weapon_ids =  dcs.weapons_data.weapon_ids
         weapon_id = (x for x in weapon_ids if weapon_ids[x] == value)
@@ -73,7 +73,7 @@ def map_weapons():
 
     return weapons
 
-def map_vehicles():
+def _map_vehicles():
     result = {}
     for module_name, module_obj in inspect.getmembers(sys.modules["dcs.vehicles"]):
         if inspect.isclass(module_obj) and module_name != "vehicle_map":
@@ -91,7 +91,7 @@ def map_vehicles():
 
     return result
 
-def generate_sidc(mapped_vehicles):
+def _generate_sidc(mapped_vehicles):
     sidc_map = {}
 
     # Ships
@@ -148,12 +148,21 @@ def generate_sidc(mapped_vehicles):
 
     return {**sidc_map, **sidc_overrides}
 
-if __name__ == '__main__':
-    planes = map_planes()
-    weapons = map_weapons()
-    vehicles = map_vehicles()
-    ships = map_ships()
-    sidc = generate_sidc(vehicles)
+_static_json = None
+
+def get_static_json():
+    global _static_json
+    if _static_json is None:
+        _static_json = gen_static_json()
+    return _static_json
+
+def gen_static_json():
+    planes = _map_planes()
+    weapons = _map_weapons()
+    vehicles = _map_vehicles()
+    ships = _map_ships()
+    sidc = _generate_sidc(vehicles)
+    # TODO add PointAction
 
     static_data = {
         'planes': planes,
@@ -163,8 +172,4 @@ if __name__ == '__main__':
         'sidc': sidc
     }
 
-    filename = "dcs_static.json"
-    with open(filename, "w") as f:
-        json.dump(static_data, f)
-
-    print("Static data saved to", filename)
+    return  json.dumps(static_data)

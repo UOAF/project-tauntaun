@@ -1,7 +1,6 @@
 import './LoadoutEditor.css';
 
 import React, { useState } from 'react';
-import * as DcsStaticRawJson from '../../../data/dcs_static.json';
 import { Slider } from '@material-ui/core';
 import { Select } from '@material-ui/core';
 import { MenuItem } from '@material-ui/core';
@@ -9,6 +8,7 @@ import { InputLabel } from '@material-ui/core';
 import {
   AppStateContainer,
   DcsStaticData,
+  DcsStaticDataStateContainer,
   Dictionary,
   findGroupById,
   FlyingUnit,
@@ -28,6 +28,7 @@ export interface LoadoutEditorProps {
 }
 
 export function LoadoutEditor(props: LoadoutEditorProps) {
+  const { dcsStaticData } = DcsStaticDataStateContainer.useContainer();
   const { setShowLoadoutEditor } = AppStateContainer.useContainer();
   const { mission } = MissionStateContainer.useContainer();
 
@@ -35,9 +36,8 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
 
   const { unit } = props;
 
-  const DcsStatic = (DcsStaticRawJson as any).default as DcsStaticData;
-  const unitData = DcsStatic.planes[unit.type];
-  const weaponsData = DcsStatic.weapons;
+  const unitData = dcsStaticData.planes[unit.type];
+  const weaponsData = dcsStaticData.weapons;
   const flyingUnit = unit as FlyingUnit;
 
   const getWeaponByClsid = (clsid: string) => {
@@ -83,7 +83,7 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
         pylonNumber: key,
         options: [
           ...pylonData.map(value => {
-            return { value: value, label: DcsStatic.weapons[value].name };
+            return { value: value, label: dcsStaticData.weapons[value].name };
           }),
           emptyOption
         ]
@@ -133,10 +133,21 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
   // eslint-disable-next-line @typescript-eslint/ban-types
   const onFuelChange = (event: object, value: number | number[]) => setFuel(value as number);
 
+  const convertPylonsForGameService = () => {
+    const weaponsData = dcsStaticData.weapons;
+    return Object.keys(pylons)
+      .map(k => {
+        return { [k]: weaponsData[pylons[k]].weapon_id };
+      })
+      .reduce((a, c) => {
+        return { ...a, ...c };
+      }, {});
+  };
+
   const onSaveClicked = () => {
     console.log('Send new loadout.');
     setShowLoadoutEditor(false);
-    gameService.sendUnitLoadoutUpdate(unit, pylons, chaff, flare, fuel, gun);
+    gameService.sendUnitLoadoutUpdate(unit, convertPylonsForGameService(), chaff, flare, fuel, gun);
   };
 
   const onSaveForGroupClicked = () => {
@@ -144,7 +155,8 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
     setShowLoadoutEditor(false);
 
     const group = getGroupOfUnit(mission, unit.id);
-    group?.units.forEach(u => gameService.sendUnitLoadoutUpdate(u, pylons, chaff, flare, fuel, gun));
+    const convertedPylons = convertPylonsForGameService();
+    group?.units.forEach(u => gameService.sendUnitLoadoutUpdate(u, convertedPylons, chaff, flare, fuel, gun));
   };
 
   const renderPylonSelect = (pylonOption: any) => {

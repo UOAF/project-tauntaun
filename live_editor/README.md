@@ -20,12 +20,7 @@ env\Scripts\activate
 pip install wheel
 pip install -r requirements.txt
 ```
-**Generate dcs_static.json**
-```
-cd live_editor/backend/tauntaun_live_editor/tools
-python gen_client_data.py
-copy dcs_static.json to live_editor/frontend/src/data/dcs_static.json
-```
+
 **Run server**
 ```bash
 cd project_tauntaun/backend

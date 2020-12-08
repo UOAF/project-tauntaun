@@ -1,6 +1,7 @@
 import os
 import os.path
 import itertools
+import argparse
 import pkg_resources # pyinstaller
 
 import sys
@@ -19,11 +20,23 @@ import dcs.mapping as mapping
 
 import tauntaun_live_editor.server as server
 import tauntaun_live_editor.config as config
-from tauntaun_live_editor.util import get_dcs_dir, get_data_path, is_posix
+from tauntaun_live_editor.util import get_dcs_dir, get_data_path, is_posix, Timer
 from tauntaun_live_editor.coord import lat_lon_to_xz
 from tauntaun_live_editor.sessions import SessionManager
 
 _data_dir = get_data_path()
+_build_in_default_mission = os.path.join(_data_dir, 'Missions/default.miz')
+
+def _get_miz_path(name='tauntaun'):
+    if is_posix():
+        dcs_dir = _data_dir
+    else:
+        dcs_dir = get_dcs_dir()
+        if not dcs_dir:
+            print("No DCS dir found. Not saving")
+            return
+
+    return os.path.join(dcs_dir, "Missions", name + ".miz")
 
 def _convert_point(terrain, p):
     lat = float(p['lat'])
@@ -209,6 +222,14 @@ class Campaign():
     def __init__(self):
         self.mission: dcs.Mission = None
         self.game_service = GameService(self)
+        self.autosave_timer = Timer(15, self.create_autosave_callback(), True)
+
+    def create_autosave_callback(self):
+        async def autosave_callback():
+            self.save_mission()
+            print("Autosave: mission saved.")
+
+        return autosave_callback
 
     def get_countries(self, side):
         return self.mission.coalition[side].countries
@@ -226,6 +247,14 @@ class Campaign():
     def get_ship_groups(self, side):
         countries = self.get_countries(side)
         return itertools.chain(*(countries[cname].ship_group for cname in countries))
+
+    def get_helicopter_groups(self, side):
+        countries = self.get_countries(side)
+        return itertools.chain(*(countries[cname].helicopter_group for cname in countries))
+
+    def get_vehicle_groups(self, side):
+        countries = self.get_countries(side)
+        return itertools.chain(*(countries[cname].vehicle_group for cname in countries))
 
     def lookup_unit(self, unit_id):
         # TODO
@@ -248,11 +277,27 @@ class Campaign():
             if group_id == group.id:
                 return group
 
+        for group in self.get_helicopter_groups('blue'):
+            if group_id == group.id:
+                return group
+
+        for group in self.get_vehicle_groups('blue'):
+            if group_id == group.id:
+                return group
+
         for group in self.get_plane_groups('red'):
             if group_id == group.id:
                 return group
 
         for group in self.get_ship_groups('red'):
+            if group_id == group.id:
+                return group
+
+        for group in self.get_helicopter_groups('red'):
+            if group_id == group.id:
+                return group
+
+        for group in self.get_vehicle_groups('red'):
             if group_id == group.id:
                 return group
 
@@ -266,30 +311,33 @@ class Campaign():
             x, z = lat_lon_to_xz(self.mission.terrain.name, lat, lon)
             point.position = mapping.Point(x, z)
 
-    def _get_miz_path(self, name='tauntaun'):
-        if is_posix():
-            dcs_dir = _data_dir
-        else:
-            dcs_dir = get_dcs_dir()
-            if not dcs_dir:
-                print("No DCS dir found. Not saving")
-                return
-
-        return os.path.join(dcs_dir, "Missions", name + ".miz")
-
     def save_mission(self):
-        mizname = self._get_miz_path(config.config.mission_save_filename)
+        mizname = _get_miz_path(config.config.mission_save_filename)
+
         self.mission.save(mizname)
 
         print("Mission saved to", mizname)
 
     def load_mission(self, filename=None):
+        if self.autosave_timer.is_running():
+            self.autosave_timer.cancel()
+
         mizname = filename
         if filename is None:
-            mizname = self._get_miz_path(config.config.mission_load_filename)
+            mizname = _get_miz_path(config.config.mission_load_filename)
+
+        if not os.path.isfile(mizname):
+            print("Unable to load mission file not found ", mizname)
+            return
 
         self.mission.load_file(mizname, True)
         print("Mission loaded from", mizname)
+
+        if _build_in_default_mission != mizname:
+            if config.config.autosave:
+                print("Autosave enabled: starting timer.")
+                self.autosave_timer.start()
+
 
 def save_mission(m, name='pytest'):
     if is_posix:
@@ -310,13 +358,33 @@ def save_mission(m, name='pytest'):
     os.rename('mission', 'mission.lua')
 
 def main():
-    config.load_config()
+    parser = argparse.ArgumentParser(description='Tauntaun live editor server.')
+    parser.add_argument('--config', help="path to config.json", type=str)
+
+    args = parser.parse_args()
+
+    config_path = None
+    if args.config is not None:
+        config_path = args.config
+
+    config.load_config(config_path)
 
     c = Campaign()
     c.mission = dcs.Mission(terrain.Caucasus())
     session_manager = SessionManager()
 
-    c.load_mission(os.path.join(_data_dir, 'Missions/default.miz'))
+    if config.config.default_mission:
+        print("Using default mission set in config")
+        defualt_miz_path = _get_miz_path(config.config.default_mission)
+    else:
+        defualt_miz_path = _build_in_default_mission
+
+    if os.path.isfile(defualt_miz_path):
+        c.load_mission(defualt_miz_path)
+    else:
+        print("Unable to load default mission, using empty mission!")
+        batumi = c.mission.terrain.batumi()
+        batumi.set_blue()
 
     server.run(c, session_manager, 8080)
 

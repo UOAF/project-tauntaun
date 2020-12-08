@@ -1,6 +1,6 @@
 import React, { ReactElement } from 'react';
 
-import { matchCategoryToStaticCategory, Unit, getStaticUnit } from '../../../../models';
+import { matchCategoryToStaticCategory, Unit, getStaticUnit, DcsStaticDataStateContainer } from '../../../../models';
 import { UnitMarker } from '../markers/UnitMarker';
 import { CategoryContext } from '../contexts';
 
@@ -11,9 +11,10 @@ export type DcsUnitProps = {
 
 export function DcsUnit(props: DcsUnitProps): ReactElement {
   const { unit, unitOnClick } = props;
+  const { dcsStaticData } = DcsStaticDataStateContainer.useContainer();
   const groupCategory = React.useContext(CategoryContext);
 
-  const staticUnit = getStaticUnit(groupCategory, unit);
+  const staticUnit = getStaticUnit(dcsStaticData, groupCategory, unit);
 
   const onClick = (unit: Unit) => unitOnClick?.(unit);
 

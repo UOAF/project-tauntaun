@@ -1,4 +1,5 @@
 import { Group, Unit } from '../../../../models/dcs';
+import { DcsStaticData } from '../../../../models/dcs_static';
 import { getStaticUnit } from '../../../../models/dcs_util';
 
 export type UnitWithRange = {
@@ -6,9 +7,14 @@ export type UnitWithRange = {
   unit: Unit;
 };
 
-export function unitsWithPropGreaterThanZero(group: Group, groupCategory: string, prop: string) {
+export function unitsWithPropGreaterThanZero(
+  dcsStaticData: DcsStaticData,
+  group: Group,
+  groupCategory: string,
+  prop: string
+) {
   const getProp = (unit: Unit, prop: string) => {
-    const staticUnit = getStaticUnit(groupCategory, unit);
+    const staticUnit = getStaticUnit(dcsStaticData, groupCategory, unit);
     return staticUnit ? staticUnit[prop] : 0;
   };
 

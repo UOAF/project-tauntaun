@@ -1,7 +1,6 @@
 import wu from 'wu';
 import { filter, find } from 'lodash';
 import { Mission, Group, Coalitions, Dictionary, Skill, SessionData, Unit, DcsStaticData } from '.';
-import * as DcsStaticRawJson from '../data/dcs_static.json';
 
 export function* getGroupArrays(mission: Mission) {
   for (const coalitionKey in mission.coalition) {
@@ -118,14 +117,13 @@ export function findPilotNameForUnit(sessions: Dictionary<SessionData>, id: numb
   return session?.name;
 }
 
-export function getStaticUnit(groupCategory: string, unit: Unit) {
-  const DcsStatic = (DcsStaticRawJson as any).default as DcsStaticData;
+export function getStaticUnit(dcsStaticData: DcsStaticData, groupCategory: string, unit: Unit) {
   switch (groupCategory) {
     case 'vehicle_group': {
-      return filter(DcsStatic.vehicles, vehicle => vehicle.id === unit.type).pop();
+      return filter(dcsStaticData.vehicles, vehicle => vehicle.id === unit.type).pop();
     }
     case 'ship_group': {
-      return DcsStatic.ships[unit.type];
+      return dcsStaticData.ships[unit.type];
     }
     default:
       return undefined;

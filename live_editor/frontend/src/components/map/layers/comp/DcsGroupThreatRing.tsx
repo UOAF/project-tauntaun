@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 
-import { Group } from '../../../../models';
+import { DcsStaticDataStateContainer, Group } from '../../../../models';
 import { CategoryContext } from '../contexts';
 import { unitsWithPropGreaterThanZero } from './common';
 import { DcsUnitThreatRing } from './DcsUnitThreatRing';
@@ -12,10 +12,12 @@ export type DcsGroupThreatRingProps = {
 export function DcsGroupThreatRing(props: DcsGroupThreatRingProps) {
   const { group } = props;
 
+  const { dcsStaticData } = DcsStaticDataStateContainer.useContainer();
+
   const groupCategory = React.useContext(CategoryContext);
 
   const unitsWithAirWeaponDistance = useMemo(
-    () => unitsWithPropGreaterThanZero(group, groupCategory, 'air_weapon_dist'),
+    () => unitsWithPropGreaterThanZero(dcsStaticData, group, groupCategory, 'air_weapon_dist'),
     [group.id]
   );
 
