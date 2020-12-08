@@ -1,5 +1,6 @@
 import json
 from json import JSONEncoder
+import logging
 
 import tauntaun_live_editor.config as config
 
@@ -44,15 +45,15 @@ class SessionManager:
             session = self.sessions[session_id]
             if session_id != id:
                 if name == session.name:
-                    print("Session update rejected: name occupied")
+                    logging.warning("Session update rejected: name occupied")
                     return
 
                 if selected_unit_id != -1 and selected_unit_id == session.selected_unit_id:
-                    print("Session update rejected: unit is occupied")
+                    logging.warning("Session update rejected: unit is occupied")
                     return
 
         self.sessions[id].name = name
         self.sessions[id].selected_unit_id = selected_unit_id
         self.sessions[id].coalition = sessionData['coalition']
 
-        print("Session updated")
+        logging.info("Session updated")

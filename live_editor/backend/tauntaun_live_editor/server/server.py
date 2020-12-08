@@ -75,17 +75,17 @@ def create_app(campaign, session_manager):
             async def wrapper(*args, **kwargs):
                 id = wrapper.id_counter
                 ws_clients[id] = websocket._get_current_object()
-                print(f"adding ws client {id:3d}")
+                logging.debug(f"adding ws client {id:3d}")
                 on_connect(id)
                 wrapper.id_counter += 1
 
                 try:
                     return await func(*args, **kwargs)
                 except asyncio.CancelledError as error:
-                    print(f"ws client disconnected {id:03d}")
+                    logging.debug(f"ws client disconnected {id:03d}")
                     raise error
                 finally:
-                    print(f"removing ws client {id:03d}")
+                    logging.debug(f"removing ws client {id:03d}")
                     del ws_clients[id]
                     await on_disconnect(id)
 
@@ -98,7 +98,7 @@ def create_app(campaign, session_manager):
         async def _broadcast():
             async def broadcast_id(ws_id, message):
                 if ws_id not in ws_clients.keys():
-                    print("Client was removed, continue.")
+                    logging.debug("Client was removed, continue.")
                     return
 
                 ws = ws_clients[ws_id]
@@ -106,7 +106,7 @@ def create_app(campaign, session_manager):
                 try:
                     await ws.send(message)
                 except ConnectionAbortedError:
-                    print("Client disconnected during iteration, ignoring ConnectionAbortedError error!")
+                    logging.warning("Client disconnected during iteration, ignoring ConnectionAbortedError error!")
 
             message_zlib = zlib_message(message)
 
@@ -125,7 +125,7 @@ def create_app(campaign, session_manager):
         await broadcast_session_update()
 
     async def process_message_request(ws, ws_id, data):
-        print(f"$Client_id: {ws_id}, Data: ${data}")
+        logging.info(f"$Client_id: {ws_id}, Data: ${data}")
         data = json.loads(data)
         update_type = data['key']
         game_service = campaign.game_service
@@ -253,7 +253,7 @@ def create_app(campaign, session_manager):
             ws = websocket._get_current_object()
             ws_id = next(key for key, value in ws_clients.items() if value == ws)
             if ws_id == -1:
-                print("Invalid client request")
+                logging.warning("Invalid client request")
                 return
 
             data = await websocket.receive()

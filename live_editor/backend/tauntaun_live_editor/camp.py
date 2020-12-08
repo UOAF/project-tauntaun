@@ -2,6 +2,7 @@ import os
 import os.path
 import itertools
 import argparse
+import logging
 import pkg_resources # pyinstaller
 
 import sys
@@ -33,7 +34,7 @@ def _get_miz_path(name='tauntaun'):
     else:
         dcs_dir = get_dcs_dir()
         if not dcs_dir:
-            print("No DCS dir found. Not saving")
+            logging.info("No DCS dir found. Not saving")
             return
 
     return os.path.join(dcs_dir, "Missions", name + ".miz")
@@ -50,7 +51,7 @@ class GameService:
         self.group_route_request_handler = GameService.GroupRouteRequestHandler(campaign)
 
     def add_flight(self, coalition, countryName, location, airport, plane, number_of_planes):
-        print("add_flight", location, airport, plane, number_of_planes)
+        logging.debug(f"add_flight {location} {airport} {plane} {number_of_planes}")
 
         # TODO validate values
 
@@ -59,14 +60,14 @@ class GameService:
 
         airport = self.campaign.mission.terrain.airport_by_id(airport)
         if not airport:
-            print("add_flight airport not found")
+            logging.warning("add_flight airport not found")
             return
 
         planeFinder = (p for p in country.planes if p.id == plane)
         try:
             plane = next(iter(planeFinder))
         except StopIteration:
-            print("add_flight plane not found")
+            logging.warning("add_flight plane not found")
             return
 
         try:
@@ -76,16 +77,16 @@ class GameService:
                                                                          airport=airport,
                                                                          group_size=number_of_planes)
         except NoParkingSlotError as e:
-            print(f"add_flight failed error: {e}")
+            logging.warning(f"add_flight failed error: {e}")
             return
 
         new_flight.add_waypoint(location, altitude=5000)
         new_flight.set_skill(Skill.Client)
 
-        print("add_flight", "success")
+        logging.info("add_flight success")
 
     def update_unit_loadout(self, unit_id, pylons, chaff, flare, gun, fuel):
-        print("update_unit_loadout", unit_id, pylons, chaff, flare, gun, fuel)
+        logging.info(f"update_unit_loadout {unit_id} {pylons} {chaff} {flare} {gun} {fuel}")
 
         # TODO Add proper validation as this function will "hard overwrite"
         # unit attributes and can corrupt the mission file
@@ -110,18 +111,18 @@ class GameService:
         # TODO validate fuel
         unit.fuel = fuel
 
-        print("update_unit_loadout", "success")
+        logging.info("update_unit_loadout success")
 
         return unit
 
     def set_bullseye(self, coalition, bullseye):
         coalitions = self.campaign.mission.coalition
         if coalition not in coalitions:
-            print(f"set_bullseye failed, invalid coalition {coalition}")
+            logging.warning(f"set_bullseye failed, invalid coalition {coalition}")
 
         converted_point = _convert_point(self.campaign.mission.terrain, bullseye)
         coalitions[coalition].bullseye = {'x': converted_point.x, 'y': converted_point.y}
-        print(f"Bullseye set {bullseye} for {coalition}")
+        logging.info(f"Bullseye set {bullseye} for {coalition}")
 
         return coalitions[coalition].bullseye
 
@@ -144,10 +145,10 @@ class GameService:
             wp_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_wp)]
 
             if wp_index:
-                print("Removing waypoint", wp_index)
+                logging.info(f"Removing waypoint {wp_index}")
                 group.points.pop(wp_index[0])
             else:
-                print("Failed to remove waypoint")
+                logging.warning("Failed to remove waypoint")
 
             return group
 
@@ -161,7 +162,7 @@ class GameService:
 
             if at_index:
                 converted_new_wp = _convert_point(self.campaign.mission.terrain, new_wp)
-                print("New waypoint added at position", at_index)
+                logging.info(f"New waypoint added at position {at_index}")
                 at_index = at_index[0]
                 if issubclass(group.__class__, dcs.unitgroup.FlyingGroup):
                     prev_waypoints_altitude = group.points[at_index - 1].alt
@@ -171,7 +172,7 @@ class GameService:
                 group.points.pop()
                 group.points.insert(at_index, wp)
             else:
-                print("Failed to add new waypoint")
+                logging.warning("Failed to add new waypoint")
 
             return group
 
@@ -201,7 +202,7 @@ class GameService:
             old_wp_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_old_wp)]
 
             if old_wp_index:
-                print("Waypoint", old_wp_index, "modified")
+                logging.info(f"Waypoint {old_wp_index} modified")
                 wp = group.points[old_wp_index[0]]
                 wp.alt = new_wp['alt']
                 wp.type = new_wp['type']
@@ -214,7 +215,7 @@ class GameService:
                 if isinstance(wp, MovingPoint):
                     wp.alt_type = new_wp['alt_type']
             else:
-                print("Failed to modify waypoint")
+                logging.warning("Failed to modify waypoint")
 
             return group
 
@@ -227,7 +228,7 @@ class Campaign():
     def create_autosave_callback(self):
         async def autosave_callback():
             self.save_mission()
-            print("Autosave: mission saved.")
+            logging.debug("Autosave: mission saved.")
 
         return autosave_callback
 
@@ -316,7 +317,7 @@ class Campaign():
 
         self.mission.save(mizname)
 
-        print("Mission saved to", mizname)
+        logging.info(f"Mission saved to {mizname}")
 
     def load_mission(self, filename=None):
         if self.autosave_timer.is_running():
@@ -327,15 +328,15 @@ class Campaign():
             mizname = _get_miz_path(config.config.mission_load_filename)
 
         if not os.path.isfile(mizname):
-            print("Unable to load mission file not found ", mizname)
+            logging.warning(f"Unable to load mission file not found {mizname}")
             return
 
         self.mission.load_file(mizname, True)
-        print("Mission loaded from", mizname)
+        logging.info(f"Mission loaded from {mizname}")
 
         if _build_in_default_mission != mizname:
             if config.config.autosave:
-                print("Autosave enabled: starting timer.")
+                logging.debug("Autosave enabled: starting timer.")
                 self.autosave_timer.start()
 
 
@@ -345,7 +346,7 @@ def save_mission(m, name='pytest'):
     else:
         dcs_dir = get_dcs_dir()
         if not dcs_dir:
-            print("No DCS dir found. Not saving")
+            logging.warning("No DCS dir found. Not saving")
             return
 
     mizname = os.path.join(dcs_dir, "Missions",  name + ".miz")
@@ -357,36 +358,58 @@ def save_mission(m, name='pytest'):
         os.remove('mission.lua')
     os.rename('mission', 'mission.lua')
 
+def _setup_logging(log_path = None):
+    rootLogger = logging.getLogger()
+    logFormatter = logging.Formatter("%(asctime)s.%(msecs)03d [%(levelname)-5.5s]  %(message)s",
+                                     "%Y-%m-%d %H:%M:%S")
+
+    consoleHandler = rootLogger.handlers[0]
+    consoleHandler.setFormatter(logFormatter)
+
+    log_path = log_path if log_path else "tauntaun.log"
+    fileHandler = logging.FileHandler(log_path)
+    fileHandler.setFormatter(logFormatter)
+    rootLogger.addHandler(fileHandler)
+
 def main():
     parser = argparse.ArgumentParser(description='Tauntaun live editor server.')
     parser.add_argument('--config', help="path to config.json", type=str)
+    parser.add_argument('--log', help="path to tauntaun.log", type=str)
 
     args = parser.parse_args()
 
-    config_path = None
-    if args.config is not None:
-        config_path = args.config
+    _setup_logging(args.log)
+    logging.info("--------------------------------------------------")
+    logging.info("Tauntaun started.")
 
-    config.load_config(config_path)
+    try:
+        config.load_config(args.config)
 
-    c = Campaign()
-    c.mission = dcs.Mission(terrain.Caucasus())
-    session_manager = SessionManager()
+        c = Campaign()
+        c.mission = dcs.Mission(terrain.Caucasus())
+        session_manager = SessionManager()
 
-    if config.config.default_mission:
-        print("Using default mission set in config")
-        defualt_miz_path = _get_miz_path(config.config.default_mission)
-    else:
-        defualt_miz_path = _build_in_default_mission
+        if config.config.default_mission:
+            logging.info("Using default mission set in config")
+            defualt_miz_path = _get_miz_path(config.config.default_mission)
+        else:
+            defualt_miz_path = _build_in_default_mission
 
-    if os.path.isfile(defualt_miz_path):
-        c.load_mission(defualt_miz_path)
-    else:
-        print("Unable to load default mission, using empty mission!")
-        batumi = c.mission.terrain.batumi()
-        batumi.set_blue()
+        if os.path.isfile(defualt_miz_path):
+            c.load_mission(defualt_miz_path)
+        else:
+            logging.warning("Unable to load default mission, using empty mission!")
+            batumi = c.mission.terrain.batumi()
+            batumi.set_blue()
 
-    server.run(c, session_manager, 8080)
+        server.run(c, session_manager, 8080)
+
+    except Exception as e:
+        logging.error(str(e))
+
+    logging.info("Tauntaun stopped gracefully.")
+    logging.info("--------------------------------------------------")
+
 
 if __name__ == '__main__':
     main()
