@@ -83,6 +83,7 @@ export type Group = {
   points: Array<MovingPoint | StaticPoint>;
   task: string;
   hidden: string; // boolean as string
+  dead: string; // boolean as string
 };
 
 export type Country = {

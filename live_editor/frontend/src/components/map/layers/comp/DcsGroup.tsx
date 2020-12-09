@@ -7,7 +7,7 @@ import { ColorPaletteContext, LegendContext } from '../../contexts';
 import { isLeadOfFlight } from '../../../common';
 import { ModeContext } from '../../../contexts';
 import { GroupRoute } from '../lines/GroupRoute';
-import { DcsUnit } from './DcsUnit';
+import { DcsUnitFilter } from './DcsUnitFilter';
 import { DcsUnitThreatRing } from './DcsUnitThreatRing';
 import { DcsUnitRadarRing } from './DcsUnitRadarRing';
 import { DcsGroupThreatRing } from './DcsGroupThreatRing';
@@ -88,14 +88,14 @@ export function DcsGroup(props: DcsGroupProps): ReactElement {
       {showUnits ? (
         group.units.map((unit, index) => (
           <React.Fragment key={`dcs_unit_${unit.id}_${index}`}>
-            <DcsUnit unit={unit} unitOnClick={onClick} />
+            <DcsUnitFilter unit={unit} unitOnClick={onClick} />
             {showThreatRings && <DcsUnitThreatRing unit={unit} />}
             {showRadarRings && <DcsUnitRadarRing unit={unit} />}
           </React.Fragment>
         ))
       ) : (
         <React.Fragment>
-          <DcsUnit unit={group.units[0]} unitOnClick={onClick} />
+          <DcsUnitFilter unit={group.units[0]} unitOnClick={onClick} />
           {showThreatRings && <DcsGroupThreatRing group={group} />}
           {showRadarRings && <DcsGroupRadarRing group={group} />}
         </React.Fragment>

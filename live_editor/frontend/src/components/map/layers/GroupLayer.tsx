@@ -17,13 +17,16 @@ export function GroupLayer(props: GroupLayerProps) {
   const { groups } = props;
 
   const isSameCoalition = groupCoalition === sessionCoalition;
+
   const visibleGroups = groups.filter(
     g => isSameCoalition || (g.hidden === 'false' && !hideAllHostileUnits) || showAllGroups
   );
 
+  const groupsAlive = visibleGroups.filter(g => g.dead === 'false');
+
   return (
     <React.Fragment>
-      {visibleGroups.map(group => (
+      {groupsAlive.map(group => (
         <DcsGroup key={`dcs_group${group.id}`} group={group} groupOnClick={groupOnClick} />
       ))}
     </React.Fragment>

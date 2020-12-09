@@ -60,7 +60,8 @@ class MissionEncoder(json.JSONEncoder):
             'name': self.default(obj.name),
             'units': self.default(obj.units),
             'points': self.default(obj.points),
-            'hidden': self.default(obj.hidden) if obj.hidden is not None else 'false'
+            'hidden': self.default(obj.hidden) if obj.hidden is not None else 'false',
+            'dead': self.default(obj.dead) if hasattr(obj, 'dead') else 'false'
         }
 
         if hasattr(obj, 'task'):

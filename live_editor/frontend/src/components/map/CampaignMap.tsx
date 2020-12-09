@@ -46,7 +46,14 @@ export function CampaignMap(props: CampaignMapProps) {
   return (
     <div data-testid="campaign-map">
       <LegendContext.Provider value={{ legends: [] }}>
-        <MapContainer center={center} zoom={props.zoom} preferCanvas={true} doubleClickZoom={false} inertia={false}>
+        <MapContainer
+          center={center}
+          zoom={props.zoom}
+          preferCanvas={true}
+          doubleClickZoom={false}
+          inertia={false}
+          zoomControl={false}
+        >
           <CampaignMapEventHandler
             eventHandlers={{
               contextmenu: onContextMenuClick
