@@ -56,3 +56,22 @@ export function convertLeafletMapToKml(map: any) {
 
   return tokml(collection);
 }
+
+// Copied from https://github.com/gokertanrisever/leaflet-ruler
+export function calculateBearing(from: LatLng, to: LatLng) {
+  const f1 = from.lat;
+  const l1 = from.lng;
+  const f2 = to.lat;
+  const l2 = to.lng;
+  const toRadian = Math.PI / 180.0;
+
+  // haversine formula
+  const y = Math.sin((l2 - l1) * toRadian) * Math.cos(f2 * toRadian);
+  const x =
+    Math.cos(f1 * toRadian) * Math.sin(f2 * toRadian) -
+    Math.sin(f1 * toRadian) * Math.cos(f2 * toRadian) * Math.cos((l2 - l1) * toRadian);
+  let bearing = Math.atan2(y, x) * (180.0 / Math.PI);
+  bearing += bearing < 0 ? 360.0 : 0.0;
+
+  return bearing;
+}

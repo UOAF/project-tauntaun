@@ -33,7 +33,7 @@ export function Ruler() {
         drawMidmarkers={false}
         onPositionModified={handlePositionModified}
       />
-      <DistanceMarkers positions={positions} />
+      <DistanceMarkers positions={positions} showBearing={true} />
     </React.Fragment>
   );
 }
