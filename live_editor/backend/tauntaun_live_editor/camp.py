@@ -178,8 +178,8 @@ class GameService:
 
         def _get_next_wp_key(self):
             wpt_key = "DictKey_WptName_"
-            new_wpt_key = "DictKey_WptName_0"  # TODO
             mission_translation = self.campaign.mission.translation
+            next_wp_number = 0
             lang = "DEFAULT"
             if lang in mission_translation.strings:
                 lang_translations = mission_translation.strings[lang]
@@ -189,7 +189,11 @@ class GameService:
                     wptkey_numbers.sort()
                     last_wp_number = wptkey_numbers[-1]
                     next_wp_number = last_wp_number + 1
-                    new_wpt_key = '{}{}'.format(wpt_key, next_wp_number)
+
+            if next_wp_number == 0:
+                logging.debug("_get_next_wp_key: No DictKey_WptName key found, using wpt_key 0!")
+
+            new_wpt_key = '{}{}'.format(wpt_key, next_wp_number)
 
             return new_wpt_key
 
@@ -202,18 +206,28 @@ class GameService:
             old_wp_index = [u_index for u_index, u in enumerate(group.points) if self._is_same_point(u.position, converted_old_wp)]
 
             if old_wp_index:
-                logging.info(f"Waypoint {old_wp_index} modified")
                 wp = group.points[old_wp_index[0]]
                 wp.alt = new_wp['alt']
                 wp.type = new_wp['type']
-                if wp.name is None or wp.name.translation is None or not isinstance(wp.name, String):
+
+                wpt_key = "DictKey_WptName_"
+                # incorrect_wp_name: Workaround for DCS Liberation as it will give the same key
+                # for all ingress WPs e.g. "INGERSS" instead of "DictKey_WptName_XYZ"
+                incorrect_wp_name = wp.name is not None and not wp.name.id.startswith(wpt_key)
+                if wp.name is None or wp.name.translation is None or not isinstance(wp.name, String) \
+                        or incorrect_wp_name:
+                    logging.debug("Creating new WP name String.")
                     wp.name = String(self._get_next_wp_key(), self.campaign.mission.translation)
+
                 wp.name.set(new_wp['name'])
+
                 wp.position = _convert_point(self.campaign.mission.terrain, new_wp['position'])
                 wp.speed = new_wp['speed']
                 wp.action = PointAction[new_wp['action']]
                 if isinstance(wp, MovingPoint):
                     wp.alt_type = new_wp['alt_type']
+
+                logging.info(f"Waypoint {old_wp_index} modified")
             else:
                 logging.warning("Failed to modify waypoint")
 
