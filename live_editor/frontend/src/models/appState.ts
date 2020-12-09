@@ -22,7 +22,7 @@ const defaultState: AppState = {
   showAddFlightForm: false,
   location: new LatLng(0, 0),
   showLoadoutEditor: false,
-  showRoleSelectionForm: false,
+  showRoleSelectionForm: true,
   showRoleOverview: false
 };
 
