@@ -21,8 +21,8 @@ export interface GameService {
   sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void;
   sendRouteRemove(group: Group, wp: Point): void;
   sendRouteModify(group: Group, oldWp: Point, newWp: StaticPoint | MovingPoint): void;
-  sendSaveMission(): void;
-  sendLoadMission(): void;
+  sendSaveMission(missionName?: string): void;
+  sendLoadMission(missionName: string): void;
   sendAddFlight(
     coalition: string,
     country: string,
@@ -48,6 +48,7 @@ export interface GameService {
   getMapToken(): Promise<string>;
   getStaticData(): Promise<DcsStaticData>;
   authAdminPassword(password: string): Promise<boolean>;
+  getMissionDir(): Promise<Array<string>>;
 
   registerForMissionUpdates(listener: MissionUpdateListener): string;
   unregisterMissionUpdateListener(id: string): void;
@@ -95,6 +96,21 @@ async function getMission(): Promise<Mission> {
   } catch (error) {
     console.error(`Couldn't fetch mission`, error);
     return emptyMission;
+  }
+}
+
+async function getMissionDir(): Promise<Array<string>> {
+  try {
+    const response = await fetch('/game/mission_dir');
+    if (!response.ok) {
+      throw new Error('Response is not OK');
+    }
+
+    const mission_dir = (await response.json()) as Array<string>;
+    return mission_dir;
+  } catch (error) {
+    console.error(`Couldn't fetch mission_dir`, error);
+    return [];
   }
 }
 
@@ -220,8 +236,8 @@ function sendRouteModify(group: Group, oldWp: Point, newWp: StaticPoint | Moving
   });
 }
 
-function sendSaveMission(): void {
-  sendMessage('save_mission', '');
+function sendSaveMission(missionName?: string): void {
+  sendMessage('save_mission', missionName ? missionName : '');
 }
 
 function sendAddFlight(
@@ -246,8 +262,8 @@ function requestSessionId(): void {
   sendMessage('request_session_id', {});
 }
 
-function sendLoadMission(): void {
-  sendMessage('load_mission', '');
+function sendLoadMission(missionName: string): void {
+  sendMessage('load_mission', missionName);
 }
 
 function sendUnitLoadoutUpdate(
@@ -355,6 +371,7 @@ export const gameService: GameService = {
   sendAddFlight,
   requestSessionId,
   getMission,
+  getMissionDir,
   getSessions,
   getMapToken,
   getStaticData,

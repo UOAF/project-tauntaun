@@ -1,5 +1,6 @@
 import os
 import asyncio
+import logging
 
 class Timer:
     def __init__(self, timeout, callback, periodic = False):
@@ -85,3 +86,14 @@ def get_data_path():
 
 def is_posix():
     return os.name == 'posix'
+
+def get_miz_path():
+    if is_posix():
+        dcs_dir = get_data_path()
+    else:
+        dcs_dir = get_dcs_dir()
+        if not dcs_dir:
+            logging.info("No DCS dir found. Not saving")
+            return
+
+    return os.path.join(dcs_dir, "Missions")

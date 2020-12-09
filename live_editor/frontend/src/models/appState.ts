@@ -14,6 +14,10 @@ export interface AppState {
   showRoleSelectionForm: boolean;
 
   showRoleOverview: boolean;
+
+  showLoadMissionForm: boolean;
+
+  showSaveAsMissionForm: boolean;
 }
 
 const defaultState: AppState = {
@@ -23,7 +27,9 @@ const defaultState: AppState = {
   location: new LatLng(0, 0),
   showLoadoutEditor: false,
   showRoleSelectionForm: true,
-  showRoleOverview: false
+  showRoleOverview: false,
+  showLoadMissionForm: false,
+  showSaveAsMissionForm: false
 };
 
 function useAppState(initialState = defaultState) {
@@ -85,6 +91,20 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
+  const setShowLoadMissionForm = (showLoadMissionForm: boolean) => {
+    setState(state => ({
+      ...state,
+      showLoadMissionForm: showLoadMissionForm
+    }));
+  };
+
+  const setShowSaveAsMissionForm = (showSaveAsMissionForm: boolean) => {
+    setState(state => ({
+      ...state,
+      showSaveAsMissionForm: showSaveAsMissionForm
+    }));
+  };
+
   return {
     ...state,
     setAdminMode,
@@ -94,7 +114,9 @@ function useAppState(initialState = defaultState) {
     setShowRoleSelectionForm,
     setShowRoleOverview,
     setMapToken,
-    setCommanderMode
+    setCommanderMode,
+    setShowLoadMissionForm,
+    setShowSaveAsMissionForm
   };
 }
 

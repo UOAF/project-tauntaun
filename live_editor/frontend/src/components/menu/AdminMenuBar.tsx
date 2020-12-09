@@ -4,7 +4,12 @@ import { AppStateContainer, MapStateContainer } from '../../models';
 import { Checkbox, FormControlLabel } from '@material-ui/core';
 
 export function AdminMenuBar() {
-  const { commanderMode, setCommanderMode } = AppStateContainer.useContainer();
+  const {
+    commanderMode,
+    setCommanderMode,
+    setShowLoadMissionForm,
+    setShowSaveAsMissionForm
+  } = AppStateContainer.useContainer();
   const { showAllGroups, setShowAllGroups } = MapStateContainer.useContainer();
 
   const saveOnClick = () => {
@@ -13,8 +18,7 @@ export function AdminMenuBar() {
   };
 
   const loadOnClick = () => {
-    console.log('Loading mission.');
-    gameService.sendLoadMission();
+    setShowLoadMissionForm(true);
   };
 
   const onShowAllGroupsChange = (event: any) => setShowAllGroups(event.target.checked);
@@ -22,8 +26,9 @@ export function AdminMenuBar() {
 
   return (
     <React.Fragment>
-      <button onClick={loadOnClick}>Load mission</button>
-      <button onClick={saveOnClick}>Save mission</button>
+      <button onClick={loadOnClick}>Load</button>
+      <button onClick={saveOnClick}>Save</button>
+      <button onClick={() => setShowSaveAsMissionForm(true)}>Save as</button>
       <FormControlLabel
         value="start"
         control={<Checkbox checked={showAllGroups} color="primary" onChange={onShowAllGroupsChange} />}

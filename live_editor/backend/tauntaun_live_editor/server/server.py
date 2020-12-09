@@ -13,7 +13,7 @@ from hypercorn.config import Config
 from hypercorn.asyncio import serve
 
 from tauntaun_live_editor.sessions import SessionsEncoder
-from tauntaun_live_editor.util import get_data_path, is_posix
+from tauntaun_live_editor.util import get_data_path, is_posix, get_miz_path
 import tauntaun_live_editor.config as config
 from tauntaun_live_editor.static_data import get_static_json
 from tauntaun_live_editor.server.mission_encoder import MissionEncoder
@@ -66,8 +66,20 @@ def create_app(campaign, session_manager):
         return 'true' if config.config.admin_password == password else 'false'
 
     @app.route('/game/static_data')
-    async def render_static_datan():
+    async def render_static_data():
         return get_static_json()
+
+    @app.route('/game/mission_dir')
+    async def render_mission_dir():
+        files = []
+        for (dirpath, dirnames, filenames) in os.walk(get_miz_path()):
+            files.extend(filenames)
+            break
+
+        miz_files = list(filter(lambda x: x.endswith(".miz"), files))
+
+        return json.dumps(miz_files)
+
 
     def collect_websocket(on_connect, on_disconnect):
         def wrapper_0(func):
@@ -196,10 +208,13 @@ def create_app(campaign, session_manager):
             await broadcast_mission_update()
 
         async def save_mission(data):
-            campaign.save_mission()
+            if data:
+                data = os.path.join(get_miz_path(), data)
+            campaign.save_mission(data)
 
         async def load_mission(data):
-            campaign.load_mission()
+            mission_path = os.path.join(get_miz_path(), data)
+            campaign.load_mission(mission_path)
 
             await broadcast_mission_update()
 

@@ -21,23 +21,12 @@ import dcs.mapping as mapping
 
 import tauntaun_live_editor.server as server
 import tauntaun_live_editor.config as config
-from tauntaun_live_editor.util import get_dcs_dir, get_data_path, is_posix, Timer
+from tauntaun_live_editor.util import get_dcs_dir, get_data_path, is_posix, Timer, get_miz_path
 from tauntaun_live_editor.coord import lat_lon_to_xz
 from tauntaun_live_editor.sessions import SessionManager
 
 _data_dir = get_data_path()
 _build_in_default_mission = os.path.join(_data_dir, 'Missions/default.miz')
-
-def _get_miz_path(name='tauntaun'):
-    if is_posix():
-        dcs_dir = _data_dir
-    else:
-        dcs_dir = get_dcs_dir()
-        if not dcs_dir:
-            logging.info("No DCS dir found. Not saving")
-            return
-
-    return os.path.join(dcs_dir, "Missions", name + ".miz")
 
 def _convert_point(terrain, p):
     lat = float(p['lat'])
@@ -238,6 +227,7 @@ class Campaign():
         self.mission: dcs.Mission = None
         self.game_service = GameService(self)
         self.autosave_timer = Timer(15, self.create_autosave_callback(), True)
+        self.loaded_mission_path = None
 
     def create_autosave_callback(self):
         async def autosave_callback():
@@ -326,51 +316,42 @@ class Campaign():
             x, z = lat_lon_to_xz(self.mission.terrain.name, lat, lon)
             point.position = mapping.Point(x, z)
 
-    def save_mission(self):
-        mizname = _get_miz_path(config.config.mission_save_filename)
-
-        self.mission.save(mizname)
-
-        logging.info(f"Mission saved to {mizname}")
-
-    def load_mission(self, filename=None):
+    def load_mission(self, filename):
         if self.autosave_timer.is_running():
             self.autosave_timer.cancel()
 
-        mizname = filename
-        if filename is None:
-            mizname = _get_miz_path(config.config.mission_load_filename)
-
-        if not os.path.isfile(mizname):
-            logging.warning(f"Unable to load mission file not found {mizname}")
+        if not os.path.isfile(filename):
+            logging.warning(f"Unable to load mission file not found {filename}")
             return
 
-        self.mission.load_file(mizname, True)
-        logging.info(f"Mission loaded from {mizname}")
+        self.mission.load_file(filename, True)
+        self.loaded_mission_path = filename
+        logging.info(f"Mission loaded from {filename}")
 
-        if _build_in_default_mission != mizname:
+        if _build_in_default_mission != filename:
             if config.config.autosave:
                 logging.debug("Autosave enabled: starting timer.")
                 self.autosave_timer.start()
 
 
-def save_mission(m, name='pytest'):
-    if is_posix:
-        dcs_dir = _data_dir
-    else:
-        dcs_dir = get_dcs_dir()
-        if not dcs_dir:
-            logging.warning("No DCS dir found. Not saving")
-            return
+    def save_mission(self, filename=None):
+        if _build_in_default_mission == filename:
+            if self.autosave_timer.is_running():
+                self.autosave_timer.cancel()
 
-    mizname = os.path.join(dcs_dir, "Missions",  name + ".miz")
-    m.save(mizname)
-    from zipfile import ZipFile
-    with ZipFile(mizname) as miz:
-        miz.extract('mission')
-    if os.path.exists('mission.lua'):
-        os.remove('mission.lua')
-    os.rename('mission', 'mission.lua')
+        if not filename:
+            if self.loaded_mission_path is not None:
+                filename = self.loaded_mission_path
+            else:
+                logging.error("No filename given, unable to save mission.")
+                return
+
+        self.mission.save(filename)
+
+        if filename != self.loaded_mission_path:
+            self.loaded_mission_path = filename
+
+        logging.info(f"Mission saved to {filename}")
 
 def _setup_logging(log_path = None):
     rootLogger = logging.getLogger()
@@ -405,7 +386,7 @@ def main():
 
         if config.config.default_mission:
             logging.info("Using default mission set in config")
-            defualt_miz_path = _get_miz_path(config.config.default_mission)
+            defualt_miz_path = os.path.join(get_miz_path(), config.config.default_mission + ".miz")
         else:
             defualt_miz_path = _build_in_default_mission
 

@@ -20,6 +20,8 @@ import { CampaignMap } from './map';
 import { RoleOverview } from './window/RoleOverview';
 import { MissionTime } from './ui/MissionTime';
 import { HelpBar } from './menu/HelpBar';
+import { LoadMissionForm } from './window/forms/LoadMissionForm';
+import { SaveAsMissionForm } from './window/forms/SaveAsMissionForm';
 
 enum InitialzationState {
   UNINITIALIZED,
@@ -33,7 +35,9 @@ export function App() {
     showRoleSelectionForm: showRoleSelectionFormConfig,
     commanderMode,
     showLoadoutEditor,
-    showRoleOverview
+    showRoleOverview,
+    showLoadMissionForm,
+    showSaveAsMissionForm
   } = AppStateContainer.useContainer();
 
   const { mission, initialize: initializeMission } = MissionStateContainer.useContainer();
@@ -127,6 +131,8 @@ export function App() {
                 <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
               )}
               {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
+              {showLoadMissionForm && <LoadMissionForm />}
+              {showSaveAsMissionForm && <SaveAsMissionForm />}
               <MenuBar />
               <CampaignMap lat={terrain.map_view_default.lat} lng={terrain.map_view_default.lon} zoom={9} />
             </ModeContext.Provider>
