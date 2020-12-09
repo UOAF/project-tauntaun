@@ -32,7 +32,7 @@ export function LoadMissionForm() {
 
   return (
     <div className="PopupBig">
-      <List dense={true}>
+      <List dense={true} style={{ height: '80vh', overflow: 'auto' }}>
         {missionDir.map((dir, index) => (
           <ListItem key={`dir-${index}`} button={true} onClick={() => onClick(index)}>
             <ListItemText primary={dir} />
