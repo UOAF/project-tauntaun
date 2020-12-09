@@ -19,6 +19,7 @@ import { MenuBar } from './menu';
 import { CampaignMap } from './map';
 import { RoleOverview } from './window/RoleOverview';
 import { MissionTime } from './ui/MissionTime';
+import { HelpBar } from './menu/HelpBar';
 
 enum InitialzationState {
   UNINITIALIZED,
@@ -116,6 +117,7 @@ export function App() {
       <React.Fragment>
         {mapToken ? (
           <React.Fragment>
+            <HelpBar />
             <ModeContext.Provider value={modeContext}>
               <MissionTime />
               {showRoleOverview && <RoleOverview />}
