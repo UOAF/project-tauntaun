@@ -1,4 +1,0 @@
-recursive-exclude test *.*
-recursive-exclude tools *.*
-recursive-include tauntaun_live_editor/data *.*
-recursive-include tauntaun_live_editor/dcs *.*

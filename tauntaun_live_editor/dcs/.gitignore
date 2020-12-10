@@ -1,0 +1,8 @@
+__pycache__
+/missions/
+.idea
+build/
+dist/
+pydcs.egg-info/
+doc/_*
+venv/

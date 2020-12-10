@@ -1,0 +1,18 @@
+.Menubar {
+  top: 1%;
+  position: fixed;
+  margin-left: 10px;  
+  text-align: left;
+  background: rgba(255, 255, 255, 0.3);
+  z-index: 20;
+}
+
+.MapTypeSelect {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.AdminButton {
+  background-color: transparent;
+  color: red;
+}
