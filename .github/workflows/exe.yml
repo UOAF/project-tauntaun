@@ -53,7 +53,7 @@ jobs:
           yarn
           $env:CI="false"
           yarn build
-          Copy-Item .\build ..\tauntaun_live_editor\data\client
+          Copy-Item -r .\build ..\tauntaun_live_editor\data\client
           
       - name: Build binaries
         run: |
@@ -61,12 +61,12 @@ jobs:
           $env:PYTHONPATH=".;./tauntaun_live_editor/dcs"
           pyinstaller.exe tauntaun_live_editor.spec
           
-      - name: Compress
-        run: |          
-          cd ./dist
-          Compress-Archive -Path .\tauntaun_live_editor -DestinationPath "tauntaun_live_editor.zip" -Compression Optimal          
+#      - name: Compress
+#        run: |          
+#          cd ./dist
+#          Compress-Archive -Path .\tauntaun_live_editor -DestinationPath "tauntaun_live_editor.zip" -Compression Optimal          
 
       - uses: actions/upload-artifact@v2
         with:
           name: tauntaun_live_editor
-          path: dist/tauntaun_live_editor.zip
+          path: dist/tauntaun_live_editor
