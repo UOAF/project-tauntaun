@@ -1,6 +1,6 @@
 import './CampaignMap.css';
 
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { MapContainer, TileLayer, MapConsumer } from 'react-leaflet';
 
 import { MapStateContainer, MissionStateContainer, SessionStateContainer } from '../../models';
@@ -32,6 +32,9 @@ export function CampaignMap(props: CampaignMapProps) {
   const [position, setPosition] = useState(null as ClickPosition | null);
   const [center, setCenter] = useState(new LatLng(props.lat, props.lng));
 
+  const tileUrl = `https://api.mapbox.com/styles/v1/${mapType}/tiles/{z}/{x}/{y}?access_token=${mapToken}`;
+  const tileLayerRef = useRef(null);
+
   const onContextMenuClick = (event: any) => {
     event.originalEvent.preventDefault();
     setPosition({
@@ -42,6 +45,14 @@ export function CampaignMap(props: CampaignMapProps) {
       latlon: event.latlng
     } as ClickPosition);
   };
+
+  // Workaround: React-Leaflet bug: TileLayer does not refresh on url change
+  useEffect(() => {
+    const tileLayer = tileLayerRef.current;
+    if (tileLayer !== null) {
+      (tileLayer as any).setUrl(tileUrl);
+    }
+  }, [mapType]);
 
   return (
     <div data-testid="campaign-map">
@@ -70,7 +81,8 @@ export function CampaignMap(props: CampaignMapProps) {
             }}
           </MapConsumer>
           <TileLayer
-            url={`https://api.mapbox.com/styles/v1/${mapType}/tiles/{z}/{x}/{y}?access_token=${mapToken}`}
+            ref={tileLayerRef}
+            url={tileUrl}
             maxZoom={20}
             attribution={
               'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
