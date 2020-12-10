@@ -51,7 +51,8 @@ jobs:
         run: |
           cd ./frontend
           yarn
-          CI= yarn build
+          $env:CI="false"
+          yarn build
           Copy-Item .\build ..\tauntaun_live_editor\data\client
           
       - name: Build binaries
