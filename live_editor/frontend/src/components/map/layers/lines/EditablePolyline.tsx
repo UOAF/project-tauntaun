@@ -9,6 +9,7 @@ export type EditablePolylineProps = PolylineProps & {
   onPositionClicked?: (index: number) => void;
   drawMarkers?: boolean;
   drawMidmarkers?: boolean;
+  disableWpZero?: boolean;
 };
 
 function editablePolylineCtor(map: any, props: EditablePolylineProps) {
@@ -27,6 +28,7 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
 
   const drawMarkers = props.drawMarkers !== undefined ? props.drawMarkers : true;
   const drawMidmarkers = props.drawMidmarkers !== undefined ? props.drawMidmarkers : true;
+  const disableWpZero = props.disableWpZero !== undefined ? props.disableWpZero : false;
 
   let polyline: Polyline | null = null;
   let markers = [] as Marker[];
@@ -55,6 +57,10 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
 
   const onContextMenu = (index: number, e: any) => {
     if (markers.length < 3) {
+      return;
+    }
+
+    if (disableWpZero && index === 0) {
       return;
     }
 
@@ -143,12 +149,15 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
 
     const markerIcon = divIcon({ className: 'pl-marker-icon' });
     for (const index in positions) {
-      markers[index] = new Marker(positions[index], { draggable: true, icon: markerIcon }).addTo(map);
+      const isAtWpZeroAndDisabled = disableWpZero && +index === 0;
+      markers[index] = new Marker(positions[index], { draggable: !isAtWpZeroAndDisabled, icon: markerIcon }).addTo(map);
 
-      markers[index].on('dragstart', onDragStart);
-      markers[index].on('dragend', e => onPositionModified?.(+index, e.target._latlng));
-      markers[index].on('drag', e => onDrag(+index, e));
-      markers[index].on('contextmenu', e => onContextMenu(+index, e));
+      if (!isAtWpZeroAndDisabled) {
+        markers[index].on('dragstart', onDragStart);
+        markers[index].on('dragend', e => onPositionModified?.(+index, e.target._latlng));
+        markers[index].on('drag', e => onDrag(+index, e));
+        markers[index].on('contextmenu', e => onContextMenu(+index, e));
+      }
       markers[index].on('mouseup', e => onMarkerClick(+index, e));
     }
 

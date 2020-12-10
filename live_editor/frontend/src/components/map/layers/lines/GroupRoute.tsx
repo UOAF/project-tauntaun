@@ -95,6 +95,7 @@ export function GroupRoute(props: GroupRouteProps) {
         onPositionRemoved={handlePositionRemoved}
         onPositionClicked={handlePositionClicked}
         drawMarkers={editable}
+        disableWpZero={true}
       />
       {!editable && positions.map((p, i) => renderNonEditableWp(p, i))}
       {isSelected && <DistanceMarkers positions={positions} />}
