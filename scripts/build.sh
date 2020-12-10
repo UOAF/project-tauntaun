@@ -11,6 +11,7 @@ scripts/setup_env.sh
 rm -rf frontend/node_modules
 
 source env/bin/activate
+export CI=false
 pushd frontend && yarn && yarn build && popd
 
 cp -r frontend/build tauntaun_live_editor/data/client
