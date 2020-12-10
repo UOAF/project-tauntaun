@@ -8,9 +8,12 @@
 Tauntaun Live Editor is browser based collaborative mission planning tool for DCS events.
 
 #### Requirements
-Python 3.8  
 A [mapbox](https://www.mapbox.com/) access token (free tier is available)
 #### Installation
+#### Windows release
+Executable is available under [releases](https://github.com/UOAF/project-tauntaun/releases).
+
+##### Python 3.8
 ##### pip
 ```bash
 pip install wheel # Only on Linux
@@ -41,6 +44,10 @@ map_token: MapBox access token
 admin_password: password in SHA256 format, default is 1234
 #### Run server
 ```
+# Windows release
+tauntaun_live_editor.exe
+
+# Python module
 tauntaun_live_editor
 # Or if that does not work for some reason
 py -m tauntaun_live_editor # Windows

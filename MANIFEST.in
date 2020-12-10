@@ -1,0 +1,8 @@
+recursive-exclude test *.*
+recursive-exclude tools *.*
+recursive-exclude images *.*
+recursive-exclude scripts *.*
+recursive-exclude frontend *.*
+recursive-exclude env *.*
+recursive-include tauntaun_live_editor/data *.*
+recursive-include tauntaun_live_editor/dcs *.*
