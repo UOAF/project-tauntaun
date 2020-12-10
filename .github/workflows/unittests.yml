@@ -34,5 +34,5 @@ jobs:
       - name: Build and test
         run: |
           cd $GITHUB_WORKSPACE
-          ./live_editor/scripts/setup_env.sh
-          ./live_editor/scripts/unittest.sh
+          ./scripts/setup_env.sh
+          ./scripts/unittest.sh
