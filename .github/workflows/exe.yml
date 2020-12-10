@@ -57,7 +57,8 @@ jobs:
           $env:PYTHONPATH=".;./tauntaun_live_editor/dcs"
           pyinstaller.exe tauntaun_live_editor.spec
           
-      - name: Compress    
+      - name: Compress
+        run: |          
           cd ./dist
           Compress-Archive -Path .\tauntaun_live_editor -DestinationPath "tauntaun_live_editor.zip" -Compression Optimal          
 
