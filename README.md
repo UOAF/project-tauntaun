@@ -4,6 +4,8 @@
 
 ![Unittests](https://github.com/UOAF/project-tauntaun/workflows/Unittests/badge.svg)
 
+[![Download](https://img.shields.io/github/downloads/UOAF/project-tauntaun/total?label=Download)](https://github.com/UOAF/project-tauntaun/releases)
+
 #### Description
 Tauntaun Live Editor is browser based collaborative mission planning tool for DCS events.
 
