@@ -124,10 +124,15 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
     mid_markers = [];
   };
 
-  const createPolyline = () => {
+  const clearPolyline = () => {
     if (polyline !== null) {
       map.removeLayer(polyline);
     }
+  };
+
+  const createPolyline = () => {
+    clearPolyline();
+
     polyline = new Polyline(positions, {
       color: color,
       weight: weight,
@@ -136,10 +141,6 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
       stroke: stroke,
       dashArray: dashArray
     }).addTo(map);
-  };
-
-  const clearPolyline = () => {
-    map.removeLayer(polyline);
   };
 
   const createMarkers = () => {
@@ -186,6 +187,10 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
     clearMarkers();
     clearPolyline();
   };
+
+  // Ctor
+  clearPolyline();
+  clearMarkers();
 
   createPolyline();
   createMarkers();
