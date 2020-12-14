@@ -1,0 +1,10 @@
+.Version {
+    text-align:center;
+    position: fixed;
+    bottom: 1%;
+    left: 20%;
+    z-index:3000;    
+    background-color: transparent;
+    color: gray;
+    font-size: small;
+}

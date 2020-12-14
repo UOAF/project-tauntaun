@@ -22,6 +22,7 @@ import { MissionTime } from './ui/MissionTime';
 import { HelpBar } from './menu/HelpBar';
 import { LoadMissionForm } from './window/forms/LoadMissionForm';
 import { SaveAsMissionForm } from './window/forms/SaveAsMissionForm';
+import { Version } from './ui/Version';
 
 enum InitialzationState {
   UNINITIALIZED,
@@ -121,6 +122,7 @@ export function App() {
       <React.Fragment>
         {mapToken ? (
           <React.Fragment>
+            <Version />
             <HelpBar />
             <ModeContext.Provider value={modeContext}>
               <MissionTime />
