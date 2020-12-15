@@ -40,6 +40,12 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install -I setuptools
           
+      - name: Set version for UI
+        run: |
+          ./env/scripts/activate
+          python ./scripts/gen_version.py
+          Copy-Item .\version.json ..\frontend\src\data\ -Force    
+          
       - name: Build frontend
         run: |
           cd ./frontend
@@ -60,6 +66,8 @@ jobs:
 #          Compress-Archive -Path .\tauntaun_live_editor -DestinationPath "tauntaun_live_editor.zip" -Compression Optimal          
 
       - uses: actions/upload-artifact@v2
+        env:
+          tauntaun_version: ${{ git rev-parse --short "$GITHUB_SHA" }}
         with:
-          name: tauntaun_live_editor
+          name: tauntaun_live_editor_${{ env.tauntaun_version }}
           path: dist/tauntaun_live_editor
