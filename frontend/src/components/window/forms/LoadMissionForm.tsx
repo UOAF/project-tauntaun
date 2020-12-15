@@ -7,8 +7,6 @@ export function LoadMissionForm() {
   const { setShowLoadMissionForm } = AppStateContainer.useContainer();
   const [missionDir, setMissionDir] = useState([] as Array<string>);
 
-  console.log(missionDir);
-
   useEffect(() => {
     const init = async () => {
       try {
