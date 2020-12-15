@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: Build exe
+name: Build exe release
 
 # Controls when the action will run. 
 on:   
@@ -40,12 +40,6 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install -I setuptools
           
-      - name: Set version for UI
-        run: |
-          ./env/scripts/activate
-          python ./scripts/gen_version.py
-          Copy-Item .\version.json .\frontend\src\data\ -Force    
-          
       - name: Build frontend
         run: |
           cd ./frontend
@@ -67,5 +61,5 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: tauntaun_live_editor_${{github.sha}}
+          name: tauntaun_live_editor
           path: dist/tauntaun_live_editor
