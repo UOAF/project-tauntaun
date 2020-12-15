@@ -66,8 +66,6 @@ jobs:
 #          Compress-Archive -Path .\tauntaun_live_editor -DestinationPath "tauntaun_live_editor.zip" -Compression Optimal          
 
       - uses: actions/upload-artifact@v2
-        env:
-          tauntaun_version: ${GITHUB_SHA::8}
         with:
-          name: tauntaun_live_editor_${{ env.tauntaun_version }}
+          name: tauntaun_live_editor_${{github.sha}}
           path: dist/tauntaun_live_editor
