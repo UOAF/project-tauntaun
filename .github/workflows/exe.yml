@@ -67,7 +67,7 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         env:
-          tauntaun_version: ${{ git rev-parse --short "$GITHUB_SHA" }}
+          tauntaun_version: ${GITHUB_SHA::8}
         with:
           name: tauntaun_live_editor_${{ env.tauntaun_version }}
           path: dist/tauntaun_live_editor
