@@ -1,0 +1,65 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Build exe release
+
+# Controls when the action will run. 
+on:   
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: windows-latest   
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Set up Node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - name: Install environment
+        run: |
+          python -m venv ./env
+          
+      - name: Install dependencies
+        run: |
+          ./env/scripts/activate
+          python -m pip install -r requirements.txt
+          python -m pip install -I setuptools
+          
+      - name: Build frontend
+        run: |
+          cd ./frontend
+          yarn
+          $env:CI="false"
+          yarn build
+          Copy-Item -r .\build ..\tauntaun_live_editor\data\client
+          
+      - name: Build binaries
+        run: |
+          ./env/scripts/activate
+          $env:PYTHONPATH=".;./tauntaun_live_editor/dcs"
+          pyinstaller.exe tauntaun_live_editor.spec
+          
+#      - name: Compress
+#        run: |          
+#          cd ./dist
+#          Compress-Archive -Path .\tauntaun_live_editor -DestinationPath "tauntaun_live_editor.zip" -Compression Optimal          
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: tauntaun_live_editor
+          path: dist/tauntaun_live_editor
