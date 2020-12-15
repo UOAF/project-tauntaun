@@ -12,7 +12,6 @@ rm -rf frontend/node_modules
 
 source env/bin/activate
 
-python3 scripts/gen_version.py
 mv -f version.json frontend/src/data
 
 export CI=false
