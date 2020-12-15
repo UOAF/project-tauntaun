@@ -112,7 +112,9 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
       return;
     }
 
-    onPositionClicked?.(index);
+    if (e.originalEvent.button === 0) {
+      onPositionClicked?.(index);
+    }
   };
 
   const clearMarkers = () => {
@@ -122,10 +124,15 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
     mid_markers = [];
   };
 
-  const createPolyline = () => {
+  const clearPolyline = () => {
     if (polyline !== null) {
       map.removeLayer(polyline);
     }
+  };
+
+  const createPolyline = () => {
+    clearPolyline();
+
     polyline = new Polyline(positions, {
       color: color,
       weight: weight,
@@ -134,10 +141,6 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
       stroke: stroke,
       dashArray: dashArray
     }).addTo(map);
-  };
-
-  const clearPolyline = () => {
-    map.removeLayer(polyline);
   };
 
   const createMarkers = () => {
@@ -149,29 +152,33 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
 
     const markerIcon = divIcon({ className: 'pl-marker-icon' });
     for (const index in positions) {
-      const isAtWpZeroAndDisabled = disableWpZero && +index === 0;
-      markers[index] = new Marker(positions[index], { draggable: !isAtWpZeroAndDisabled, icon: markerIcon }).addTo(map);
+      const index_num = +index;
+      const isAtWpZeroAndDisabled = disableWpZero && index_num === 0;
+      markers[index_num] = new Marker(positions[index_num], {
+        draggable: !isAtWpZeroAndDisabled,
+        icon: markerIcon
+      }).addTo(map);
 
       if (!isAtWpZeroAndDisabled) {
-        markers[index].on('dragstart', onDragStart);
-        markers[index].on('dragend', e => onPositionModified?.(+index, e.target._latlng));
-        markers[index].on('drag', e => onDrag(+index, e));
-        markers[index].on('contextmenu', e => onContextMenu(+index, e));
+        markers[index_num].on('dragstart', onDragStart);
+        markers[index_num].on('dragend', e => onPositionModified?.(index_num, e.target._latlng));
+        markers[index_num].on('drag', e => onDrag(index_num, e));
+        markers[index_num].on('contextmenu', e => onContextMenu(index_num, e));
       }
-      markers[index].on('mouseup', e => onMarkerClick(+index, e));
+      markers[index_num].on('mouseup', e => onMarkerClick(index_num, e));
     }
 
     if (drawMidmarkers) {
       const midMarkerIcon = divIcon({ className: 'pl-mid-marker-icon' });
       for (let index = 0; index < positions.length - 1; ++index) {
-        const a = positions[index];
-        const b = positions[index + 1];
-        const mid = new LatLng((a.lat + b.lat) / 2.0, (a.lng + b.lng) / 2.0);
-        mid_markers[index] = new Marker(mid, { draggable: true, icon: midMarkerIcon }).addTo(map);
         const index_const = +index;
-        mid_markers[index].on('dragstart', e => onMidDragStart(index_const, e));
-        mid_markers[index].on('drag', e => onMidDrag(index_const, e));
-        mid_markers[index].on('dragend', e => onMidDragEnd(index_const, e));
+        const a = positions[index_const];
+        const b = positions[index_const + 1];
+        const mid = new LatLng((a.lat + b.lat) / 2.0, (a.lng + b.lng) / 2.0);
+        mid_markers[index_const] = new Marker(mid, { draggable: true, icon: midMarkerIcon }).addTo(map);
+        mid_markers[index_const].on('dragstart', e => onMidDragStart(index_const, e));
+        mid_markers[index_const].on('drag', e => onMidDrag(index_const, e));
+        mid_markers[index_const].on('dragend', e => onMidDragEnd(index_const, e));
       }
     }
   };
@@ -180,6 +187,10 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
     clearMarkers();
     clearPolyline();
   };
+
+  // Ctor
+  clearPolyline();
+  clearMarkers();
 
   createPolyline();
   createMarkers();

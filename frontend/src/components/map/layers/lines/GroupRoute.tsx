@@ -37,7 +37,7 @@ export function GroupRoute(props: GroupRouteProps) {
       lon: pos.lng
     });
 
-    console.log('Point inserted.');
+    console.log(`Point inserted at [${index}]`);
   };
 
   const handlePositionModified = (index: number, pos: LatLng) => {
