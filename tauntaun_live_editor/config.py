@@ -12,6 +12,7 @@ class Config:
     autosave: bool = True
     default_coalition: str = ""
     default_mission: str = ""
+    missions_directory: str = ""
 
 def _get_datadir() -> pathlib.Path:
 
@@ -85,4 +86,3 @@ def load_config(config_path_str = None):
     _ConfigFileManager.save(loaded_config, config_path)
 
     config = loaded_config
-
