@@ -5,9 +5,10 @@ import asyncio
 import logging
 import zlib
 from functools import wraps
+import datetime
 
 from quart import Quart, send_from_directory, make_response
-from quart import websocket
+from quart import websocket, request
 
 from hypercorn.config import Config
 from hypercorn.asyncio import serve
@@ -80,6 +81,19 @@ def create_app(campaign, session_manager):
 
         return json.dumps(miz_files)
 
+    @app.route('/upload', methods=('POST',))
+    async def process_form_data():
+        files = (await request.files).items()
+        for name, file in (await request.files).items():
+            file_bytes = file.read()
+            print(f'Processing {name}: {len(file_bytes)}')
+            filename = "upload_" + datetime.datetime.now().strftime("%y-%m-%d_%H%M%S") + ".miz"
+            file_path = os.path.join(get_miz_path(), filename)
+            with open(file_path, "wb") as save:
+                save.write(file_bytes)
+            campaign.load_mission(file_path)
+
+        return json.dumps({"message": "File uploaded"})
 
     def collect_websocket(on_connect, on_disconnect):
         def wrapper_0(func):
