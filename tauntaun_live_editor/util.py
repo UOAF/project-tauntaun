@@ -1,8 +1,6 @@
 import os
 import asyncio
 import logging
-import tauntaun_live_editor.config as config
-
 
 class Timer:
     def __init__(self, timeout, callback, periodic = False):
@@ -90,8 +88,6 @@ def is_posix():
     return os.name == 'posix'
 
 def get_miz_path():
-    if os.path.exists(config.config.missions_directory):
-        return os.path.join(config.config.missions_directory)
     if is_posix():
         dcs_dir = get_data_path()
     else:
