@@ -10,7 +10,7 @@
 }
 
 .pl-marker-icon-non-editable {
-  z-index: 0 !important;  
+  z-index: 1999 !important;  
   background-color: transparent;
   border: 1px solid #3388ff;
   border-radius: 50% !important;

@@ -1,3 +1,5 @@
+import './Markers.css';
+
 import React, { useMemo } from 'react';
 import ms from 'milsymbol';
 import { Icon, Marker as CoreMarker, LeafletEvent, LatLng } from 'leaflet';

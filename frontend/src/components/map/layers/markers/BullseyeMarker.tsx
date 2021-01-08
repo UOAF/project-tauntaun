@@ -1,3 +1,5 @@
+import './Markers.css';
+
 import React, { useMemo } from 'react';
 import { Icon, LatLng } from 'leaflet';
 import { Marker, MarkerProps } from 'react-leaflet';
