@@ -1,3 +1,5 @@
+import './Markers.css';
+
 import React from 'react';
 
 import { Airport, SessionStateContainer } from '../../../../models';
