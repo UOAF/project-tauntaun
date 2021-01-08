@@ -31,6 +31,11 @@ export interface GameService {
     plane: string,
     numberOfPlanes: number
   ): void;
+  sendAddJTAC(
+    coalition: string,
+    country: string,
+    location: LatLng
+  ): void;
   requestSessionId(): void;
   sendUnitLoadoutUpdate(
     unit: Unit,
@@ -255,6 +260,18 @@ function sendAddFlight(
     airport: airport,
     plane: plane,
     number_of_planes: numberOfPlanes
+  });
+}
+
+function sendAddJTAC(
+  coalition: string,
+  country: string,
+  location: LatLng,
+): void {
+  sendMessage('add_jtac', {
+    coalition: coalition,
+    country: country,
+    location: { lat: location.lat, lon: location.lng }
   });
 }
 

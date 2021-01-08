@@ -14,11 +14,19 @@ export function MapContextMenu(props: MapContextMenuProps) {
 
   const contextMenuOptionsAdmin: Array<ContextMenuOption> = [{ label: 'Add Flight', value: 'add_flight' }];
   const contextMenuOptionsNormal: Array<ContextMenuOption> = [{ label: 'Recon', value: 'recon' }];
+  const contextMenuOptionsNormal: Array<ContextMenuOption> = [{ label: 'Add JTAC', value: 'addJTAC' }];
   const contextMenuOptions: Array<ContextMenuOption> = commanderMode
     ? [...contextMenuOptionsAdmin, ...contextMenuOptionsNormal]
     : contextMenuOptionsNormal;
 
   const addFlightOnClick = (position: ClickPosition) => {
+    if (position.latlon) {
+      setShowAddFlightForm(true);
+      setLocation(position.latlon);
+    }
+  };
+
+  const addJTACOnClick = (position: ClickPosition) => {
     if (position.latlon) {
       setShowAddFlightForm(true);
       setLocation(position.latlon);
@@ -41,6 +49,8 @@ export function MapContextMenu(props: MapContextMenuProps) {
       case 'recon':
         reconOnClick(position);
         break;
+      case 'addJTAC':
+        addJTACOnClick(position);
     }
   };
 

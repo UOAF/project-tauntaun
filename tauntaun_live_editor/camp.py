@@ -17,6 +17,7 @@ from dcs.weapons_data import weapon_ids
 from dcs import terrain
 from dcs.terrain.terrain import NoParkingSlotError
 import dcs.mapping as mapping
+import dcs.task
 
 
 import tauntaun_live_editor.server as server
@@ -38,6 +39,22 @@ class GameService:
     def __init__(self, campaign):
         self.campaign: Campaign = campaign                
         self.group_route_request_handler = GameService.GroupRouteRequestHandler(campaign)
+
+    def add_jtac(self, coalition, countryName, location):
+        logging.debug(f"add_jtac {coalition} {countryName} {location}")
+
+        location = _convert_point(self.campaign.mission.terrain, location)
+        country = self.campaign.get_countries(coalition)[countryName]
+
+        # add jtac humwv
+        jtac1 = self.campaign.mission.vehicle_group(
+            country,
+            "jtac",
+            self.campaign.mission.countries.USA.Vehicle.Unarmed.APC_M1025_HMMWV,
+            location
+        )
+        jtac1.units[0].player_can_drive = True
+        jtac1.add_trigger_action(dcs.task.SetInvisibleCommand())
 
     def add_flight(self, coalition, countryName, location, airport, plane, number_of_planes):
         logging.debug(f"add_flight {location} {airport} {plane} {number_of_planes}")
