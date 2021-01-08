@@ -31,11 +31,7 @@ export interface GameService {
     plane: string,
     numberOfPlanes: number
   ): void;
-  sendAddJTAC(
-    coalition: string,
-    country: string,
-    location: LatLng
-  ): void;
+  sendAddJTAC(coalition: string, country: string, location: LatLng): void;
   requestSessionId(): void;
   sendUnitLoadoutUpdate(
     unit: Unit,
@@ -263,11 +259,7 @@ function sendAddFlight(
   });
 }
 
-function sendAddJTAC(
-  coalition: string,
-  country: string,
-  location: LatLng,
-): void {
+function sendAddJTAC(coalition: string, country: string, location: LatLng): void {
   sendMessage('add_jtac', {
     coalition: coalition,
     country: country,
@@ -386,6 +378,7 @@ export const gameService: GameService = {
   sendSaveMission,
   sendLoadMission,
   sendAddFlight,
+  sendAddJTAC,
   requestSessionId,
   getMission,
   getMissionDir,
