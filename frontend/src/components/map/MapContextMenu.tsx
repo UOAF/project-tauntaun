@@ -15,7 +15,7 @@ export function MapContextMenu(props: MapContextMenuProps) {
 
   const contextMenuOptionsAdmin: Array<ContextMenuOption> = [
     { label: 'Add Flight', value: 'add_flight' },
-    { label: 'Add JTAC', value: 'addJTAC' }
+    { label: 'Add JTAC (Experimental)', value: 'addJTAC' }
   ];
   const contextMenuOptionsNormal: Array<ContextMenuOption> = [{ label: 'Recon', value: 'recon' }];
   const contextMenuOptions: Array<ContextMenuOption> = commanderMode
