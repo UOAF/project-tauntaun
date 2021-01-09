@@ -53,6 +53,7 @@ class GameService:
             dcs.countries.USA.Vehicle.Unarmed.APC_M1025_HMMWV,
             location
         )
+
         jtac.units[0].player_can_drive = True
         jtac.points[0].tasks.append(dcs.task.SetInvisibleCommand())
 

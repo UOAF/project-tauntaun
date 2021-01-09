@@ -1,11 +1,9 @@
 import { convertLeafletMapToKml, getGoogleEarthUrl, openInNewTab, saveKmlFile } from '../../models/util';
 import React from 'react';
-import { AppStateContainer } from '../../models';
+import { AppStateContainer, MissionStateContainer, SessionStateContainer } from '../../models';
 import { ClickPosition, ContextMenu, ContextMenuOption } from '../contextmenu';
 import { useMap } from 'react-leaflet';
 import { gameService } from '../../services';
-import { SessionStateContainer } from '../../models/sessionState';
-import { MissionStateContainer } from '../../models/missionState';
 
 export interface MapContextMenuProps {
   position: ClickPosition;
