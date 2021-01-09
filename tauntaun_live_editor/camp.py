@@ -54,7 +54,7 @@ class GameService:
             location
         )
         jtac1.units[0].player_can_drive = True
-        jtac1.add_trigger_action(dcs.task.SetInvisibleCommand())
+        jtac1.points[0].tasks.append(dcs.task.SetInvisibleCommand())
 
     def add_flight(self, coalition, countryName, location, airport, plane, number_of_planes):
         logging.debug(f"add_flight {location} {airport} {plane} {number_of_planes}")
