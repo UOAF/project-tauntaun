@@ -1,22 +1,23 @@
 import { convertLeafletMapToKml, getGoogleEarthUrl, openInNewTab, saveKmlFile } from '../../models/util';
-import React from 'react';
-import { AppStateContainer } from '../../models';
+import React, { useState } from 'react';
+import { AppStateContainer, MissionStateContainer, SessionStateContainer } from '../../models';
 import { ClickPosition, ContextMenu, ContextMenuOption } from '../contextmenu';
 import { useMap } from 'react-leaflet';
+import { gameService } from '../../services';
 
 export interface MapContextMenuProps {
   position: ClickPosition;
 }
 
 export function MapContextMenu(props: MapContextMenuProps) {
-  const { commanderMode, setShowAddFlightForm, setLocation } = AppStateContainer.useContainer();
+  const { commanderMode, setShowAddFlightForm, setLocation, location } = AppStateContainer.useContainer();
   const map = useMap();
 
-  const contextMenuOptionsAdmin: Array<ContextMenuOption> = [{ label: 'Add Flight', value: 'add_flight' }];
-  const contextMenuOptionsNormal: Array<ContextMenuOption> = [
-    { label: 'Recon', value: 'recon' },
+  const contextMenuOptionsAdmin: Array<ContextMenuOption> = [
+    { label: 'Add Flight', value: 'add_flight' },
     { label: 'Add JTAC', value: 'addJTAC' }
   ];
+  const contextMenuOptionsNormal: Array<ContextMenuOption> = [{ label: 'Recon', value: 'recon' }];
   const contextMenuOptions: Array<ContextMenuOption> = commanderMode
     ? [...contextMenuOptionsAdmin, ...contextMenuOptionsNormal]
     : contextMenuOptionsNormal;
@@ -30,8 +31,9 @@ export function MapContextMenu(props: MapContextMenuProps) {
 
   const addJTACOnClick = (position: ClickPosition) => {
     if (position.latlon) {
-      setShowAddFlightForm(true);
       setLocation(position.latlon);
+
+      gameService.sendAddJTAC('blue', 'USA', position.latlon);
     }
   };
 
@@ -53,6 +55,7 @@ export function MapContextMenu(props: MapContextMenuProps) {
         break;
       case 'addJTAC':
         addJTACOnClick(position);
+        break;
     }
   };
 

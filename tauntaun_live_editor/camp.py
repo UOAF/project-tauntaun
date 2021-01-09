@@ -50,7 +50,7 @@ class GameService:
         jtac1 = self.campaign.mission.vehicle_group(
             country,
             "jtac",
-            self.campaign.mission.countries.USA.Vehicle.Unarmed.APC_M1025_HMMWV,
+            dcs.countries.USA.Vehicle.Unarmed.APC_M1025_HMMWV,
             location
         )
         jtac1.units[0].player_can_drive = True
@@ -340,6 +340,11 @@ class Campaign():
         if not os.path.isfile(filename):
             logging.warning(f"Unable to load mission file not found {filename}")
             return
+        
+        filename = os.path.normpath(filename)
+        print (filename)
+        print(type(self.mission))
+        print(f'~~~~~~ load_file path: {self.mission.load_file.__globals__["__file__"]}')
 
         self.mission.load_file(filename, True)
         self.loaded_mission_path = filename
@@ -417,7 +422,9 @@ def main():
         server.run(c, session_manager, 8080)
 
     except Exception as e:
-        logging.error(str(e))
+        logging.exception('Got exception on main handler')
+
+        #logging.error(str(e))
 
     logging.info("Tauntaun stopped gracefully.")
     logging.info("--------------------------------------------------")

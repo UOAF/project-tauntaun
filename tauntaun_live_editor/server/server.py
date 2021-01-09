@@ -207,6 +207,14 @@ def create_app(campaign, session_manager):
 
             await broadcast_mission_update()
 
+        async def add_jtac(group_data):
+            game_service.add_jtac(
+                group_data['coalition'],
+                group_data['country'],
+                group_data['location'])
+
+            await broadcast_mission_update()
+
         async def save_mission(data):
             if data:
                 data = os.path.join(get_miz_path(), data)
@@ -253,6 +261,7 @@ def create_app(campaign, session_manager):
             'save_mission': save_mission,
             'load_mission': load_mission,
             'add_flight': add_flight,
+            'add_jtac': add_jtac,
             'unit_loadout_update': unit_loadout_update,
             'session_data_update': session_data_update,
             'request_session_id': request_session_id,
