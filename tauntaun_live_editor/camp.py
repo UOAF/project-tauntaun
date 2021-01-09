@@ -341,11 +341,6 @@ class Campaign():
             logging.warning(f"Unable to load mission file not found {filename}")
             return
         
-        filename = os.path.normpath(filename)
-        print (filename)
-        print(type(self.mission))
-        print(f'~~~~~~ load_file path: {self.mission.load_file.__globals__["__file__"]}')
-
         self.mission.load_file(filename, True)
         self.loaded_mission_path = filename
         logging.info(f"Mission loaded from {filename}")
