@@ -1,16 +1,25 @@
 import { convertLeafletMapToKml, getGoogleEarthUrl, openInNewTab, saveKmlFile } from '../../models/util';
-import React, { useState } from 'react';
-import { AppStateContainer, MissionStateContainer, SessionStateContainer } from '../../models';
+import React from 'react';
+import { AppStateContainer } from '../../models';
 import { ClickPosition, ContextMenu, ContextMenuOption } from '../contextmenu';
 import { useMap } from 'react-leaflet';
 import { gameService } from '../../services';
+import { SessionStateContainer } from '../../models/sessionState';
+import { MissionStateContainer } from '../../models/missionState';
 
 export interface MapContextMenuProps {
   position: ClickPosition;
 }
 
 export function MapContextMenu(props: MapContextMenuProps) {
-  const { commanderMode, setShowAddFlightForm, setLocation, location } = AppStateContainer.useContainer();
+  const { commanderMode, setShowAddFlightForm, setLocation } = AppStateContainer.useContainer();
+
+  const { sessions, sessionId } = SessionStateContainer.useContainer();
+  const sessionData = sessions[sessionId];
+  const sessionCoalition = sessionData ? sessionData.coalition : '';
+
+  const { mission } = MissionStateContainer.useContainer();
+
   const map = useMap();
 
   const contextMenuOptionsAdmin: Array<ContextMenuOption> = [
@@ -31,9 +40,9 @@ export function MapContextMenu(props: MapContextMenuProps) {
 
   const addJTACOnClick = (position: ClickPosition) => {
     if (position.latlon) {
-      setLocation(position.latlon);
+      const country = Object.keys(mission.coalition[sessionCoalition].countries)[0];
 
-      gameService.sendAddJTAC('blue', 'USA', position.latlon);
+      gameService.sendAddJTAC(sessionCoalition, country, position.latlon);
     }
   };
 

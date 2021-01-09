@@ -47,14 +47,14 @@ class GameService:
         country = self.campaign.get_countries(coalition)[countryName]
 
         # add jtac humwv
-        jtac1 = self.campaign.mission.vehicle_group(
+        jtac = self.campaign.mission.vehicle_group(
             country,
             "jtac",
             dcs.countries.USA.Vehicle.Unarmed.APC_M1025_HMMWV,
             location
         )
-        jtac1.units[0].player_can_drive = True
-        jtac1.points[0].tasks.append(dcs.task.SetInvisibleCommand())
+        jtac.units[0].player_can_drive = True
+        jtac.points[0].tasks.append(dcs.task.SetInvisibleCommand())
 
     def add_flight(self, coalition, countryName, location, airport, plane, number_of_planes):
         logging.debug(f"add_flight {location} {airport} {plane} {number_of_planes}")
@@ -418,8 +418,6 @@ def main():
 
     except Exception as e:
         logging.exception('Got exception on main handler')
-
-        #logging.error(str(e))
 
     logging.info("Tauntaun stopped gracefully.")
     logging.info("--------------------------------------------------")
