@@ -17,6 +17,7 @@ from dcs.weapons_data import weapon_ids
 from dcs import terrain
 from dcs.terrain.terrain import NoParkingSlotError
 import dcs.mapping as mapping
+import dcs.task
 
 
 import tauntaun_live_editor.server as server
@@ -38,6 +39,23 @@ class GameService:
     def __init__(self, campaign):
         self.campaign: Campaign = campaign                
         self.group_route_request_handler = GameService.GroupRouteRequestHandler(campaign)
+
+    def add_jtac(self, coalition, countryName, location):
+        logging.debug(f"add_jtac {coalition} {countryName} {location}")
+
+        location = _convert_point(self.campaign.mission.terrain, location)
+        country = self.campaign.get_countries(coalition)[countryName]
+
+        # add jtac humwv
+        jtac = self.campaign.mission.vehicle_group(
+            country,
+            "jtac",
+            dcs.countries.USA.Vehicle.Unarmed.APC_M1025_HMMWV,
+            location
+        )
+
+        jtac.units[0].player_can_drive = True
+        jtac.points[0].tasks.append(dcs.task.SetInvisibleCommand())
 
     def add_flight(self, coalition, countryName, location, airport, plane, number_of_planes):
         logging.debug(f"add_flight {location} {airport} {plane} {number_of_planes}")
@@ -323,7 +341,7 @@ class Campaign():
         if not os.path.isfile(filename):
             logging.warning(f"Unable to load mission file not found {filename}")
             return
-
+        
         self.mission.load_file(filename, True)
         self.loaded_mission_path = filename
         logging.info(f"Mission loaded from {filename}")
@@ -400,7 +418,7 @@ def main():
         server.run(c, session_manager, 8080)
 
     except Exception as e:
-        logging.error(str(e))
+        logging.exception('Got exception on main handler')
 
     logging.info("Tauntaun stopped gracefully.")
     logging.info("--------------------------------------------------")
