@@ -15,6 +15,17 @@ sidc_overrides = {
     'Dry-cargo ship-2': 'SFSPXM------'
 }
 
+vehicle_overrides = {
+    'SAM SA-10 S-300PS LN 5P85C': {
+        'threat_range': 74080,
+        'air_weapon_dist': 74080,
+    },
+    'SAM SA-10 S-300PS LN 5P85D': {
+        'threat_range': 74080,
+        'air_weapon_dist': 74080,
+    }
+}
+
 def _map_planes():
     result = {}
     for module_name, module_obj in inspect.getmembers(sys.modules["dcs.planes"]):
@@ -88,6 +99,10 @@ def _map_vehicles():
                         'eprls': obj.eprls if hasattr(obj, 'eprls') else False,
                         'category': module_name
                     }
+
+                    if name in vehicle_overrides:
+                        for key, value in inspect.getmembers(vehicle_overrides[name]):
+                            result[name][key] = value
 
     return result
 
