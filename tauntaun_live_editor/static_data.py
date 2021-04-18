@@ -16,11 +16,11 @@ sidc_overrides = {
 }
 
 vehicle_overrides = {
-    'SAM SA-10 S-300PS LN 5P85C': {
+    'S-300PS 5P85C ln': {
         'threat_range': 74080,
         'air_weapon_dist': 74080,
     },
-    'SAM SA-10 S-300PS LN 5P85D': {
+    'S-300PS 5P85D ln': {
         'threat_range': 74080,
         'air_weapon_dist': 74080,
     }
@@ -68,8 +68,8 @@ def _map_ships():
 
 def _map_weapons():
     def get_weapon_id(value):
-        weapon_ids =  dcs.weapons_data.weapon_ids
-        weapon_id = (x for x in weapon_ids if weapon_ids[x] == value)
+        weapon_ids = dcs.weapons_data.weapon_ids
+        weapon_id = (x for x in weapon_ids if weapon_ids[x]['clsid'] == value)
         return next(iter(weapon_id))
 
     weapons_data = dcs.weapons_data.Weapons
@@ -79,7 +79,7 @@ def _map_weapons():
             weapons[name] = {
                 'name': obj['name'],
                 'weight': obj['weight'],
-                'weapon_id': get_weapon_id(obj)
+                'weapon_id': get_weapon_id(obj['clsid'])
             }
 
     return weapons
