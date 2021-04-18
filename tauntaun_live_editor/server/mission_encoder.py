@@ -61,7 +61,8 @@ class MissionEncoder(json.JSONEncoder):
             'units': self.default(obj.units),
             'points': self.default(obj.points),
             'hidden': self.default(obj.hidden) if obj.hidden is not None else 'false',
-            'dead': self.default(obj.dead) if hasattr(obj, 'dead') else 'false'
+            'dead': self.default(obj.dead) if hasattr(obj, 'dead') else 'false',
+            'hidden_on_planner': self.default(obj.hidden_on_planner) if obj.hidden_on_planner is not None else 'false',
         }
 
         if hasattr(obj, 'task'):

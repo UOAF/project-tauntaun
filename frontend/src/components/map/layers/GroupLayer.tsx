@@ -19,7 +19,7 @@ export function GroupLayer(props: GroupLayerProps) {
   const isSameCoalition = groupCoalition === sessionCoalition;
 
   const visibleGroups = groups.filter(
-    g => isSameCoalition || (g.hidden === 'false' && !hideAllHostileUnits) || showAllGroups
+    g => isSameCoalition || (g.hidden === 'false' && g.hidden_on_planner === 'false' && !hideAllHostileUnits) || showAllGroups
   );
 
   const groupsAlive = visibleGroups.filter(g => g.dead === 'false');

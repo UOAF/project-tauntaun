@@ -82,8 +82,9 @@ export type Group = {
   units: Array<Unit | FlyingUnit>;
   points: Array<MovingPoint | StaticPoint>;
   task: string;
-  hidden: string; // boolean as string
+  hidden: string; // boolean as string  
   dead: string; // boolean as string
+  hidden_on_planner: string; // boolean as string  
 };
 
 export type Country = {
