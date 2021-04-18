@@ -68,7 +68,7 @@ Use github issues:
 https://github.com/UOAF/project-tauntaun/issues
 
 #### License 
-GNU General Public License v3 (GPLv3) (GPL)
+GNU Lesser General Public License v3.0
 
 #### Contact
 https://github.com/UOAF/project-tauntaun  
