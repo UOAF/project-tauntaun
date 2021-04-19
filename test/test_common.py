@@ -23,7 +23,7 @@ def create_mission() -> Mission:
     escort = m.escort_flight(
         usa, "Escort", dcs.planes.F_A_18C,
         batumi, awacs)
-    escort.load_pylon(dcs.planes.F_A_18C.Pylon2.Mk_82, 2)
+    escort.load_pylon(dcs.planes.F_A_18C.Pylon2.Mk_82___500lb_GP_Bomb_LD, 2)
 
     return m
 

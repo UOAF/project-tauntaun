@@ -57,7 +57,7 @@ class MissionEncoder(json.JSONEncoder):
     def group(self, obj):
         result = {
             'id': obj.id,
-            'name': self.default(obj.name),
+            'name': obj.name,
             'units': self.default(obj.units),
             'points': self.default(obj.points),
             'hidden': self.default(obj.hidden) if obj.hidden is not None else 'false',
@@ -91,7 +91,7 @@ class MissionEncoder(json.JSONEncoder):
         result = {
             'id': obj.id,
             'type': obj.type,
-            'name': self.default(obj.name),
+            'name': obj.name,
             'position': self.default(obj.position),
             'skill': str(obj.skill)
         }
