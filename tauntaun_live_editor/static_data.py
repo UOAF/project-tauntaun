@@ -41,7 +41,7 @@ def _map_planes():
             for plane_name, plane_obj in inspect.getmembers(module_obj):
                 if inspect.isclass(plane_obj) and plane_name[0:5] == "Pylon":
                     for pylon_name, pylon_obj in inspect.getmembers(plane_obj):
-                        if isinstance(pylon_obj, tuple) and pylon_name[0] != '_':
+                        if isinstance(pylon_obj, tuple):
                             pylon_number = pylon_obj[0]
                             if pylon_number not in plane_data['pylons']:
                                 plane_data['pylons'][pylon_number] = []
