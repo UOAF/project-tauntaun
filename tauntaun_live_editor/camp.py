@@ -183,27 +183,6 @@ class GameService:
 
             return group
 
-        def _get_next_wp_key(self):
-            wpt_key = "DictKey_WptName_"
-            mission_translation = self.campaign.mission.translation
-            next_wp_number = 0
-            lang = "DEFAULT"
-            if lang in mission_translation.strings:
-                lang_translations = mission_translation.strings[lang]
-                wptkeys = [key for key in lang_translations.keys() if key.startswith(wpt_key)]
-                if wptkeys:
-                    wptkey_numbers = [int(key.split('_')[-1]) for key in wptkeys]
-                    wptkey_numbers.sort()
-                    last_wp_number = wptkey_numbers[-1]
-                    next_wp_number = last_wp_number + 1
-
-            if next_wp_number == 0:
-                logging.debug("_get_next_wp_key: No DictKey_WptName key found, using wpt_key 0!")
-
-            new_wpt_key = '{}{}'.format(wpt_key, next_wp_number)
-
-            return new_wpt_key
-
         def modify(self, group_id, old_wp, new_wp):
             group = self.campaign.lookup_group(group_id)
             if group is None:
@@ -216,17 +195,7 @@ class GameService:
                 wp = group.points[old_wp_index[0]]
                 wp.alt = new_wp['alt']
                 wp.type = new_wp['type']
-
-                wpt_key = "DictKey_WptName_"
-                # incorrect_wp_name: Workaround for DCS Liberation as it will give the same key
-                # for all ingress WPs e.g. "INGERSS" instead of "DictKey_WptName_XYZ"
-                incorrect_wp_name = wp.name is not None and not wp.name.id.startswith(wpt_key)
-                if wp.name is None or wp.name.translation is None or not isinstance(wp.name, String) \
-                        or incorrect_wp_name:
-                    logging.debug("Creating new WP name String.")
-                    wp.name = String(self._get_next_wp_key(), self.campaign.mission.translation)
-
-                wp.name.set(new_wp['name'])
+                wp.name = new_wp['name']
 
                 wp.position = _convert_point(self.campaign.mission.terrain, new_wp['position'])
                 wp.speed = new_wp['speed']
