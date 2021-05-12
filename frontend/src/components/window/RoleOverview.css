@@ -1,41 +1,70 @@
 .CloseButton {
-    margin-top: 0.5em;
-    margin-bottom: 0.5em;
+  background-color: transparent !important;
+  padding: 0 !important;
+  margin: 0 0 0 0 !important;
 }
 
+.CloseButton>button {
+  font-size: 1.1rem !important;
+  width: 100% !important;
+  height: 100% !important;
+  border: none !important;
+  color: rgba(49, 107, 170, 1) !important;
+  background-color: rgba(49, 107, 170, 0) !important;
+  transition: all 0.3s ease !important;
+  width: 100% !important;
+  padding: 10px !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
+.CloseButton>button:hover,
+.CloseButton>button:active {
+  color: #ffffff !important;
+  background-color: rgba(49, 107, 170, 1) !important;
+}
 
 table.minimalistBlack {
-    border: 3px solid #000000;
-    width: 100%;
-    text-align: left;
-    border-collapse: collapse;
+  border: 3px solid #000000;
+  width: 98%;
+  margin: 0 auto;
+  text-align: left;
+  border-collapse: collapse;
+  margin: 0 10px;
 }
-table.minimalistBlack td, table.minimalistBlack th {
-    border: 1px solid #000000;
-    padding: 5px 4px;
+
+table.minimalistBlack td,
+table.minimalistBlack th {
+  border: 1px solid #000000;
+  padding: 5px 4px;
 }
+
 table.minimalistBlack tbody td {
-    font-size: 13px;
+  font-size: 13px;
 }
+
 table.minimalistBlack thead {
-    background: #CFCFCF;
-    background: -moz-linear-gradient(top, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
-    background: -webkit-linear-gradient(top, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
-    background: linear-gradient(to bottom, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
-    border-bottom: 3px solid #000000;
+  background: #CFCFCF;
+  background: -moz-linear-gradient(top, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
+  background: -webkit-linear-gradient(top, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
+  background: linear-gradient(to bottom, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
+  border-bottom: 3px solid #000000;
 }
+
 table.minimalistBlack thead th {
-    font-size: 15px;
-    font-weight: bold;
-    color: #000000;
-    text-align: left;
+  font-size: 15px;
+  font-weight: bold;
+  color: #000000;
+  text-align: left;
 }
+
 table.minimalistBlack tfoot {
-    font-size: 14px;
-    font-weight: bold;
-    color: #000000;
-    border-top: 3px solid #000000;
+  font-size: 14px;
+  font-weight: bold;
+  color: #000000;
+  border-top: 3px solid #000000;
 }
+
 table.minimalistBlack tfoot td {
-    font-size: 14px;
+  font-size: 14px;
 }

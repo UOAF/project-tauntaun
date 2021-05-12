@@ -3,8 +3,44 @@
   position: fixed;
   margin-left: 10px;  
   text-align: left;
-  background: rgba(255, 255, 255, 0.3);
   z-index: 20;
+}
+
+.Menubar > div{
+  margin-top: 5px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 1);
+  box-shadow: 0 0 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
+}
+
+.Menubar > button{
+  background-color: rgba(255,255,255,0.5);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  padding: 6px 10px;
+  border-radius: 5px;
+  transition: 0.3s all ease;
+  box-shadow: 0 0 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
+}
+
+.Menubar > button:hover{
+  background-color: rgba(49, 107, 170, 0.8);
+  color: #ffffff;
+  padding: 6px 10px;
+}
+
+.Menubar > div button{
+  padding: 12px;
+  margin: 0 6px 5px 0;
+  background-color: rgba(0,0,0,0);
+  border: 1px solid rgba(0, 0, 0, 0.54);
+  color: rgba(0, 0, 0, 0.95);
+  transition: all 0.3s ease;
+}
+
+.Menubar > div button:hover{
+  box-shadow: 0 0 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
+  border-color: rgba(0,0,0,0.5);
+  color: rgba(0,0,0,0.8);
 }
 
 .MapTypeSelect {

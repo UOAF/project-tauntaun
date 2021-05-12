@@ -1,15 +1,23 @@
 .HelpBar {
-  bottom: 1%;
+  bottom: 0;
   position: fixed;
-  margin-left: 10px;  
   text-align: left;  
-  z-index: 20;  
+  z-index: 20;
+  padding: 10px 10px 15px 15px;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
 }
 
 .Spacer {
   margin-left: 10px;
 }
 
-.HelpBarLink {
+.HelpBarLink:link, .HelpBarLink:visited {
+  color: #333;
   text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.HelpBarLink:hover, .HelpBarLink:active {
+  color: crimson;
 }
