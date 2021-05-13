@@ -122,21 +122,36 @@ export function App() {
       <React.Fragment>
         {mapToken ? (
           <React.Fragment>
-            <Version />
-            <HelpBar />
             <ModeContext.Provider value={modeContext}>
-              <MissionTime />
-              {showRoleOverview && <RoleOverview />}
-              {showRoleSelectionForm && <RoleSelectionForm />}
-              {showAddFlightForm && <AddFlightForm />}
-              {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
-                <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
-              )}
-              {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
-              {showLoadMissionForm && <LoadMissionForm />}
-              {showSaveAsMissionForm && <SaveAsMissionForm />}
-              <MenuBar />
-              <CampaignMap lat={terrain.map_view_default.lat} lng={terrain.map_view_default.lon} zoom={9} />
+              <section className="App">
+                <header>
+                  <div className="titleVersion">
+                    <h1>Project TaunTaun</h1>
+                    <Version />
+                  </div>
+                  <div>
+                    <MissionTime />
+                  </div>
+                </header>
+                <MenuBar />
+                <main>
+                  {showRoleOverview && <RoleOverview />}
+                  {showRoleSelectionForm && <RoleSelectionForm />}
+                  {showAddFlightForm && <AddFlightForm />}
+                  {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
+                    <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
+                  )}
+                  {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
+                  {showLoadMissionForm && <LoadMissionForm />}
+                  {showSaveAsMissionForm && <SaveAsMissionForm />}
+                </main>
+                <footer>
+                  <HelpBar />
+                </footer>
+              </section>
+              <section className="mapContainer">
+                <CampaignMap lat={terrain.map_view_default.lat} lng={terrain.map_view_default.lon} zoom={9} />
+              </section>
             </ModeContext.Provider>
           </React.Fragment>
         ) : mapToken === undefined ? (
@@ -150,11 +165,27 @@ export function App() {
 
   switch (initializedState) {
     case InitialzationState.UNINITIALIZED:
-      return <span>Loading...</span>;
+      return (
+        <div>
+          <h1>Project Tauntaun</h1>
+          <p>Loading...</p>
+        </div>
+      );
     case InitialzationState.INITIALIZATION_FAILED:
-      return <span>Something went wrong, unable to connect to server or initialize app.</span>;
+      return (
+        <div>
+          <h1>Project Tauntaun</h1>
+          <p>Something went wrong, unable to connect to server or initialize app.</p>
+        </div>
+      );
     case InitialzationState.INITIALIZED: {
-      if (!connected) return <span>Disconnected from server refresh page in order to reconnect.</span>;
+      if (!connected)
+        return (
+          <div>
+            <h1>Project Tauntaun</h1>
+            <p>Disconnected from server refresh page in order to reconnect.</p>
+          </div>
+        );
       else return renderApp();
     }
   }

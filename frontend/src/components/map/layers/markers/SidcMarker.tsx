@@ -13,6 +13,7 @@ export type SidcMarkerProps = MarkerProps & {
   label?: string;
 };
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function SidcMarkerNonMemo(props: SidcMarkerProps) {
   const { sidc, label } = props;
 
@@ -30,12 +31,14 @@ export function SidcMarkerNonMemo(props: SidcMarkerProps) {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function SidcMarker(props: SidcMarkerProps) {
   const { sidc, label, position } = props;
   const positionLatLng = position as LatLng;
 
   const { commanderMode } = AppStateContainer.useContainer();
 
+  // prettier-ignore
   const memorizedItem = useMemo(() => <SidcMarkerNonMemo {...props} />, [
     sidc,
     label,

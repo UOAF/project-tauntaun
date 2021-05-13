@@ -4,12 +4,8 @@ import { AppStateContainer, MapStateContainer } from '../../models';
 import { Checkbox, FormControlLabel } from '@material-ui/core';
 
 export function AdminMenuBar() {
-  const {
-    commanderMode,
-    setCommanderMode,
-    setShowLoadMissionForm,
-    setShowSaveAsMissionForm
-  } = AppStateContainer.useContainer();
+  const { commanderMode, setCommanderMode, setShowLoadMissionForm, setShowSaveAsMissionForm } =
+    AppStateContainer.useContainer();
   const { showAllGroups, setShowAllGroups } = MapStateContainer.useContainer();
 
   const saveOnClick = () => {

@@ -1,25 +1,81 @@
-.Popup
-{
-    text-align:center;
-    position: fixed;
-    top: 10%;
-    left: 10%;
-    z-index:50;
-    width: 400px;
-    background-color: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.507);
-    border-radius: 2%;
+.Popup {
+  text-align: center;
+  position: fixed;
+  top: 10%;
+  left: 10%;
+  z-index: 50;
+  width: 400px;
+  background-color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.507);
+  border-radius: 2%;
 }
 
-.PopupBig
-{
-    text-align:center;
-    position: fixed;
-    top: 10%;
-    left: 10%;
-    z-index:50;
-    width: 80%;
-    background-color: #ffffff;
-    border: 1px solid rgba(0, 0, 0, 0.507);
-    border-radius: 1%;    
+.PopupBig {
+  text-align: center;
+  position: fixed;
+  top: 10vh;
+  left: 10vw;
+  z-index: 50;
+  width: 80vw;
+  background-color: #ffffff;
+  border-radius: 1%;
+  box-shadow: 0 0 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
+}
+
+.PopupBig>div {
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  padding: 10px;
+}
+
+.PopupBig>div>* {
+  margin: 0 5px;
+}
+
+.PopupBig input[type="text"]{
+    padding: 5px;
+    border-radius: 0;
+    border: 1px solid rgba(0,0,0, 0.8);
+    background-color: rgba(49, 107, 170, 0);
+    color: rgba(0,0,0, 0.8);
+}
+.PopupBig input[type="text"]:focus-visible,
+.PopupBig input[type="text"]:focus-within{
+    outline: none;
+    background-color: rgba(49, 107, 170, 0.1);
+    transition: 0.3s all ease;
+}
+
+.PopupBig>div>button {
+  border: 1px solid rgba(49, 107, 170, 0.8);
+  color: rgba(49, 107, 170, 0.8);
+  background-color: rgba(50, 50, 50, 0);
+  transition: all 0.3s ease;
+  padding: 5px;
+}
+
+.PopupBig>div>button:hover,
+.PopupBig>div>button:active {
+  color: rgba(255, 255, 255, 1);
+  background-color: rgba(49, 107, 170, 0.8);
+}
+
+.PopupBig>button {
+  /*border: 1px solid rgba(49, 107, 170, 1);*/
+  border: none;
+  color: rgba(49, 107, 170, 1);
+  font-size: 1.1rem;
+  background-color: rgba(49, 107, 170, 0);
+  transition: all 0.3s ease;
+  width: 100%;
+  padding: 5px;
+}
+
+.PopupBig>button:hover,
+.PopupBig>button:active {
+  color: #ffffff;
+  background-color: rgba(49, 107, 170, 1);
 }

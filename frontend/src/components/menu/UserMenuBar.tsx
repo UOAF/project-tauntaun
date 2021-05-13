@@ -9,13 +9,8 @@ import { ModeContext } from '../contexts';
 import { Foldable } from '../ui/Foldable';
 
 export function UserMenuBar() {
-  const {
-    commanderMode,
-    showRoleSelectionForm,
-    setShowLoadoutEditor,
-    setShowRoleSelectionForm,
-    setShowRoleOverview
-  } = AppStateContainer.useContainer();
+  const { commanderMode, showRoleSelectionForm, setShowLoadoutEditor, setShowRoleSelectionForm, setShowRoleOverview } =
+    AppStateContainer.useContainer();
 
   const {
     showUnits,

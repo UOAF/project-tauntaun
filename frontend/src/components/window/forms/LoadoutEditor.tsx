@@ -185,52 +185,62 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
 
   if (unitData) {
     return (
-      <div className="PopupBig">
+      <div className="LoadoutEditor">
         <p>Unit type: {unit.type}</p>
-        Chaff
-        <Slider
-          defaultValue={chaff}
-          value={chaff}
-          min={0}
-          max={unitData.charge_total / unitData.chaff_charge_size}
-          valueLabelDisplay="auto"
-          onChange={onChaffChange}
-          onChangeCommitted={onChaffChange}
-        />
-        Flare
-        <Slider
-          defaultValue={flare}
-          value={flare}
-          min={0}
-          max={unitData.charge_total / unitData.flare_charge_size}
-          valueLabelDisplay="auto"
-          onChange={onFlareChange}
-          onChangeCommitted={onFlareChange}
-        />
-        Gun
-        <Slider
-          defaultValue={gun}
-          step={1}
-          min={0}
-          max={100}
-          valueLabelDisplay="auto"
-          onChangeCommitted={onGunChange}
-        />
-        Fuel
-        <Slider
-          defaultValue={fuel}
-          step={1}
-          min={0}
-          max={unitData.fuel_max}
-          valueLabelDisplay="auto"
-          onChangeCommitted={onFuelChange}
-        />
-        {pylonOptions.map(pylonOption => renderPylonSelect(pylonOption))}
-        <p>
+        <div className="sliderContainer">
+          <div className="singleSlider">
+            <span>Chaff</span>
+            <Slider
+              defaultValue={chaff}
+              value={chaff}
+              min={0}
+              max={unitData.charge_total / unitData.chaff_charge_size}
+              valueLabelDisplay="auto"
+              onChange={onChaffChange}
+              onChangeCommitted={onChaffChange}
+            />
+          </div>
+          <div className="singleSlider">
+            <span>Flare</span>
+            <Slider
+              defaultValue={flare}
+              value={flare}
+              min={0}
+              max={unitData.charge_total / unitData.flare_charge_size}
+              valueLabelDisplay="auto"
+              onChange={onFlareChange}
+              onChangeCommitted={onFlareChange}
+            />
+          </div>
+          <div className="singleSlider">
+            <span>Gun</span>
+            <Slider
+              defaultValue={gun}
+              step={1}
+              min={0}
+              max={100}
+              valueLabelDisplay="auto"
+              onChangeCommitted={onGunChange}
+            />
+          </div>
+          <div className="singleSlider">
+            <span>Fuel</span>
+            <Slider
+              defaultValue={fuel}
+              step={1}
+              min={0}
+              max={unitData.fuel_max}
+              valueLabelDisplay="auto"
+              onChangeCommitted={onFuelChange}
+            />
+          </div>
+        </div>
+        <div className="pylonContainer">{pylonOptions.map(pylonOption => renderPylonSelect(pylonOption))}</div>
+        <div className="buttonContainer">
           <button onClick={onSaveClicked}>Save</button>
           {isSelectedUnitLeadOfFlight && <button onClick={onSaveForGroupClicked}>Save for group</button>}
           <button onClick={closeOnClick}>Close</button>
-        </p>
+        </div>
       </div>
     );
   } else {

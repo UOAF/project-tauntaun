@@ -1,0 +1,43 @@
+.CoalitionSelector {
+  z-index: 200;
+  position: absolute;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
+  width: 85%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 10px;
+    text-align: center;
+}
+
+.CoalitionSelector header h1 {
+  margin: 0 0 10px 0;
+}
+
+.CoalitionSelector header span {
+  font-size: 1.2rem;
+}
+
+.CoalitionSelector .CSButtonContainer {
+  margin: 10px 0 0 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 10vh;
+  grid-gap: 1rem;
+}
+
+.CoalitionSelector .CSButtonContainer button {
+  box-sizing: border-box;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.CoalitionSelector .CSButtonContainer .blue {
+  border-color: rgb(0, 132, 255);
+  background-color: rgb(0, 132, 255, 0.2);
+}
+
+.CoalitionSelector .CSButtonContainer .red {
+  border-color: rgb(253, 40, 32);
+  background-color: rgb(253, 40, 32, 0.2);
+}

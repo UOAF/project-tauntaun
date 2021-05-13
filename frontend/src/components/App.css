@@ -1,45 +1,55 @@
-h1,
-h2,
-p {
-  font-family: sans-serif;
-  text-align: center;
+.App{
+  display: grid;
+  grid-template-columns: 250px 100fr;
+  grid-template-rows: auto 100fr auto;
+  height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  position: absolute;
+  top:0;
+  left: 0;
+  background-color: transparent;
 }
 
-.App {
-  text-align: center;
-}
-
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.App > header{
+  grid-column: 1 / 3;
+  background-color: #ffffff;
+  z-index: 1000;
+  padding: 10px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  flex-flow: row nowrap;
+  flex-grow: 0;
+  justify-content: space-between;
+  box-shadow: 0 0 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
 }
 
-.App-link {
-  color: #61dafb;
+.App > header > .titleVersion{
+  display: flex;
+  align-items: baseline;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.App > header h1{
+  margin: 0;
+  margin: 0 10px 0 0;
+}
+
+.App .Menubar{
+  grid-column: 1 /span 1;
+  grid-row: 2 / 2;
+  background-color: transparent;
+  z-index: 50;
+}
+
+.App > main{
+  background-color: wheat;
+  margin: 10px 10px 10px 10px;
+  position: relative;
+}
+
+.App > footer{
+  z-index: 20;
+}
+
+.mapContainer{
+  position: relative;
 }

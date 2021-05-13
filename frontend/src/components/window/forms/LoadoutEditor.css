@@ -1,4 +1,51 @@
-.Pylon
-{
-  float:left;  
+.LoadoutEditor {
+  z-index: 200;
+  position: absolute;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
+  width: 100%;
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.LoadoutEditor .sliderContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  grid-gap: 1rem;
+  box-sizing: border-box;
+}
+
+.LoadoutEditor .pylonContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-gap: 1rem;
+}
+
+.LoadoutEditor .buttonContainer {
+  display: flex;
+  justify-content: space-around;
+}
+
+.LoadoutEditor .buttonContainer button {
+  margin: 10px 0 0 0;
+  background-color: rgba(49, 107, 170, 0);
+  border: 1px solid rgba(49, 107, 170, 0.8);
+  color: rgba(49, 107, 170, 0.8);
+  padding: 5px;
+  width: 100%;
+  transition: 0.3s all ease;
+  box-sizing: border-box;
+}
+
+.LoadoutEditor .buttonContainer button:nth-child(2){
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.LoadoutEditor .buttonContainer button:hover,
+.LoadoutEditor .buttonContainer button:active {
+  background-color: rgba(49, 107, 170, 0.8);
+  color: #ffffff;
 }
