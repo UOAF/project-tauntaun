@@ -2,7 +2,6 @@
   display: grid;
   grid-template-columns: 250px 100fr;
   grid-template-rows: auto 100fr auto;
-
   height: 100vh;
   width: 100vw;
   overflow-x: hidden;

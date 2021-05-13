@@ -1,9 +1,3 @@
-.Pylon {
-  /*float:left;*/
-}
-
-.pylonContainer {}
-
 .LoadoutEditor {
   z-index: 200;
   position: absolute;

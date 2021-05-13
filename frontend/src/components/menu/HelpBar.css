@@ -8,10 +8,6 @@
   justify-content: space-between;
 }
 
-.Spacer {
-  margin-left: 10px;
-}
-
 .HelpBarLink:link, .HelpBarLink:visited {
   color: #333;
   text-decoration: none;
