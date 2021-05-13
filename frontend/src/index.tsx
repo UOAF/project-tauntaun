@@ -19,22 +19,21 @@ import {
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <AppStateContainer.Provider>
-      <MapStateContainer.Provider>
-        <MissionStateContainer.Provider>
-          <SelectionStateContainer.Provider>
-            <SessionStateContainer.Provider>
-              <DcsStaticDataStateContainer.Provider>
-                <App />
-              </DcsStaticDataStateContainer.Provider>
-            </SessionStateContainer.Provider>
-          </SelectionStateContainer.Provider>
-        </MissionStateContainer.Provider>
-      </MapStateContainer.Provider>
-    </AppStateContainer.Provider>
-  </React.StrictMode>,
-  document.getElementById('root')
+  //<React.StrictMode>
+  <AppStateContainer.Provider>
+    <MapStateContainer.Provider>
+      <MissionStateContainer.Provider>
+        <SelectionStateContainer.Provider>
+          <SessionStateContainer.Provider>
+            <DcsStaticDataStateContainer.Provider>
+              <App />
+            </DcsStaticDataStateContainer.Provider>
+          </SessionStateContainer.Provider>
+        </SelectionStateContainer.Provider>
+      </MissionStateContainer.Provider>
+    </MapStateContainer.Provider>
+  </AppStateContainer.Provider>,
+  /*</React.StrictMode>*/ document.getElementById('root')
 );
 
 // If you want your app to work offline and load faster, you can change
