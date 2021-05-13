@@ -30,7 +30,7 @@ export function MenuBar() {
     <React.Fragment>
       <div className="Menubar">
         <Foldable onContextMenu={onContextMenu}>
-          <div>
+          <div className="MenuBarInner">
             {adminMode && (
               <div>
                 <AdminMenuBar />
