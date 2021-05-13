@@ -182,7 +182,7 @@ async function receiveUpdateMessage(event: any) {
   const do_unzip = promisify(inflate);
   const unzipped_data = await do_unzip(data);
 
-  const message = JSON.parse((unzipped_data as unknown) as string);
+  const message = JSON.parse(unzipped_data as unknown as string);
   if (message.key === 'mission_updated') {
     Object.keys(missionUpdateListeners).forEach(key => missionUpdateListeners[key](message.value));
   } else if (message.key === 'sessionid') {
