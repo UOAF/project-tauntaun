@@ -1,11 +1,11 @@
-.HelpBar {
-  bottom: 0;
-  position: fixed;
-  text-align: left;  
+.HelpBar { 
   z-index: 20;
-  padding: 10px 10px 15px 15px;
+  padding: 15px;
   background-color: #ffffff;
   box-shadow: 0 0 0 #e0e0e0, 0 0 2px rgba(0, 0, 0, .12), 0 2px 4px rgba(0, 0, 0, .24);
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
 }
 
 .Spacer {

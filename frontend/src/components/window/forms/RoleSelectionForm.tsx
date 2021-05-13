@@ -1,4 +1,5 @@
-import '../Window.css';
+import './RoleSelectionForm.css';
+import './CoalitionSelector.css';
 
 import React, { useState } from 'react';
 
@@ -95,21 +96,35 @@ export function RoleSelectionForm() {
   const onClose = () => setShowRoleSelectionForm(false);
 
   const renderCoalitionSelector = () => (
-    <div>
-      Select coalition:
-      <button onClick={() => onCoalitionSelected(Coalitions.BLUE)}>Blue</button>
-      <button onClick={() => onCoalitionSelected(Coalitions.RED)}>Red</button>
-    </div>
+    <section className="CoalitionSelector">
+      <header>
+        <h1>Welcome to project Tauntaun</h1>
+        <span>Select coalition</span>
+      </header>
+      <div className="CSButtonContainer">
+        <button className="blue" onClick={() => onCoalitionSelected(Coalitions.BLUE)}>
+          Blue
+        </button>
+        <button className="red" onClick={() => onCoalitionSelected(Coalitions.RED)}>
+          Red
+        </button>
+      </div>
+    </section>
   );
 
   const renderRoleSelection = () => (
-    <React.Fragment>
-      <div>
-        Name
-        <input type="text" value={name} onChange={onNameChange} />
+    <section className="RoleSelectionForm">
+      <header>
+        <h2>Role Selection</h2>
+      </header>
+      <div className="nameContainer">
+        <div className="inputContainer">
+          <span>Name</span>
+          <input placeholder="Enter Your Name" type="text" value={name} onChange={onNameChange} />
+        </div>
         <button onClick={onSetNameClicked}>Set name</button>
       </div>
-      <div>
+      <div className="groupSelectContainer">
         <InputLabel id="group-select">Group</InputLabel>
         <Select onChange={onGroupChange} value={group ? group.id : ''}>
           {groupOptions.map((option, i) => (
@@ -119,7 +134,7 @@ export function RoleSelectionForm() {
           ))}
         </Select>
       </div>
-      <div>
+      <div className="unitSelectContainer">
         <InputLabel id="unit-select">Unit</InputLabel>
         <List>
           {unitOptions.map(option => (
@@ -129,14 +144,16 @@ export function RoleSelectionForm() {
           ))}
         </List>
       </div>
-      {showLeaveUnit && <button onClick={onLeaveUnitClicked}>Leave unit</button>}
-    </React.Fragment>
+      {showLeaveUnit && (
+        <button className="bottomButton" onClick={onLeaveUnitClicked}>
+          Leave unit
+        </button>
+      )}
+      <button className="bottomButton" onClick={onClose}>
+        Close
+      </button>
+    </section>
   );
 
-  return (
-    <div className="PopupBig">
-      {sessionCoalition ? renderRoleSelection() : renderCoalitionSelector()}
-      <button onClick={onClose}>Close</button>
-    </div>
-  );
+  return <React.Fragment>{sessionCoalition ? renderRoleSelection() : renderCoalitionSelector()}</React.Fragment>;
 }

@@ -236,8 +236,7 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
           </div>
         </div>
         <div className="pylonContainer">{pylonOptions.map(pylonOption => renderPylonSelect(pylonOption))}</div>
-
-        <div>
+        <div className="buttonContainer">
           <button onClick={onSaveClicked}>Save</button>
           {isSelectedUnitLeadOfFlight && <button onClick={onSaveForGroupClicked}>Save for group</button>}
           <button onClick={closeOnClick}>Close</button>

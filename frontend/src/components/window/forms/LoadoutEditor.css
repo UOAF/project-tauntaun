@@ -29,3 +29,8 @@
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   grid-gap: 1rem;
 }
+
+.LoadoutEditor .buttonContainer{
+  display: flex;
+  justify-content: space-around;
+}
