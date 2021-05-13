@@ -1,9 +1,9 @@
-import '../Window.css';
+import './EditWaypointForm.css';
 
 import React, { useState } from 'react';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
-import { MenuItem, Select, TextField } from '@material-ui/core';
+import { MenuItem, Radio, RadioGroup, Select, TextField, Switch, withStyles } from '@material-ui/core';
 import { AltType, SelectionStateContainer, Group, MovingPoint, PointAction } from '../../../models';
 import { gameService } from '../../../services';
 import { c_MeterToFeet } from '../../../data/constants';
@@ -69,33 +69,48 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
   };
 
   const closeOnClick = () => selectWaypoint(undefined);
-  const onUnitsSystemChange = (event: React.ChangeEvent<HTMLInputElement>) => setImperial(event.target.checked);
+
+  const onUnitsSystemChange = () => {
+    setImperial(!useImperial);
+  };
+
   const onAltTypeChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setAltType(event.target.checked ? AltType.BARO : AltType.RADIO);
-  const onWpNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+
+  /*const onWpNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectValue = +event.target.value;
     selectWaypoint(clamp(selectValue, 0, group.points.length - 1));
-  };
+  };*/
+
   const onSetTargetClicked = () => {
     setAltType(AltType.RADIO);
     setAlt(0);
   };
 
+  const GraySwitch = withStyles({
+    switchBase: {
+      color: 'rgba(49, 107, 170, 1)',
+      $track: {
+        backgroundColor: 'rgba(0,0,0,0.38)'
+      }
+    },
+    checked: {},
+    track: {}
+  })(Switch);
+
   return (
-    <div className="Popup">
-      <p>Group name: {group.name}</p>
-      <TextField
-        id="waypoint-number"
-        label="Waypoint number"
-        type="number"
-        value={currentPointIndex}
-        InputLabelProps={{
-          shrink: true
-        }}
-        onChange={onWpNumberChange}
-      />
+    <section className="EditWaypointContainer">
+      <header>
+        <h2>Group name: {group.name}</h2>
+      </header>
       <div>
-        Alt:{' '}
+        <div className="WaypointNumber">
+          <span>Waypoint</span>
+          <p>{currentPointIndex}</p>
+        </div>
+      </div>
+      <div className="WaypointAltitude">
+        <span className="WaypointAltitudeTitle">Altitude</span>
         <input
           type="text"
           pattern="[0-100000]"
@@ -104,24 +119,44 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
             setAlt(useImperial ? +event.target.value / c_MeterToFeet : +event.target.value);
           }}
         />
-        <FormControlLabel
-          value="start"
-          control={<Checkbox checked={useImperial} color="primary" onChange={onUnitsSystemChange} />}
-          label="ft"
-          labelPlacement="end"
-        />
-        {altType && (
+        <div className="Toggle">
+          <span>Meters</span>
           <FormControlLabel
-            value="start"
-            control={<Checkbox checked={altType === AltType.BARO} color="primary" onChange={onAltTypeChange} />}
-            label="baro"
-            labelPlacement="end"
+            control={
+              <GraySwitch
+                checked={useImperial}
+                onChange={onUnitsSystemChange}
+                name="Use Imperial"
+                size="small"
+                color="default"
+              />
+            }
+            label=""
           />
+          <span>Feet</span>
+        </div>
+        {altType && (
+          <div className="Toggle">
+            <span>AGL</span>
+            <FormControlLabel
+              control={
+                <GraySwitch
+                  checked={altType === AltType.BARO}
+                  onChange={onAltTypeChange}
+                  name="Use Imperial"
+                  size="small"
+                  color="default"
+                />
+              }
+              label=""
+            />
+            <span>MSL</span>
+          </div>
         )}
       </div>
       <button onClick={onSetTargetClicked}>Set as ground target</button>
-      <div>
-        Name:{' '}
+      <div className="fieldContainer">
+        <span>Name</span>
         <input
           type="text"
           value={name}
@@ -130,8 +165,8 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
           }}
         />
       </div>
-      <div>
-        Speed:
+      <div className="fieldContainer">
+        <span>Speed</span>
         <input
           type="text"
           pattern="[0-2]{0,1}[0-9]{1,3}[\.,][0-9]+"
@@ -141,8 +176,8 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
           }}
         />
       </div>
-      <React.Fragment>
-        Action:
+      <div className="fieldContainer">
+        <span>Action</span>
         <Select onChange={onActionChange} value={action}>
           {actionsOptions.map((option, i) => (
             <MenuItem key={`actionsOptions${i}`} value={option.value}>
@@ -150,11 +185,11 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
             </MenuItem>
           ))}
         </Select>
-      </React.Fragment>
+      </div>
       <div>
         <button onClick={saveWaypointOnClick}>Save waypoint</button>
         <button onClick={closeOnClick}>Close</button>
       </div>
-    </div>
+    </section>
   );
 }
