@@ -122,37 +122,37 @@ export function App() {
       <React.Fragment>
         {mapToken ? (
           <React.Fragment>
-            <section className="App">
-              <header>
-                <div className="titleVersion">
-                  <h1>Project TaunTaun</h1>
-                  <Version />
-                </div>
-                <div>
-                  <MissionTime />
-                </div>
-              </header>
-              <MenuBar />
-              <main>
-                {showRoleOverview && <RoleOverview />}
-                {showRoleSelectionForm && <RoleSelectionForm />}
-                {showAddFlightForm && <AddFlightForm />}
-                {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
-                  <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
-                )}
-                {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
-                {showLoadMissionForm && <LoadMissionForm />}
-                {showSaveAsMissionForm && <SaveAsMissionForm />}
-              </main>
-              <footer>
-                <HelpBar />
-              </footer>
-            </section>
-            <section className="mapContainer">
-              <ModeContext.Provider value={modeContext}>
+            <ModeContext.Provider value={modeContext}>
+              <section className="App">
+                <header>
+                  <div className="titleVersion">
+                    <h1>Project TaunTaun</h1>
+                    <Version />
+                  </div>
+                  <div>
+                    <MissionTime />
+                  </div>
+                </header>
+                <MenuBar />
+                <main>
+                  {showRoleOverview && <RoleOverview />}
+                  {showRoleSelectionForm && <RoleSelectionForm />}
+                  {showAddFlightForm && <AddFlightForm />}
+                  {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
+                    <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
+                  )}
+                  {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
+                  {showLoadMissionForm && <LoadMissionForm />}
+                  {showSaveAsMissionForm && <SaveAsMissionForm />}
+                </main>
+                <footer>
+                  <HelpBar />
+                </footer>
+              </section>
+              <section className="mapContainer">
                 <CampaignMap lat={terrain.map_view_default.lat} lng={terrain.map_view_default.lon} zoom={9} />
-              </ModeContext.Provider>
-            </section>
+              </section>
+            </ModeContext.Provider>
           </React.Fragment>
         ) : mapToken === undefined ? (
           <span>Loading...</span>
