@@ -2,8 +2,7 @@ import './EditWaypointForm.css';
 
 import React, { useState } from 'react';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Checkbox from '@material-ui/core/Checkbox';
-import { MenuItem, Radio, RadioGroup, Select, TextField, Switch, withStyles } from '@material-ui/core';
+import { MenuItem, Select, Switch, withStyles } from '@material-ui/core';
 import { AltType, SelectionStateContainer, Group, MovingPoint, PointAction } from '../../../models';
 import { gameService } from '../../../services';
 import { c_MeterToFeet } from '../../../data/constants';
@@ -77,10 +76,13 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
   const onAltTypeChange = (event: React.ChangeEvent<HTMLInputElement>) =>
     setAltType(event.target.checked ? AltType.BARO : AltType.RADIO);
 
-  /*const onWpNumberChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selectValue = +event.target.value;
-    selectWaypoint(clamp(selectValue, 0, group.points.length - 1));
-  };*/
+  const onWpNumberUp = () => {
+    selectWaypoint(clamp(currentPointIndex + 1, 0, group.points.length - 1));
+  };
+
+  const onWpNumberDown = () => {
+    selectWaypoint(clamp(currentPointIndex - 1, 0, group.points.length - 1));
+  };
 
   const onSetTargetClicked = () => {
     setAltType(AltType.RADIO);
@@ -105,8 +107,14 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
       </header>
       <div>
         <div className="WaypointNumber">
-          <span>Waypoint</span>
-          <p>{currentPointIndex}</p>
+          <div>
+            <span>Waypoint</span>
+            <p>{currentPointIndex}</p>
+          </div>
+          <div className="WaypointButtonContainer">
+            <button onClick={onWpNumberDown}>Prev</button>
+            <button onClick={onWpNumberUp}>Next</button>
+          </div>
         </div>
       </div>
       <div className="WaypointAltitude">
