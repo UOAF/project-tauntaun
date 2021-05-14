@@ -19,7 +19,6 @@ import {
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
-  //<React.StrictMode>
   <AppStateContainer.Provider>
     <MapStateContainer.Provider>
       <MissionStateContainer.Provider>
@@ -33,7 +32,7 @@ ReactDOM.render(
       </MissionStateContainer.Provider>
     </MapStateContainer.Provider>
   </AppStateContainer.Provider>,
-  /*</React.StrictMode>*/ document.getElementById('root')
+  document.getElementById('root')
 );
 
 // If you want your app to work offline and load faster, you can change
