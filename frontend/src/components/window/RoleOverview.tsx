@@ -1,4 +1,3 @@
-//import './Window.css';
 import './RoleOverview.css';
 
 import React from 'react';
@@ -9,7 +8,6 @@ import {
   MissionStateContainer,
   SessionStateContainer
 } from '../../models';
-import { max } from 'lodash';
 export function RoleOverview() {
   const { setShowRoleOverview } = AppStateContainer.useContainer();
   const { sessionId, sessions } = SessionStateContainer.useContainer();
@@ -22,7 +20,7 @@ export function RoleOverview() {
     .map(g => g.group);
   const numberOfUnitsPerGroup = groupsWithClients.map(g => g.units.length);
   const totalNumberOfSlots = numberOfUnitsPerGroup.reduce((pv, cv) => pv + cv, 0);
-  //const maxNumberOfUnitsPerGroup = max(numberOfUnitsPerGroup);
+
   const totalNumberOfOccupiedUnits = groupsWithClients
     .map(group =>
       group.units.map(unit => findPilotNameForUnit(sessions, unit.id)).reduce((pv, cv) => (cv ? pv + 1 : pv), 0)
