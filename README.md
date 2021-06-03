@@ -13,7 +13,9 @@ Tauntaun Live Editor is browser based collaborative mission planning tool for DC
 A [mapbox](https://www.mapbox.com/) access token (free tier is available)
 #### Installation
 #### Windows release
-Executable is available under [releases](https://github.com/UOAF/project-tauntaun/releases).
+Executable is available under [releases](https://github.com/UOAF/project-tauntaun/releases).   
+Develompent builds are available under [actions](https://github.com/UOAF/project-tauntaun/actions/workflows/exe.yml)   
+_You need to be logged in to be able to see the download links._
 
 ##### Python 3.8
 ##### pip
