@@ -1,10 +1,10 @@
+import dcs
+import json
+import inspect
 import os
 import sys
 sys.path.append(f"{os.path.dirname(os.path.realpath(__file__))}/dcs")
 
-import inspect
-import json
-import dcs
 
 sidc_overrides = {
     'E-3A': 'SFAPMFRW--*****',
@@ -26,6 +26,17 @@ vehicle_overrides = {
     }
 }
 
+plane_overrides = {
+    # 'FA-18C_hornet': {
+    #     'chaff': 60,
+    #     'flare': 60,
+    #     'charge_total': 120,
+    #     'chaff_charge_size': 1,
+    #     'flare_charge_size': 1,
+    # },
+}
+
+
 def _map_planes():
     result = {}
     for module_name, module_obj in inspect.getmembers(sys.modules["dcs.planes"]):
@@ -37,20 +48,28 @@ def _map_planes():
                           'flare_charge_size': module_obj.flare_charge_size, 'category': module_obj.category,
                           'tacan': module_obj.tacan, 'eplrs': module_obj.eplrs,
                           'radio_frequency': module_obj.radio_frequency, 'pylons': {}}
-            # plane_data['ammo_type'] = module_obj.ammo_type
-            for plane_name, plane_obj in inspect.getmembers(module_obj):
-                if inspect.isclass(plane_obj) and plane_name[0:5] == "Pylon":
-                    for pylon_name, pylon_obj in inspect.getmembers(plane_obj):
+
+            for member_name, member_obj in inspect.getmembers(module_obj):
+                if inspect.isclass(member_obj) and member_name[0:5] == "Pylon":
+                    for pylon_name, pylon_obj in inspect.getmembers(member_obj):
                         if isinstance(pylon_obj, tuple):
                             pylon_number = pylon_obj[0]
                             if pylon_number not in plane_data['pylons']:
                                 plane_data['pylons'][pylon_number] = []
 
-                            plane_data['pylons'][pylon_number].append(pylon_name)
+                            plane_data['pylons'][pylon_number].append(
+                                pylon_name)
 
-            result[module_obj.id] = plane_data
+            plane_name = module_obj.id
+            if plane_name in plane_overrides:
+                override = plane_overrides[plane_name]
+                for key in override.keys():
+                    plane_data[key] = override[key]
+
+            result[plane_name] = plane_data
 
     return result
+
 
 def _map_ships():
     result = {}
@@ -84,6 +103,7 @@ def _map_weapons():
 
     return weapons
 
+
 def _map_vehicles():
     result = {}
     for module_name, module_obj in inspect.getmembers(sys.modules["dcs.vehicles"]):
@@ -100,11 +120,13 @@ def _map_vehicles():
                         'category': module_name
                     }
 
-                    if name in vehicle_overrides:
-                        for key, value in inspect.getmembers(vehicle_overrides[name]):
-                            result[name][key] = value
+                    if obj.id in vehicle_overrides:
+                        override = vehicle_overrides[obj.id]
+                        for key in override.keys():
+                            result[name][key] = override[key]
 
     return result
+
 
 def _generate_sidc(mapped_vehicles):
     sidc_map = {}
@@ -136,15 +158,15 @@ def _generate_sidc(mapped_vehicles):
         elif category == 'Fortification':
             sidc = 'SFGPI-----H-'
         elif category == 'Unarmed':
-            sidc = 'SFGPU-------' # default
+            sidc = 'SFGPU-------'  # default
         elif category == 'Armor':
             sidc = 'SFGPUCA-----'
         elif category == 'MissilesSS':
             sidc = 'SFGPUCM-----'
         elif category == 'Locomotive':
-            sidc = 'SFGPUSTR----' # TODO "Railhead" symbol
+            sidc = 'SFGPUSTR----'  # TODO "Railhead" symbol
         elif category == 'Carriage':
-            sidc = 'SFGPUSTR----' # TODO "Railhead" symbol
+            sidc = 'SFGPUSTR----'  # TODO "Railhead" symbol
 
         sidc_map[vehicle['id']] = sidc
 
@@ -163,13 +185,16 @@ def _generate_sidc(mapped_vehicles):
 
     return {**sidc_map, **sidc_overrides}
 
+
 _static_json = None
+
 
 def get_static_json():
     global _static_json
     if _static_json is None:
         _static_json = gen_static_json()
     return _static_json
+
 
 def gen_static_json():
     planes = _map_planes()
@@ -187,4 +212,4 @@ def gen_static_json():
         'sidc': sidc
     }
 
-    return  json.dumps(static_data)
+    return json.dumps(static_data)

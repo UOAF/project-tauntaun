@@ -44,6 +44,11 @@ elseif map_name == 'Normandy' then
   left = -114995
   bottom = -129982
   right = 129991
+elseif map_name == 'TheChannel' then
+  top = 74967
+  left = -114995
+  bottom = -129982
+  right = 129991
 end
 
 local x_step = (bottom - top) / resolution

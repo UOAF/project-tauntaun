@@ -444,5 +444,11 @@ _terrain_data = {
         'z': -282800.99275397,
         'zone': 37,
         'southhemi': False
-    }
+    },
+    'TheChannel': {
+        'x': 5484812.64515257,
+        'z': 195525.99448141,
+        'zone': 30,
+        'southhemi': False
+    }    
 }
