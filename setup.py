@@ -7,7 +7,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="tauntaun-live-editor",
-    version="0.3.0",
+    version="0.3.1",
     author="UOAF",
     author_email="uoaf@fakemail.invalid",
     description="Project Tauntaun Live Editor",
