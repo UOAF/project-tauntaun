@@ -450,5 +450,11 @@ _terrain_data = {
         'z': 195525.99448141,
         'zone': 30,
         'southhemi': False
-    }    
+    },
+    'MarianaIslands': {
+        'x': 1491839.88704271,
+        'z': -238417.99059562,
+        'zone': 55,
+        'southhemi': False
+    }
 }
