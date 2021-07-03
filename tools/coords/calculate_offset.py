@@ -1,7 +1,9 @@
 import numpy as np
-import sys
+import sys, os
 
-from live_editor.backend.coord import _CoordInterpolator, _terrain_data
+sys.path.append(os.path.join(os.path.dirname(__file__), '../../', 'tauntaun_live_editor'))
+
+from coord import _CoordInterpolator, _terrain_data
 from scipy.optimize import fmin
 
 def convert_line(line):
