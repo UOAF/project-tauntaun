@@ -13,6 +13,7 @@ class Config:
     default_coalition: str = ""
     default_mission: str = ""
     missions_directory: str = ""
+    port: int = 8080
 
 def _get_datadir() -> pathlib.Path:
 

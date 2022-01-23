@@ -384,7 +384,7 @@ def main():
             batumi = c.mission.terrain.batumi()
             batumi.set_blue()
 
-        server.run(c, session_manager, 8080)
+        server.run(c, session_manager, config.config.port)
 
     except Exception as e:
         logging.exception('Got exception on main handler')
