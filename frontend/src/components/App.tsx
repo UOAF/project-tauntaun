@@ -68,7 +68,11 @@ export function App() {
     const initApp = async () => {
       try {
         gameService.registerForOnClose(onConnectionClosed);
-        await gameService.openSocket();
+
+        // Workaround, port fetched from requested URL in browser
+        const port = location.port ? location.port : '80';
+        await gameService.openSocket(+port);
+
         console.info('GameService initialized');
         setConnected(true);
         await initializeDcsStaticData();

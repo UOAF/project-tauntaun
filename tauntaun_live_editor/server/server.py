@@ -80,7 +80,6 @@ def create_app(campaign, session_manager):
 
         return json.dumps(miz_files)
 
-
     def collect_websocket(on_connect, on_disconnect):
         def wrapper_0(func):
             @wraps(func)

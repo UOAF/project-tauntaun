@@ -16,7 +16,7 @@ export type GenericUpdateListener = (message: any) => void;
 export type OnCloseListener = (ev: CloseEvent) => void;
 
 export interface GameService {
-  openSocket(): Promise<void>;
+  openSocket(port: number): Promise<void>;
 
   sendRouteInsertAt(group: Group, atWp: Point, newWp: Point): void;
   sendRouteRemove(group: Group, wp: Point): void;
@@ -194,12 +194,12 @@ async function receiveUpdateMessage(event: any) {
   }
 }
 
-async function openSocket(): Promise<void> {
+async function openSocket(port: number): Promise<void> {
   return new Promise((resolve, reject) => {
     try {
       const url = new URL('/ws/message', window.location.href);
       url.protocol = url.protocol.replace('http', 'ws');
-      url.port = '8080';
+      url.port = port.toString();
       socket = new WebSocket(url.toString());
       socket.binaryType = 'arraybuffer';
       socket.onopen = () => resolve();
