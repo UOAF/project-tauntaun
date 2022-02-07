@@ -50,7 +50,7 @@ class GameService:
         jtac = self.campaign.mission.vehicle_group(
             country,
             "jtac",
-            dcs.countries.USA.Vehicle.Unarmed.APC_HMMWV_Jeep,
+            dcs.vehicles.Unarmed.Hummer,
             location
         )
 
