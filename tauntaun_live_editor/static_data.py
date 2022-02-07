@@ -142,8 +142,8 @@ def _map_vehicles():
     result = {}
     for module_name, module_obj in inspect.getmembers(sys.modules["dcs.vehicles"]):
         if inspect.isclass(module_obj) and module_name != "vehicle_map":
-            for name, obj in inspect.getmembers(module_obj):
-                if inspect.isclass(obj):    
+            for name, obj in inspect.getmembers(module_obj):                
+                if inspect.isclass(obj) and hasattr(obj, "id"):    
                     result[name] = {
                         'id': obj.id,
                         'name': obj.name,
@@ -247,5 +247,9 @@ def gen_static_json():
         'ships': ships,
         'sidc': sidc
     }
+
+    f = open("/home/adam/adam/temp/demofile2.txt", "w")
+    f.write(json.dumps(static_data))
+    f.close()
 
     return json.dumps(static_data)
