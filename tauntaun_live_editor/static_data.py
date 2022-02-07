@@ -143,7 +143,7 @@ def _map_vehicles():
     for module_name, module_obj in inspect.getmembers(sys.modules["dcs.vehicles"]):
         if inspect.isclass(module_obj) and module_name != "vehicle_map":
             for name, obj in inspect.getmembers(module_obj):
-                if inspect.isclass(obj) and name[0] != '_':    
+                if inspect.isclass(obj):    
                     result[name] = {
                         'id': obj.id,
                         'name': obj.name,
