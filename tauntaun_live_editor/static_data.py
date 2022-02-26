@@ -248,8 +248,4 @@ def gen_static_json():
         'sidc': sidc
     }
 
-    f = open("/home/adam/adam/temp/demofile2.txt", "w")
-    f.write(json.dumps(static_data))
-    f.close()
-
     return json.dumps(static_data)
