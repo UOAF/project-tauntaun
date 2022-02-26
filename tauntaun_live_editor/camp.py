@@ -33,7 +33,7 @@ def _convert_point(terrain, p):
     lat = float(p['lat'])
     lon = float(p['lon'])
     x, z = lat_lon_to_xz(terrain.name, lat, lon)
-    return mapping.Point(x, z)
+    return mapping.Point(x, z, terrain)
 
 class GameService:
     def __init__(self, campaign):
@@ -301,7 +301,7 @@ class Campaign():
             lat = float(new_pos['lat'])
             lon = float(new_pos['lon'])
             x, z = lat_lon_to_xz(self.mission.terrain.name, lat, lon)
-            point.position = mapping.Point(x, z)
+            point.position = mapping.Point(x, z, self.mission.terrain)
 
     def load_mission(self, filename):
         if self.autosave_timer.is_running():

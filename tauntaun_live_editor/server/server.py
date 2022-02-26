@@ -251,7 +251,7 @@ def create_app(campaign, session_manager):
 
             await broadcast_bullseye_update(
                 data['coalition'],
-                Point(bulls['x'], bulls['y']))
+                Point(bulls['x'], bulls['y'], campaign.mission.terrain))
 
         dispatch_map = {
             'group_route_insert_at': group_route_insert_at,
