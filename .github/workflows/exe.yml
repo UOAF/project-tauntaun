@@ -38,6 +38,7 @@ jobs:
         run: |
           ./env/scripts/activate
           python -m pip install -r requirements.txt
+          python -m pip install -r tauntaun_live_editor\dcs\requirements.txt          
           python -m pip install -I setuptools
           
       - name: Set version for UI
