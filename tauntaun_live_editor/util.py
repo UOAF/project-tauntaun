@@ -34,7 +34,10 @@ def get_saved_games_dir():
     return saved_games
 
 def get_dcs_dir():
-    dcs_dir = os.path.join(get_saved_games_dir(), "DCS.openbeta")
+    dcs_dir = config.config.dcs_directory
+
+    if not os.path.exists(dcs_dir):
+        dcs_dir = os.path.join(get_saved_games_dir(), "DCS.openbeta")
 
     if not os.path.exists(dcs_dir):
         dcs_dir = os.path.join(get_saved_games_dir(), "DCS")
@@ -42,8 +45,8 @@ def get_dcs_dir():
     if not os.path.exists(dcs_dir):
         dcs_dir = os.path.join(get_saved_games_dir(), "DCS.openbeta_server")
 
-        if not os.path.exists(dcs_dir):
-            return ""
+    if not os.path.exists(dcs_dir):
+        return ""
 
     return dcs_dir
 

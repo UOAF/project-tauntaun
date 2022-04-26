@@ -14,6 +14,7 @@ class Config:
     default_mission: str = ""
     missions_directory: str = ""
     port: int = 8080
+    dcs_directory: str = ""
 
 def _get_datadir() -> pathlib.Path:
 
