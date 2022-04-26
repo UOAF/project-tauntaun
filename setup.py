@@ -30,7 +30,7 @@ setuptools.setup(
     },
     install_requires=[
       'wheel>=0.35.1',
-      'Quart>=0.12.0',
+      'Quart>=0.17.0',
       'dataclasses-json>=0.5.2'
     ],
     entry_points={
