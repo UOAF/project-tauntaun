@@ -14,5 +14,6 @@ source env/bin/activate
 export CI=false
 pushd frontend && yarn && yarn build && popd
 
-cp -r frontend/build/* tauntaun_live_editor/data/client
+mkdir tauntaun_live_editor/data/client/
+cp -r frontend/build/* tauntaun_live_editor/data/client/
 
