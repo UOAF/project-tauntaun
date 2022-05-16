@@ -13,51 +13,23 @@ Tauntaun Live Editor is browser based collaborative mission planning tool for DC
 A [mapbox](https://www.mapbox.com/) access token (free tier is available)
 #### Installation
 #### Windows release
-Executable is available under [releases](https://github.com/UOAF/project-tauntaun/releases).   
+**Use develompent builds** ~~Executable is available under [releases](https://github.com/UOAF/project-tauntaun/releases).~~
     
 Develompent builds are available under [actions](https://github.com/UOAF/project-tauntaun/actions/workflows/exe.yml)   
 Click the top "Build exe" action and on the bottom of the page there should be a link to the dev build "tauntaun_live_editor_\<long number\>".    
 _You need to be logged in to be able to see the download links._    
 I recommend checking dev builds if something is missing(e.g. new weapon) or broken after a DCS patch.
-##### Python 3.8-3.10
-##### pip
-```bash
-pip install wheel # Only on Linux
-pip install tauntaun_live_editor
-```
-##### archive
-```bash
-pip install wheel # Only on Linux
-
-extract archive
-cd extracted archive
-pip install .
-```
-
-#### Upgrade
-```
-pip install --upgrade tauntaun_live_editor
-```
 
 #### Configuration
 Configuration can be found at
 ```
 Windows: C:/<User>/AppData/Roaming/tauntaun_live_editor/config.json
-Linux: ~/.local/share/tauntaun_live_editor/config.json
-MacOs: ~/Library/Application Support/tauntaun_live_editor/config.json
 ```
 map_token: MapBox access token  
 admin_password: password in SHA256 format, default is 1234
 #### Run server
 ```
-# Windows release
 tauntaun_live_editor.exe
-
-# Python module
-tauntaun_live_editor
-# Or if that does not work for some reason
-py -m tauntaun_live_editor # Windows
-python3 -m tauntaun_live_editor # Linux
 ```
 
 #### Join to server
