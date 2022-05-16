@@ -199,7 +199,14 @@ async function openSocket(port: number): Promise<void> {
     try {
       const url = new URL('/ws/message', window.location.href);
       url.protocol = url.protocol.replace('http', 'ws');
-      url.port = port.toString();
+      const isDevServer = process.env.NODE_ENV === 'development';
+      const isUsingDevDefaultPort = port === 3000;
+      if (isDevServer && isUsingDevDefaultPort) {
+        // ugly hack to forward to 8080 for development...
+        url.port = '8080';
+      } else {
+        url.port = port.toString();
+      }
       socket = new WebSocket(url.toString());
       socket.binaryType = 'arraybuffer';
       socket.onopen = () => resolve();
