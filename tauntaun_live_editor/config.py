@@ -7,7 +7,6 @@ from dataclasses_json import dataclass_json
 @dataclass_json
 @dataclass
 class Config:
-    map_token: str = ""
     admin_password: str = "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4" # SHA256, 1234
     autosave: bool = True
     default_coalition: str = ""

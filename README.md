@@ -9,8 +9,6 @@
 #### Description
 Tauntaun Live Editor is browser based collaborative mission planning tool for DCS events.
 
-#### Requirements
-A [mapbox](https://www.mapbox.com/) access token (free tier is available)
 #### Installation
 #### Windows release
 **Use develompent builds** ~~Executable is available under [releases](https://github.com/UOAF/project-tauntaun/releases).~~
@@ -25,7 +23,6 @@ Configuration can be found at
 ```
 Windows: C:/<User>/AppData/Roaming/tauntaun_live_editor/config.json
 ```
-map_token: MapBox access token  
 admin_password: password in SHA256 format, default is 1234
 #### Run server
 ```

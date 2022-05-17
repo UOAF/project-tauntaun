@@ -1,10 +1,12 @@
 import './CampaignMap.css';
 
-import React, { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, MapConsumer } from 'react-leaflet';
+import React, { useRef } from 'react';
+import { MapContainer } from 'react-leaflet';
+import { BasemapLayer } from 'react-esri-leaflet';
+import * as EL from 'esri-leaflet';
 
 import { MapStateContainer, MissionStateContainer, SessionStateContainer } from '../../models';
-import { LatLng, LeafletMouseEvent } from 'leaflet';
+import { LatLng, LeafletMouseEvent, LeafletEvent } from 'leaflet';
 import { useState } from 'react';
 import { ClickPosition, PointXY } from '../contextmenu';
 import { LegendContext } from './contexts';
@@ -23,7 +25,7 @@ export interface CampaignMapProps {
 
 export function CampaignMap(props: CampaignMapProps) {
   const { mission } = MissionStateContainer.useContainer();
-  const { mapType, showLegend, mapToken, showRuler } = MapStateContainer.useContainer();
+  const { mapType, showLegend, showRuler } = MapStateContainer.useContainer();
 
   const { sessionId, sessions } = SessionStateContainer.useContainer();
   const sessionData = sessions[sessionId];
@@ -31,9 +33,6 @@ export function CampaignMap(props: CampaignMapProps) {
 
   const [position, setPosition] = useState(null as ClickPosition | null);
   const [center, setCenter] = useState(new LatLng(props.lat, props.lng));
-
-  const tileUrl = `https://api.mapbox.com/styles/v1/${mapType}/tiles/{z}/{x}/{y}?access_token=${mapToken}`;
-  const tileLayerRef = useRef(null);
 
   const onContextMenuClick = (event: any) => {
     event.originalEvent.preventDefault();
@@ -46,13 +45,13 @@ export function CampaignMap(props: CampaignMapProps) {
     } as ClickPosition);
   };
 
-  // Workaround: React-Leaflet bug: TileLayer does not refresh on url change
-  useEffect(() => {
-    const tileLayer = tileLayerRef.current;
-    if (tileLayer !== null) {
-      (tileLayer as any).setUrl(tileUrl);
-    }
-  }, [mapType]);
+  const layerRef = useRef<EL.BasemapLayer>(null);
+  layerRef.current?.on('tileload', (e: LeafletEvent) => {
+    console.log('ref is ', layerRef.current);
+    console.log('The underlying leaflet tileload event is:', e);
+  });
+
+  console.log('RENDERING MAP: ', mapType);
 
   return (
     <div data-testid="campaign-map">
@@ -65,30 +64,11 @@ export function CampaignMap(props: CampaignMapProps) {
           inertia={false}
           zoomControl={false}
         >
+          <BasemapLayer ref={layerRef} name={mapType} />
           <CampaignMapEventHandler
             eventHandlers={{
               contextmenu: onContextMenuClick
             }}
-          />
-          <MapConsumer>
-            {map => {
-              const newCenter = new LatLng(props.lat, props.lng);
-              if (center.lat !== newCenter.lat && center.lng !== newCenter.lng) {
-                map.setView(newCenter, props.zoom);
-                setCenter(newCenter);
-              }
-              return null;
-            }}
-          </MapConsumer>
-          <TileLayer
-            ref={tileLayerRef}
-            url={tileUrl}
-            maxZoom={20}
-            attribution={
-              'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-              '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-              'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>'
-            }
           />
           {sessionCoalition && (
             <React.Fragment>

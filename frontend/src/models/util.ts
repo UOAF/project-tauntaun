@@ -1,6 +1,7 @@
 import { LatLng } from 'leaflet';
 import L from 'leaflet';
 import tokml from 'tokml';
+import { NIL } from 'uuid';
 
 export type Dictionary<T> = {
   [idx: string]: T;
@@ -9,16 +10,13 @@ export type Dictionary<T> = {
 
 export function saveKmlFile(filename: string, data: string) {
   const blob = new Blob([data], { type: 'text/kml' });
-  if (window.navigator.msSaveOrOpenBlob) {
-    window.navigator.msSaveOrOpenBlob(blob, filename);
-  } else {
-    const elem = window.document.createElement('a');
-    elem.href = window.URL.createObjectURL(blob);
-    elem.download = filename;
-    document.body.appendChild(elem);
-    elem.click();
-    document.body.removeChild(elem);
-  }
+  // The following will break on IE. I don't care.
+  const elem = window.document.createElement('a');
+  elem.href = window.URL.createObjectURL(blob);
+  elem.download = filename;
+  document.body.appendChild(elem);
+  elem.click();
+  document.body.removeChild(elem);
 }
 
 export function openInNewTab(url: string) {
