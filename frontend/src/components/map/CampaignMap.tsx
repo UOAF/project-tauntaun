@@ -1,6 +1,6 @@
 import './CampaignMap.css';
 
-import React, { useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { MapContainer } from 'react-leaflet';
 import { BasemapLayer } from 'react-esri-leaflet';
 import * as EL from 'esri-leaflet';
@@ -34,6 +34,10 @@ export function CampaignMap(props: CampaignMapProps) {
   const [position, setPosition] = useState(null as ClickPosition | null);
   const [center, setCenter] = useState(new LatLng(props.lat, props.lng));
 
+  const [oldMapType, setOldMapType] = useState(mapType);
+
+  const redraw = oldMapType != mapType;
+
   const onContextMenuClick = (event: any) => {
     event.originalEvent.preventDefault();
     setPosition({
@@ -45,13 +49,13 @@ export function CampaignMap(props: CampaignMapProps) {
     } as ClickPosition);
   };
 
-  const layerRef = useRef<EL.BasemapLayer>(null);
-  layerRef.current?.on('tileload', (e: LeafletEvent) => {
-    console.log('ref is ', layerRef.current);
-    console.log('The underlying leaflet tileload event is:', e);
-  });
-
-  console.log('RENDERING MAP: ', mapType);
+  //Workaround: React-Leaflet-Esri bug: BasemapLayer does not refresh on mapType change
+  useEffect(() => {
+    if (oldMapType != mapType)
+    {
+      setOldMapType(mapType);
+    }
+  }, [mapType]);  
 
   return (
     <div data-testid="campaign-map">
@@ -64,7 +68,7 @@ export function CampaignMap(props: CampaignMapProps) {
           inertia={false}
           zoomControl={false}
         >
-          <BasemapLayer ref={layerRef} name={mapType} />
+          {!redraw && <BasemapLayer name={mapType} />}
           <CampaignMapEventHandler
             eventHandlers={{
               contextmenu: onContextMenuClick
