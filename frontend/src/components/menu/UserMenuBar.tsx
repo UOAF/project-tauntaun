@@ -46,9 +46,9 @@ export function UserMenuBar() {
   const mapTypes = [
     { value: 'Topographic', label: 'Topograhpic' },
     { value: 'Streets', label: 'Streets' },
-    { value: 'ImageryLabels', label: 'Satellite' },
-    { value: 'GrayLabels', label: 'Light' },
-    { value: 'DarkGrayLabels', label: 'Dark' }
+    { value: 'Imagery', label: 'Satellite' },
+    { value: 'Gray', label: 'Light' },
+    { value: 'DarkGray', label: 'Dark' }
   ];
 
   const editLoadoutOnClick = () => {

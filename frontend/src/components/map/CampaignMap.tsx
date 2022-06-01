@@ -3,6 +3,7 @@ import './CampaignMap.css';
 import React, { useState } from 'react';
 import { MapContainer } from 'react-leaflet';
 import { BasemapLayer } from 'react-esri-leaflet';
+import { Basemaps } from 'esri-leaflet';
 
 import { MapStateContainer, MissionStateContainer, SessionStateContainer } from '../../models';
 import { LatLng, LeafletMouseEvent } from 'leaflet';
@@ -43,6 +44,11 @@ export function CampaignMap(props: CampaignMapProps) {
     } as ClickPosition);
   };
 
+  // Need to add a second layer with labels for these three basemaps.
+  const layersNeedingLabels = ['Imagery', 'Gray', 'DarkGray'];
+  const showLabels = layersNeedingLabels.includes(mapType);
+  const labelLayerName = (mapType + 'Labels') as Basemaps;
+
   return (
     <div data-testid="campaign-map">
       <LegendContext.Provider value={{ legends: [] }}>
@@ -55,6 +61,7 @@ export function CampaignMap(props: CampaignMapProps) {
           zoomControl={false}
         >
           <BasemapLayer key={mapType} name={mapType} />
+          {showLabels && <BasemapLayer key={labelLayerName} name={labelLayerName} />}
           <CampaignMapEventHandler
             eventHandlers={{
               contextmenu: onContextMenuClick
@@ -75,4 +82,4 @@ export function CampaignMap(props: CampaignMapProps) {
       </LegendContext.Provider>
     </div>
   );
-}
+};
