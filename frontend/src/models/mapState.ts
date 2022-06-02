@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
 import { gameService } from '../services';
+import { Basemaps } from "esri-leaflet";
 
 export interface MapState {
   showUnits: boolean;
@@ -14,8 +15,7 @@ export interface MapState {
   showRadarRings: boolean;
   showFriendlyRadarRings: boolean;
   hideAllHostileUnits: boolean; // Temporary for potato PCs until clustering is implemented
-  mapType: string;
-  mapToken: string | undefined;
+  mapType: Basemaps;
   showRuler: boolean;
 }
 
@@ -31,35 +31,12 @@ export const defaultState: MapState = {
   showRadarRings: false,
   showFriendlyRadarRings: false,
   hideAllHostileUnits: false,
-  mapType: 'mapbox/outdoors-v11',
-  mapToken: undefined,
+  mapType: 'Topographic',
   showRuler: false
 };
 
 export function useMapState(initialState = defaultState) {
   const [state, setState] = useState(initialState);
-  const [initialized, setInitialized] = useState(false);
-
-  const refreshMapToken = async (): Promise<void> => {
-    const mapToken = await gameService.getMapToken();
-    setState(state => ({
-      ...state,
-      mapToken: mapToken
-    }));
-  };
-  const initialize = async (): Promise<void> => {
-    if (initialized) return;
-
-    try {
-      await refreshMapToken();
-
-      setInitialized(true);
-      console.info('MapState initialized');
-    } catch (error) {
-      console.error(`couldn't initialize MapState`, error);
-      throw error;
-    }
-  };
 
   const setShowUnits = (showUnits: boolean) => {
     setState(state => ({
@@ -110,7 +87,7 @@ export function useMapState(initialState = defaultState) {
     }));
   };
 
-  const setMapType = (mapType: string) => {
+  const setMapType = (mapType: Basemaps) => {
     setState(state => ({
       ...state,
       mapType: mapType
@@ -154,7 +131,6 @@ export function useMapState(initialState = defaultState) {
 
   return {
     ...state,
-    initialize,
     setShowUnits,
     setShowThreatRings,
     setShowFriendlyThreatRings,

@@ -6,7 +6,6 @@ import {
   AppStateContainer,
   DcsStaticDataStateContainer,
   Group,
-  MapStateContainer,
   MissionStateContainer,
   SelectionStateContainer,
   SessionStateContainer
@@ -42,7 +41,6 @@ export function App() {
   } = AppStateContainer.useContainer();
 
   const { mission, initialize: initializeMission } = MissionStateContainer.useContainer();
-  const { mapToken, initialize: initializeMap } = MapStateContainer.useContainer();
   const { initialize: initializeDcsStaticData } = DcsStaticDataStateContainer.useContainer();
   const { sessions, sessionId, initialize: initializeSession } = SessionStateContainer.useContainer();
   const {
@@ -76,7 +74,6 @@ export function App() {
         console.info('GameService initialized');
         setConnected(true);
         await initializeDcsStaticData();
-        await initializeMap();
         await initializeMission();
         await initializeSession();
 
@@ -124,45 +121,39 @@ export function App() {
   const renderApp = () => {
     return (
       <React.Fragment>
-        {mapToken ? (
-          <React.Fragment>
-            <ModeContext.Provider value={modeContext}>
-              <section className="App">
-                <header>
-                  <div className="titleVersion">
-                    <h1>Project TaunTaun</h1>
-                    <Version />
-                  </div>
-                  <div>
-                    <MissionTime />
-                  </div>
-                </header>
-                <MenuBar />
-                <main>
-                  {showRoleOverview && <RoleOverview />}
-                  {showRoleSelectionForm && <RoleSelectionForm />}
-                  {showAddFlightForm && <AddFlightForm />}
-                  {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
-                    <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
-                  )}
-                  {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
-                  {showLoadMissionForm && <LoadMissionForm />}
-                  {showSaveAsMissionForm && <SaveAsMissionForm />}
-                </main>
-                <footer>
-                  <HelpBar />
-                </footer>
-              </section>
-              <section className="mapContainer">
-                <CampaignMap lat={terrain.map_view_default.lat} lng={terrain.map_view_default.lon} zoom={9} />
-              </section>
-            </ModeContext.Provider>
-          </React.Fragment>
-        ) : mapToken === undefined ? (
-          <span>Loading...</span>
-        ) : (
-          <span>Empty map token, server is not configured.</span>
-        )}
+        <React.Fragment>
+          <ModeContext.Provider value={modeContext}>
+            <section className="App">
+              <header>
+                <div className="titleVersion">
+                  <h1>Project TaunTaun</h1>
+                  <Version />
+                </div>
+                <div>
+                  <MissionTime />
+                </div>
+              </header>
+              <MenuBar />
+              <main>
+                {showRoleOverview && <RoleOverview />}
+                {showRoleSelectionForm && <RoleSelectionForm />}
+                {showAddFlightForm && <AddFlightForm />}
+                {selectedGroupId !== undefined && selectedWaypoint !== undefined && group && (
+                  <EditWaypointForm group={group} pointIndex={selectedWaypoint} />
+                )}
+                {showLoadoutEditor && unit && <LoadoutEditor unit={unit} />}
+                {showLoadMissionForm && <LoadMissionForm />}
+                {showSaveAsMissionForm && <SaveAsMissionForm />}
+              </main>
+              <footer>
+                <HelpBar />
+              </footer>
+            </section>
+            <section className="mapContainer">
+              <CampaignMap lat={terrain.map_view_default.lat} lng={terrain.map_view_default.lon} zoom={9} />
+            </section>
+          </ModeContext.Provider>
+        </React.Fragment>
       </React.Fragment>
     );
   };

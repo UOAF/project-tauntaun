@@ -5,7 +5,7 @@ import 'bluebird-global';
 import 'leaflet';
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import { App } from './components';
 import {
@@ -18,7 +18,9 @@ import {
 } from './models';
 import * as serviceWorker from './serviceWorker';
 
-ReactDOM.render(
+const root = createRoot(document.getElementById('root') as HTMLElement);
+
+root.render(
   <AppStateContainer.Provider>
     <MapStateContainer.Provider>
       <MissionStateContainer.Provider>
@@ -32,7 +34,6 @@ ReactDOM.render(
       </MissionStateContainer.Provider>
     </MapStateContainer.Provider>
   </AppStateContainer.Provider>,
-  document.getElementById('root')
 );
 
 // If you want your app to work offline and load faster, you can change

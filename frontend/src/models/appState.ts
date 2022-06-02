@@ -70,13 +70,6 @@ function useAppState(initialState = defaultState) {
     }));
   };
 
-  const setMapToken = (mapToken: string) => {
-    setState(state => ({
-      ...state,
-      mapToken: mapToken
-    }));
-  };
-
   const setCommanderMode = (commanderMode: boolean) => {
     setState(state => ({
       ...state,
@@ -113,7 +106,6 @@ function useAppState(initialState = defaultState) {
     setShowAddFlightForm,
     setShowRoleSelectionForm,
     setShowRoleOverview,
-    setMapToken,
     setCommanderMode,
     setShowLoadMissionForm,
     setShowSaveAsMissionForm

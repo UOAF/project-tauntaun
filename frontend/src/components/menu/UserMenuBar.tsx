@@ -44,11 +44,11 @@ export function UserMenuBar() {
   const showEditLoadoutButton = commanderMode || selectedUnitId;
 
   const mapTypes = [
-    { value: 'mapbox/outdoors-v11', label: 'Outdoors' },
-    { value: 'mapbox/streets-v11', label: 'Streets' },
-    { value: 'mapbox/satellite-streets-v11', label: 'Satellite' },
-    { value: 'mapbox/light-v10', label: 'Light' },
-    { value: 'mapbox/dark-v10', label: 'Dark' }
+    { value: 'Topographic', label: 'Topograhpic' },
+    { value: 'Streets', label: 'Streets' },
+    { value: 'Imagery', label: 'Satellite' },
+    { value: 'Gray', label: 'Light' },
+    { value: 'DarkGray', label: 'Dark' }
   ];
 
   const editLoadoutOnClick = () => {

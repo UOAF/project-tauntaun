@@ -46,7 +46,6 @@ export interface GameService {
 
   getMission(): Promise<Mission>;
   getSessions(): Promise<Sessions>;
-  getMapToken(): Promise<string>;
   getStaticData(): Promise<DcsStaticData>;
   authAdminPassword(password: string): Promise<boolean>;
   getMissionDir(): Promise<Array<string>>;
@@ -130,21 +129,6 @@ async function getSessions(): Promise<Sessions> {
   }
 }
 
-async function getMapToken(): Promise<string> {
-  try {
-    const response = await fetch('/game/map_token');
-    if (!response.ok) {
-      throw new Error('Response is not OK');
-    }
-
-    const mapToken = await response.text();
-    return mapToken;
-  } catch (error) {
-    console.error(`Couldn't fetch mapToken`, error);
-    return '';
-  }
-}
-
 async function getStaticData(): Promise<DcsStaticData> {
   try {
     const response = await fetch('/game/static_data');
@@ -166,7 +150,7 @@ async function authAdminPassword(password: string): Promise<boolean> {
     const result = await response.text();
     return result === 'true';
   } catch (error) {
-    console.error(`Couldn't fetch mapToken`, error);
+    console.error(`Couldn't fetch admin password`, error);
     return false;
   }
 }
@@ -390,7 +374,6 @@ export const gameService: GameService = {
   getMission,
   getMissionDir,
   getSessions,
-  getMapToken,
   getStaticData,
   authAdminPassword,
   registerForMissionUpdates,

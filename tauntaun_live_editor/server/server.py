@@ -57,10 +57,6 @@ def create_app(campaign, session_manager):
     async def render_sessions():
         return json.dumps(session_manager.sessions, cls=SessionsEncoder)
 
-    @app.route('/game/map_token')
-    async def render_map_token():
-        return config.config.map_token
-
     @app.route('/game/auth_admin/<password>')
     async def render_auth_admin_password(password):
         return 'true' if config.config.admin_password == password else 'false'
