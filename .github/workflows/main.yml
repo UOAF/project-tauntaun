@@ -32,8 +32,8 @@ jobs:
       - name: Build and test
         run: |
           poetry run python scripts/build.py
-          poetry pytest
-          
+          poetry run pytest
+
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:

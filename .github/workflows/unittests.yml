@@ -38,4 +38,4 @@ jobs:
       - name: Build and test
         run: |
           cd $GITHUB_WORKSPACE
-          poetry pytest
+          poetry run pytest
