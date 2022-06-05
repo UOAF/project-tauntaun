@@ -41,8 +41,7 @@ jobs:
 
       - name: Set version for UI
         run: |
-          ./env/scripts/activate
-          python ./scripts/gen_version.py
+          poetry run python ./scripts/gen_version.py
           Copy-Item .\version.json .\frontend\src\data\ -Force
 
       - name: Build frontend
