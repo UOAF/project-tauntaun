@@ -22,7 +22,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: true
-
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v2
         with:
@@ -48,10 +47,7 @@ jobs:
           Copy-Item -r .\build ..\tauntaun_live_editor\data\client
 
       - name: Build binaries
-        run: |
-          ./env/scripts/activate
-          $env:PYTHONPATH=".;./tauntaun_live_editor/dcs"
-          pyinstaller.exe tauntaun_live_editor.spec
+        run: poetry run pyinstaller.exe --noconfirm tauntaun_live_editor.spec
 
       #      - name: Compress
       #        run: |
