@@ -30,7 +30,7 @@ def main():
     root = os.path.abspath(os.path.join(get_file_path(), '..'))
     print(root)
     os.chdir(root)
-    # sp.run('git submodule update --init --recursive')
+    sp.run('git submodule update --init --recursive')
     os.chdir(os.path.join(root, 'frontend'))
     shutil.rmtree(os.path.join(root, 'frontend', 'node_modules'), ignore_errors=True)
     run_node_cmd("yarn install")

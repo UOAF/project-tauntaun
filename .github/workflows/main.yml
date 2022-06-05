@@ -33,7 +33,12 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Build and test
         run: |
-          poetry run python scripts/build.py
+          cd frontend
+          yarn install
+          yarn build
+          cd ..
+          cp -R frontend/build/* ./tauntaun_live_editor/data/client/
+          poetry build
           poetry run pytest
 
       - name: Archive production artifacts
