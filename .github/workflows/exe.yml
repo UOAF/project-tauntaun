@@ -31,18 +31,13 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v1
         with:
-          node-version: '14'
+          node-version: '16'
 
-      - name: Install environment
-        run: |
-          python -m venv ./env
-          
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
       - name: Install dependencies
-        run: |
-          ./env/scripts/activate
-          python -m pip install -r requirements.txt
-          python -m pip install -r tauntaun_live_editor\dcs\requirements.txt          
-          python -m pip install -I setuptools
+        run: poetry install --no-interaction --no-root
           
       - name: Set version for UI
         run: |

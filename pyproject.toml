@@ -1,0 +1,37 @@
+[project]
+name = "tauntaun-live-editor"
+
+[tool.poetry]
+authors = ["UOAF <uoaf@fakemail.invalid>"]
+classifiers = [
+  "Programming Language :: Python :: 3.8",
+  "License :: OSI Approved :: GNU Lesser General Public License v3.0",
+  "Operating System :: OS Independent",
+]
+description = "Browser based collaborative mission planning tool for DCS missions."
+license = "LGPLv3"
+name = "tauntaun_live_editor"
+version = "0.3.1"
+
+[tool.poetry.dependencies]
+Quart = "^0.17.0"
+dataclasses-json = "^0.5.7"
+pyproj = "^3.3.1"
+python = ">=3.8.0,<3.11"
+wheel = "^0.36.0"
+
+[tool.poetry.dev-dependencies]
+numpy = ">=1.19.2"
+pyinstaller = ">=5.0"
+pytest = "^7.1.2"
+scipy = ">=1.5.2"
+
+[tool.pytest]
+norecursedirs = ".git/* tauntaun_le_editor/dcs/* dist/* frontend/*"
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+
+[tool.pytest.ini_options]
+testpaths = ["test"]
