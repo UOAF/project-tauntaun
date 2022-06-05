@@ -32,7 +32,7 @@ def main():
     os.chdir(root)
     # sp.run('git submodule update --init --recursive')
     os.chdir(os.path.join(root, 'frontend'))
-    shutil.rmtree(os.path.join(root, 'frontend', 'node_modules'))
+    shutil.rmtree(os.path.join(root, 'frontend', 'node_modules'), ignore_errors=True)
     run_node_cmd("yarn install")
     run_node_cmd('yarn build')
     cpsrc = os.path.join(root, 'frontend', 'build')
