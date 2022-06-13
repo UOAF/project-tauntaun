@@ -1,8 +1,8 @@
 import { createContext } from 'react';
-import { Group } from '../models';
+import { GroupClickEventType } from '../types/common';
 
 export type ModeContextType = {
-  groupOnClick?: (group: Group, event: any) => void;
+  groupOnClick?: (event: GroupClickEventType) => void;
   selectedGroupId?: number;
   selectedUnitId?: number;
 };

@@ -63,7 +63,7 @@ export type FlyingUnit = Unit & {
   fuel: number;
   gun: number;
   pylons: Dictionary<Pylon>;
-  radio: any; // TODO
+  radio: string; // TODO
   hardpoint_racks: boolean;
   [key: string]: boolean | number | string | Dictionary<Pylon>;
 };

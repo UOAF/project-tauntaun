@@ -1,10 +1,10 @@
 import './Version.css';
 
 import React from 'react';
-import * as VersionJson from '../../data/version.json';
+import VersionJson from '../../data/version.json';
 
 export function Version() {
-  const version = (VersionJson as any).version;
+  const version = VersionJson.version;
 
   return (
     <div className="Version">

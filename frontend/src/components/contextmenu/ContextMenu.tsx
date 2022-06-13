@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { Menu } from '@material-ui/core';
-import MenuItem from '@material-ui/core/MenuItem/MenuItem';
+import { Menu, MenuItem } from '@mui/material';
 import { useState } from 'react';
 import { LatLng } from 'leaflet';
 
@@ -30,7 +29,7 @@ export interface ContextMenuProps {
   onOptionSelected?: (value: string, position: ClickPosition) => void;
 }
 
-export function ContextMenu(props: ContextMenuProps) {
+export const ContextMenu = (props: ContextMenuProps): JSX.Element => {
   const { options, position, onOptionSelected } = props;
 
   const [visible, setVisible] = useState(true);
@@ -72,4 +71,4 @@ export function ContextMenu(props: ContextMenuProps) {
       <MenuItem onClick={handleClose}>Close</MenuItem>
     </Menu>
   );
-}
+};

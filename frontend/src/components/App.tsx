@@ -5,7 +5,6 @@ import React, { useEffect, useState } from 'react';
 import {
   AppStateContainer,
   DcsStaticDataStateContainer,
-  Group,
   MissionStateContainer,
   SelectionStateContainer,
   SessionStateContainer
@@ -22,6 +21,7 @@ import { HelpBar } from './menu/HelpBar';
 import { LoadMissionForm } from './window/forms/LoadMissionForm';
 import { SaveAsMissionForm } from './window/forms/SaveAsMissionForm';
 import { Version } from './ui/Version';
+import { GroupClickEventType } from '../types/common';
 
 enum InitialzationState {
   UNINITIALIZED,
@@ -29,7 +29,7 @@ enum InitialzationState {
   INITIALIZATION_FAILED
 }
 
-export function App() {
+export const App: React.FunctionComponent = () => {
   const {
     showAddFlightForm,
     showRoleSelectionForm: showRoleSelectionFormConfig,
@@ -88,14 +88,14 @@ export function App() {
     initApp();
   }, []);
 
-  const groupMarkerOnClick = (group: Group, event: any): void => {
+  const groupMarkerOnClick = (event: GroupClickEventType): void => {
     if (!commanderMode) return;
 
     if (event && event.coalition !== sessionCoalition) return;
 
     console.info(`selecting group`, group);
 
-    selectGroup(selectedGroupId === group.id ? undefined : group.id);
+    selectGroup(selectedGroupId === event.group.id ? undefined : event.group.id);
   };
 
   const selected_unit_id = sessionData
@@ -184,4 +184,4 @@ export function App() {
       else return renderApp();
     }
   }
-}
+};

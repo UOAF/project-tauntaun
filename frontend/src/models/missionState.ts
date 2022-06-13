@@ -1,7 +1,8 @@
 import { useState } from 'react';
 
-import { Mission, emptyMission, findGroupById, MovingPoint, StaticPoint, Point, getGroupOfUnit, Unit } from './';
+import { Mission, emptyMission, findGroupById, getGroupOfUnit } from './';
 import { gameService } from '../services';
+import { GenericUpdateMessage } from '../services/gameService';
 import { createContainer } from 'unstated-next';
 
 export interface MissionState {
@@ -36,7 +37,8 @@ export function useMissionState(initialState = defaultState) {
     console.info(`got mission update`);
   };
 
-  const onGenericUpdate = (message: any) => {
+  const onGenericUpdate = (message: GenericUpdateMessage) => {
+    console.debug('Got generic update:', message.key);
     if (message.key === 'route_update') {
       setState(state => {
         const updatedMission = { ...state.mission };
@@ -47,7 +49,7 @@ export function useMissionState(initialState = defaultState) {
           return { ...state };
         }
 
-        group.points = message.points as Array<MovingPoint | StaticPoint>;
+        group.points = message.points;
 
         return {
           ...state,
@@ -55,11 +57,10 @@ export function useMissionState(initialState = defaultState) {
         };
       });
 
-      console.info(`got route_update`);
     } else if (message.key === 'bullseye_update') {
       setState(state => {
         const updatedMission = { ...state.mission };
-        updatedMission.coalition[message.coalition].bullseye = message.bullseye as Point;
+        updatedMission.coalition[message.coalition.name].bullseye = message.bullseye;
 
         return {
           ...state,
@@ -67,7 +68,6 @@ export function useMissionState(initialState = defaultState) {
         };
       });
 
-      console.info(`got bullseye_update`);
     } else if (message.key === 'unit_update') {
       setState(state => {
         const updatedMission = { ...state.mission };
@@ -80,7 +80,7 @@ export function useMissionState(initialState = defaultState) {
 
         const unit_index = group.units.findIndex(u => u.id === message.id);
 
-        group.units[unit_index] = message.unit as Unit;
+        group.units[unit_index] = message.unit;
 
         return {
           ...state,
@@ -88,7 +88,6 @@ export function useMissionState(initialState = defaultState) {
         };
       });
 
-      console.info(`got unit_update`);
     } else {
       console.info(`unhandled generic update`);
     }

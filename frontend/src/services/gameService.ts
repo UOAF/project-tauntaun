@@ -5,14 +5,34 @@ import { Dictionary, Point, Mission, Group, emptyMission, MovingPoint, Unit, Sta
 import { LatLng } from 'leaflet';
 
 import { Sessions, SessionData } from '../models/sessionData';
-import { inflate } from 'zlib';
-import { promisify } from 'util';
+import { inflate } from 'pako';
 import { DcsStaticData, emptyDcsStaticData } from '../models/dcs_static';
+import { Buffer } from 'buffer';
+import { Coalition } from '../models/dcs';
 
+interface RouteUpdateMesage {
+  key: "route_update";
+  points: Array<MovingPoint | StaticPoint>;
+  group_id: number;
+}
+
+interface BullseyeUpdateMessage {
+  key: "bullseye_update";
+  bullseye: Point;
+  coalition: Coalition;
+}
+
+interface UnitUpdateMessage {
+  key: "unit_update";
+  unit: Unit;
+  id: number;
+}
+
+export type GenericUpdateMessage = RouteUpdateMesage | BullseyeUpdateMessage | UnitUpdateMessage;
 export type MissionUpdateListener = (updatedMission: Mission) => void;
 export type SessionsUpdateListener = (updatedSessions: Sessions) => void;
 export type SessionIdUpdateListener = (id: number) => void;
-export type GenericUpdateListener = (message: any) => void;
+export type GenericUpdateListener = (message: GenericUpdateMessage) => void;
 export type OnCloseListener = (ev: CloseEvent) => void;
 
 export interface GameService {
@@ -62,7 +82,7 @@ export interface GameService {
   registerForGenericUpdates(listener: GenericUpdateListener): string;
   unregisterGenericUpdateListener(id: string): void;
 
-  registerForOnClose(listener: GenericUpdateListener): string;
+  registerForOnClose(listener: OnCloseListener): string;
   unregisterOnCloseListener(id: string): void;
 }
 
@@ -74,7 +94,7 @@ const genericUpdateListeners: Dictionary<GenericUpdateListener> = {};
 const onCloseListeners: Dictionary<OnCloseListener> = {};
 let time_start: number | null = null;
 
-function sendMessage(name: string, value: any) {
+function sendMessage<ValueType>(name: string, value: ValueType) {
   if (!socket || socket.readyState !== WebSocket.OPEN) {
     console.error('socket not open');
     return;
@@ -155,16 +175,17 @@ async function authAdminPassword(password: string): Promise<boolean> {
   }
 }
 
-async function receiveUpdateMessage(event: any) {
+async function receiveUpdateMessage(event: MessageEvent) {
   const time_end = performance.now();
   if (time_start !== null) {
     console.log(`Roundtrip: ${time_end - time_start}ms`);
     time_start = null;
   }
-
   const data = Buffer.from(Buffer.from(event.data, 'base64'), 4);
-  const do_unzip = promisify(inflate);
-  const unzipped_data = await do_unzip(data);
+  async function inflateAsync(data: Buffer): Promise<string> {
+    return inflate(data, { to: 'string' });
+  }
+  const unzipped_data = await inflateAsync(data);
 
   const message = JSON.parse(unzipped_data as unknown as string);
   if (message.key === 'mission_updated') {

@@ -3,7 +3,16 @@ import './CoalitionSelector.css';
 
 import React, { useState } from 'react';
 
-import { InputLabel, Select, MenuItem, List, ListItem, ListItemText } from '@material-ui/core';
+import {
+  InputLabel,
+  Select,
+  MenuItem,
+  List,
+  ListItem,
+  ListItemText,
+  SelectChangeEvent
+ } from '@mui/material';
+
 import {
   AppStateContainer,
   Coalitions,
@@ -55,7 +64,7 @@ export function RoleSelectionForm() {
     };
   });
 
-  const onGroupChange = (event: any) => {
+  const onGroupChange = (event: SelectChangeEvent) => {
     const groupId = +event.target.value;
     setGroup(groupId !== -1 ? findGroupById(mission, groupId) : undefined);
   };
@@ -112,6 +121,7 @@ export function RoleSelectionForm() {
     </section>
   );
 
+  const groupId: string = group ? group.id.toString() : '';
   const renderRoleSelection = () => (
     <section className="RoleSelectionForm">
       <header>
@@ -126,7 +136,7 @@ export function RoleSelectionForm() {
       </div>
       <div className="groupSelectContainer">
         <InputLabel id="group-select">Group</InputLabel>
-        <Select onChange={onGroupChange} value={group ? group.id : ''}>
+        <Select onChange={onGroupChange} value={groupId}>
           {groupOptions.map((option, i) => (
             <MenuItem key={`groupOptions${i}`} value={option.key}>
               {option.value}

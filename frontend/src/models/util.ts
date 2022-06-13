@@ -1,7 +1,7 @@
-import { LatLng } from 'leaflet';
+import { LatLng, Map, Layer } from 'leaflet';
 import L from 'leaflet';
 import tokml from 'tokml';
-import { NIL } from 'uuid';
+import { Feature, Geometry, GeoJsonProperties, FeatureCollection } from 'geojson';
 
 export type Dictionary<T> = {
   [idx: string]: T;
@@ -27,28 +27,58 @@ export function getGoogleEarthUrl(latlng: LatLng) {
   return `https://earth.google.com/web/@${latlng.lat},${latlng.lng},40a,5000d,35y,15h,60t,0r`;
 }
 
-export function convertLeafletMapToKml(map: any) {
-  const collection = {
-    type: 'FeatureCollection',
-    features: [] as any[]
+export function convertLeafletMapToKml(map: Map) {
+  const collection = {} as FeatureCollection;
+
+  const getMarkerName = (marker: L.Marker) : string => {
+    const opts = marker.options as L.MarkerOptions;
+    if (opts.title) {
+      return opts.title;
+    }
+
+    if (opts.icon && opts.icon.options.className) {
+      return opts.icon.options.className;
+    }
+
+    if (opts.alt) {
+      return opts.alt;
+    }
+    return '';
+  }
+
+  const getLineColor = (layer: L.Polyline) => {
+    const opts = layer.options;
+    const color = opts.color ? opts.color : '#000000';
+    return color;
   };
 
-  map.eachLayer(function (layer: any) {
-    if (layer instanceof L.Marker || layer instanceof L.Polyline) {
-      const geoJSON = layer.toGeoJSON();
-      const options = layer.options as any;
+  const makeFeature = (layer: L.Marker | L.Polyline, color: string) => {
+    const geoJSON = layer.toGeoJSON();
+    const feature = {
+      ...geoJSON,
+      properties: {
+        ...geoJSON.properties,
+        color: color
+      }
+    } as Feature<Geometry, GeoJsonProperties>;
 
-      const name = options.label ? options.label : options.icon ? (options.icon.label ? options.icon.label : '') : '';
-      const color = options.color ? options.color : '';
+    return feature;
+  };
 
-      collection.features.push({
-        ...geoJSON,
-        properties: {
-          ...geoJSON.properties,
-          name: name,
-          color: color
-        }
-      });
+  map.eachLayer(function (layer: Layer) {
+    if (layer instanceof L.Marker) {
+      const name = getMarkerName(layer);
+      const feature = makeFeature(layer, '#000000');
+      const props = feature.properties;
+      if (props) {
+        props.name = name;
+      }
+      collection.features.push(feature);
+    }
+    else if (layer instanceof L.Polyline) {
+      const color = getLineColor(layer);
+      const feature = makeFeature(layer, color);
+      collection.features.push(feature);
     }
   });
 

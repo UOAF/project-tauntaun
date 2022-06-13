@@ -1,7 +1,7 @@
 import '../Window.css';
 
 import React, { useState } from 'react';
-import { Input } from '@material-ui/core';
+import { Input } from '@mui/material';
 
 export interface PasswordFormProps {
   onOk: (password: string) => void;

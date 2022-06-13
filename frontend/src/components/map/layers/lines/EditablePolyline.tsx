@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { LatLng, Polyline, Marker, divIcon } from 'leaflet';
+import { LatLng, Polyline, Marker, divIcon, Map, LeafletMouseEvent, DragEndEvent } from 'leaflet';
 import { useMap, PolylineProps } from 'react-leaflet';
 
 export type EditablePolylineProps = PolylineProps & {
@@ -12,7 +12,7 @@ export type EditablePolylineProps = PolylineProps & {
   disableWpZero?: boolean;
 };
 
-function editablePolylineCtor(map: any, props: EditablePolylineProps) {
+function editablePolylineCtor(map: Map, props: EditablePolylineProps) {
   const {
     color,
     stroke,
@@ -39,7 +39,7 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
     dragging = true;
   };
 
-  const onDrag = (index: number, e: any) => {
+  const onDrag = (index: number, e: LeafletMouseEvent) => {
     if (polyline === null) return;
 
     const polylineLatLngs = polyline.getLatLngs();
@@ -55,7 +55,7 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
     }
   };
 
-  const onContextMenu = (index: number, e: any) => {
+  const onContextMenu = (index: number) => {
     if (markers.length < 3) {
       return;
     }
@@ -71,7 +71,7 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
     onPositionRemoved?.(index);
   };
 
-  const onMidDragStart = (index: number, e: any) => {
+  const onMidDragStart = (index: number, e: LeafletMouseEvent) => {
     if (polyline === null) return;
 
     const polylineLatLngs = polyline.getLatLngs();
@@ -79,7 +79,7 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
     polyline.setLatLngs(polylineLatLngs);
   };
 
-  const onMidDrag = (index: number, e: any) => {
+  const onMidDrag = (index: number, e: LeafletMouseEvent) => {
     if (polyline === null) return;
 
     const polylineLatLngs = polyline.getLatLngs();
@@ -87,7 +87,7 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
     polyline.setLatLngs(polylineLatLngs);
   };
 
-  const onMidDragEnd = (index: number, e: any) => {
+  const onMidDragEnd = (index: number, e: DragEndEvent) => {
     const latlng = e.target._latlng;
     positions.splice(index + 1, 0, latlng);
     createMarkers();
@@ -106,7 +106,7 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
     mid_markers[index].setLatLng(mid);
   };
 
-  const onMarkerClick = (index: number, e: any) => {
+  const onMarkerClick = (index: number, e: LeafletMouseEvent) => {
     if (dragging) {
       dragging = false;
       return;
@@ -162,10 +162,10 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
       if (!isAtWpZeroAndDisabled) {
         markers[index_num].on('dragstart', onDragStart);
         markers[index_num].on('dragend', e => onPositionModified?.(index_num, e.target._latlng));
-        markers[index_num].on('drag', e => onDrag(index_num, e));
-        markers[index_num].on('contextmenu', e => onContextMenu(index_num, e));
+        markers[index_num].on('drag', e => onDrag(index_num, e as LeafletMouseEvent));
+        markers[index_num].on('contextmenu', () => onContextMenu(index_num));
       }
-      markers[index_num].on('mouseup', e => onMarkerClick(index_num, e));
+      markers[index_num].on('mouseup', e => onMarkerClick(index_num, e as LeafletMouseEvent));
     }
 
     if (drawMidmarkers) {
@@ -176,8 +176,8 @@ function editablePolylineCtor(map: any, props: EditablePolylineProps) {
         const b = positions[index_const + 1];
         const mid = new LatLng((a.lat + b.lat) / 2.0, (a.lng + b.lng) / 2.0);
         mid_markers[index_const] = new Marker(mid, { draggable: true, icon: midMarkerIcon }).addTo(map);
-        mid_markers[index_const].on('dragstart', e => onMidDragStart(index_const, e));
-        mid_markers[index_const].on('drag', e => onMidDrag(index_const, e));
+        mid_markers[index_const].on('dragstart', e => onMidDragStart(index_const, e as LeafletMouseEvent));
+        mid_markers[index_const].on('drag', e => onMidDrag(index_const, e as LeafletMouseEvent));
         mid_markers[index_const].on('dragend', e => onMidDragEnd(index_const, e));
       }
     }

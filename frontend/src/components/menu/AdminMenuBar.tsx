@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { ChangeEvent } from 'react';
 import { gameService } from '../../services';
 import { AppStateContainer, MapStateContainer } from '../../models';
-import { Checkbox, FormControlLabel } from '@material-ui/core';
+import { Checkbox, FormControlLabel } from '@mui/material';
 
 export function AdminMenuBar() {
   const { commanderMode, setCommanderMode, setShowLoadMissionForm, setShowSaveAsMissionForm } =
@@ -17,8 +17,8 @@ export function AdminMenuBar() {
     setShowLoadMissionForm(true);
   };
 
-  const onShowAllGroupsChange = (event: any) => setShowAllGroups(event.target.checked);
-  const onCommanderModeChange = (event: any) => setCommanderMode(event.target.checked);
+  const onShowAllGroupsChange = (event: ChangeEvent, checked: boolean) => setShowAllGroups(checked);
+  const onCommanderModeChange = (event: ChangeEvent, checked: boolean) => setCommanderMode(checked);
 
   return (
     <React.Fragment>
