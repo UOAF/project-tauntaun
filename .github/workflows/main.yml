@@ -37,6 +37,7 @@ jobs:
           yarn install
           yarn build
           cd ..
+          mkdir -p ./tauntaun_live_editor/data/client
           cp -R frontend/build/* ./tauntaun_live_editor/data/client/
           poetry build
           poetry run pytest
