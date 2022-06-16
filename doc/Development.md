@@ -24,12 +24,6 @@ This should open Tauntaun in your OS default brower.
 
 ## Backend
 
-First update PyDCS, which is included with Tauntaun as a git submodule:
-
-```
-git submodule update --init --recursive
-```
-
 The backend makes use of [Poetry](https://python-poetry.org/) to manage Python dependencies. You can install Poetry for your OS by following these [instructions](https://python-poetry.org/docs/#installation). For Windows, in PowerShell, you can run 
 ```PowerShell
 (Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -UseBasicParsing).Content | python -
@@ -78,3 +72,18 @@ poetry run python scripts/build.py
 which will update PyDCS, install/update Python dependencies, make an optimized build of the frontend, and copy that into the backend's static directory.
 
 _There is no need to do this on your machine for a release, since there is a github action that does the same._
+
+## Tests
+
+To run the backend tests, you can use
+```
+poetry run pytest
+```
+## Updating PyDCS and other dependencies
+
+You can run
+```
+poetry update
+poetry install
+```
+to get the latest PyDCS (from https://github.com/pydcs/dcs master) and other dependencies.
