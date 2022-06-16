@@ -47,7 +47,7 @@ jobs:
       - name: Build frontend
         run: |
           cd ./frontend
-          yarn
+          yarn --network-timeout 500000
           $env:CI="false"
           yarn build
           Copy-Item -r .\build ..\tauntaun_live_editor\data\client

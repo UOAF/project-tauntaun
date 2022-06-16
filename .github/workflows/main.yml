@@ -34,7 +34,7 @@ jobs:
       - name: Build and test
         run: |
           cd frontend
-          yarn install
+          yarn install --network-timeout 500000
           yarn build
           cd ..
           mkdir -p ./tauntaun_live_editor/data/client
