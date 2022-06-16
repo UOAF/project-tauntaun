@@ -7,8 +7,8 @@ a = Analysis(['tauntaun_live_editor/camp.py'],
              binaries=[],
              datas=[
                  ('tauntaun_live_editor/data', 'tauntaun_live_editor/data'),
-                 ('tauntaun_live_editor/dcs/dcs/terrain/caucasus.p', 'dcs/terrain/'),
-                 ('tauntaun_live_editor/dcs/dcs/terrain/nevada.p', 'dcs/terrain/')
+                 ('resources/caucasus.p', 'dcs/terrain/'),
+                 ('resources/nevada.p', 'dcs/terrain/')
                          ],
              hiddenimports=[],
              hookspath=[],

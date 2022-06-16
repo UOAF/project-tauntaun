@@ -35,7 +35,7 @@ jobs:
       - name: Install Poetry
         uses: snok/install-poetry@v1
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: poetry install --no-interaction --no-root
 
       - name: Build frontend
@@ -47,7 +47,7 @@ jobs:
           Copy-Item -r .\build ..\tauntaun_live_editor\data\client
 
       - name: Build binaries
-        run: poetry run pyinstaller.exe --noconfirm tauntaun_live_editor.spec
+        run: poetry run python -m PyInstaller --noconfirm tauntaun_live_editor.spec
 
       #      - name: Compress
       #        run: |
