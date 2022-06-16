@@ -1,5 +1,0 @@
-wheel==0.36.0
-Quart==0.17.0
-dataclasses-json==0.5.7
-
-pyinstaller>=5.0

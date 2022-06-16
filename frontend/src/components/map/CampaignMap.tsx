@@ -22,7 +22,7 @@ export interface CampaignMapProps {
   onMapClick?: (e: LeafletMouseEvent) => void;
 }
 
-export function CampaignMap(props: CampaignMapProps) {
+export const CampaignMap = (props: CampaignMapProps): JSX.Element => {
   const { mission } = MissionStateContainer.useContainer();
   const { mapType, showLegend, showRuler } = MapStateContainer.useContainer();
 
@@ -33,7 +33,7 @@ export function CampaignMap(props: CampaignMapProps) {
   const [position, setPosition] = useState(null as ClickPosition | null);
   const center = new LatLng(props.lat, props.lng);
 
-  const onContextMenuClick = (event: any) => {
+  const onContextMenuClick = (event: LeafletMouseEvent) => {
     event.originalEvent.preventDefault();
     setPosition({
       xy: {

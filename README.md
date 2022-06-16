@@ -40,6 +40,9 @@ https://github.com/UOAF/project-tauntaun/wiki
 Use github issues:
 https://github.com/UOAF/project-tauntaun/issues
 
+#### Development
+See [Development](doc/Development.md) in the doc directory.
+
 #### License 
 GNU Lesser General Public License v3.0
 

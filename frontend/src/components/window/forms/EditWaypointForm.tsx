@@ -1,8 +1,7 @@
 import './EditWaypointForm.css';
 
 import React, { useState } from 'react';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { MenuItem, Select, Switch, withStyles } from '@material-ui/core';
+import { MenuItem, Select, Switch, FormControlLabel, SelectChangeEvent } from '@mui/material';
 import { AltType, SelectionStateContainer, Group, MovingPoint, PointAction } from '../../../models';
 import { gameService } from '../../../services';
 import { c_MeterToFeet } from '../../../data/constants';
@@ -62,7 +61,7 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
     selectWaypoint(undefined);
   };
 
-  const onActionChange = (event: any) => {
+  const onActionChange = (event: SelectChangeEvent) => {
     setType(PointAction[event.target.value]);
     setAction(event.target.value);
   };
@@ -89,16 +88,14 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
     setAlt(0);
   };
 
-  const GraySwitch = withStyles({
+  const graySwitchStyle = {
     switchBase: {
       color: 'rgba(49, 107, 170, 1)',
       $track: {
         backgroundColor: 'rgba(0,0,0,0.38)'
       }
     },
-    checked: {},
-    track: {}
-  })(Switch);
+  };
 
   return (
     <section className="EditWaypointContainer">
@@ -131,7 +128,8 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
           <span>Meters</span>
           <FormControlLabel
             control={
-              <GraySwitch
+              <Switch
+                sx={graySwitchStyle}
                 checked={useImperial}
                 onChange={onUnitsSystemChange}
                 name="Use Imperial"
@@ -148,7 +146,8 @@ export function EditWaypointForm(props: EditWaypointFormProps) {
             <span>AGL</span>
             <FormControlLabel
               control={
-                <GraySwitch
+                <Switch
+                  sx={graySwitchStyle}
                   checked={altType === AltType.BARO}
                   onChange={onAltTypeChange}
                   name="Use Imperial"

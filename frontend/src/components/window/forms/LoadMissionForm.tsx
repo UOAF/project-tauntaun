@@ -1,4 +1,4 @@
-import { List, ListItem, ListItemText } from '@material-ui/core';
+import { List, ListItem, ListItemText } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { AppStateContainer } from '../../../models/appState';
 import { gameService } from '../../../services/gameService';

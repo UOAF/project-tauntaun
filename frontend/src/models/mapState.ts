@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { createContainer } from 'unstated-next';
-import { gameService } from '../services';
 import { Basemaps } from "esri-leaflet";
 
 export interface MapState {

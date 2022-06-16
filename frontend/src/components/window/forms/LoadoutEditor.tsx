@@ -1,13 +1,12 @@
 import './LoadoutEditor.css';
 
 import React, { useState } from 'react';
-import { Slider } from '@material-ui/core';
-import { Select } from '@material-ui/core';
-import { MenuItem } from '@material-ui/core';
-import { InputLabel } from '@material-ui/core';
+import { SelectChangeEvent, Slider } from '@mui/material';
+import { Select } from '@mui/material';
+import { MenuItem } from '@mui/material';
+import { InputLabel } from '@mui/material';
 import {
   AppStateContainer,
-  DcsStaticData,
   DcsStaticDataStateContainer,
   Dictionary,
   findGroupById,
@@ -74,28 +73,11 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
   const group = selectedGroupId ? findGroupById(mission, selectedGroupId) : undefined;
   const isSelectedUnitLeadOfFlight = isLeadOfFlight(selectedUnitId, group);
 
-  const emptyOption = { value: c_EmptyOption, label: 'Empty' };
-  let pylonOptions: any[] = [];
-  if (unitData) {
-    pylonOptions = Object.keys(unitData.pylons).map(key => {
-      const pylonData = unitData.pylons[key];
-      return {
-        pylonNumber: key,
-        options: [
-          ...pylonData.map(value => {
-            return { value: value, label: dcsStaticData.weapons[value].name };
-          }),
-          emptyOption
-        ]
-      };
-    });
-  }
-
-  const onPylonWeaponSelected = (event: any, pylonNumber: number) => {
+  const onPylonWeaponSelected = (event: SelectChangeEvent, pylonNumber: number) => {
     const value = event.target.value;
 
     if (value === c_EmptyOption) {
-      const newPylons: any = { ...pylons };
+      const newPylons = { ...pylons };
       delete newPylons[pylonNumber];
       setPylons(newPylons);
     } else {
@@ -159,7 +141,33 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
     group?.units.forEach(u => gameService.sendUnitLoadoutUpdate(u, convertedPylons, chaff, flare, fuel, gun));
   };
 
-  const renderPylonSelect = (pylonOption: any) => {
+  interface StoresOption
+  {
+    value: string;
+    label: string;
+  }
+  interface StationData {
+    pylonNumber: number;
+    allowedStores: StoresOption[];
+  }
+
+  let pylonOptions: StationData[] = [];
+  if (unitData) {
+    pylonOptions = Object.keys(unitData.pylons).map(key => {
+      const pylonData = unitData.pylons[key];
+      const thisAircraftStores: StoresOption[] = pylonData.map(value =>{
+            return { value: value, label: dcsStaticData.weapons[value].name };
+      });
+      const emptyStores = { value: c_EmptyOption, label: 'Empty' } as StoresOption;
+      const stationData: StationData = {
+        pylonNumber: parseInt(key, 10),
+        allowedStores: [emptyStores, ...thisAircraftStores]
+      };
+      return stationData;
+    });
+  }
+
+  const renderPylonSelect = (pylonOption: StationData) => {
     const pylonNumber = pylonOption.pylonNumber as number;
     return (
       <div className="Pylon" key={pylonNumber}>
@@ -169,9 +177,9 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
           labelId={'pylon-select-label-' + pylonNumber}
           id={'pylon-select-' + pylonNumber}
           value={pylons[pylonNumber] ? pylons[pylonNumber] : ''}
-          onChange={(event: any) => onPylonWeaponSelected(event, pylonNumber)}
+          onChange={(event: SelectChangeEvent) => onPylonWeaponSelected(event, pylonNumber)}
         >
-          {pylonOption.options.map((v: SelectOptionType, i: number) => (
+          {pylonOption.allowedStores.map((v: SelectOptionType, i: number) => (
             <MenuItem key={`pylonOption${i}`} value={v.value}>
               {v.label}
             </MenuItem>
@@ -180,6 +188,8 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
       </div>
     );
   };
+
+  const renderedPylons = pylonOptions.map(renderPylonSelect);
 
   const closeOnClick = () => setShowLoadoutEditor(false);
 
@@ -235,7 +245,7 @@ export function LoadoutEditor(props: LoadoutEditorProps) {
             />
           </div>
         </div>
-        <div className="pylonContainer">{pylonOptions.map(pylonOption => renderPylonSelect(pylonOption))}</div>
+        <div className="pylonContainer">{renderedPylons}</div>
         <div className="buttonContainer">
           <button onClick={onSaveClicked}>Save</button>
           {isSelectedUnitLeadOfFlight && <button onClick={onSaveForGroupClicked}>Save for group</button>}

@@ -21,20 +21,27 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+        with:
+          submodules: true
 
-      # Runs a single command using the runners shell
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git ssh python${{ matrix.python-version}} nodejs yarn
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install Python dependencies
+        run: poetry install --no-interaction --no-root
 
       # Runs a set of commands using the runners shell
       - name: Build and test
         run: |
-          cd $GITHUB_WORKSPACE
-          ./scripts/build.sh
-          ./scripts/build_pip_package.sh
-          ./scripts/unittest.sh
+          cd frontend
+          yarn install --network-timeout 500000
+          yarn build
+          cd ..
+          mkdir -p ./tauntaun_live_editor/data/client
+          cp -R frontend/build/* ./tauntaun_live_editor/data/client/
+          poetry build
+          poetry run pytest
+
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:

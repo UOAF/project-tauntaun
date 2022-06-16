@@ -2,11 +2,12 @@ import './MenuBar.css';
 
 import React from 'react';
 import { AppStateContainer, MapStateContainer } from '../../models';
-import { Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select } from '@material-ui/core';
+import { Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, SelectChangeEvent } from '@mui/material';
 
 import { SelectOptionType } from '../../types/material_ui';
 import { ModeContext } from '../contexts';
 import { Foldable } from '../ui/Foldable';
+import { Basemaps } from 'esri-leaflet';
 
 export function UserMenuBar() {
   const { commanderMode, showRoleSelectionForm, setShowLoadoutEditor, setShowRoleSelectionForm, setShowRoleOverview } =
@@ -56,24 +57,25 @@ export function UserMenuBar() {
       setShowLoadoutEditor(true);
     }
   };
+  type ChangeEvent = React.ChangeEvent<HTMLInputElement>;
 
-  const onShowUnitsChange = (event: any) => setShowUnits(event.target.checked);
-  const onShowThreatRingsChange = (event: any) => setShowThreatRings(event.target.checked);
-  const onShowFriendlyThreatRingsChange = (event: any) => setShowFriendlyThreatRings(event.target.checked);
-  const onShowRadarRingsChange = (event: any) => setShowRadarRings(event.target.checked);
-  const onShowFriendlyRadarRingsChange = (event: any) => setShowFriendlyRadarRings(event.target.checked);
-  const onShowOtherFlightPlansChange = (event: any) => setShowOtherFlightPlans(event.target.checked);
-  const onShowOtherWpNamesChange = (event: any) => setShowOtherWpNames(event.target.checked);
-  const onShowAIFlightPlansChange = (event: any) => setShowAIFlightPlans(event.target.checked);
-  const onShowLegendChange = (event: any) => setShowLegend(event.target.checked);
+  const onShowUnitsChange = (event: ChangeEvent) => setShowUnits(event.target.checked);
+  const onShowThreatRingsChange = (event: ChangeEvent) => setShowThreatRings(event.target.checked);
+  const onShowFriendlyThreatRingsChange = (event: ChangeEvent) => setShowFriendlyThreatRings(event.target.checked);
+  const onShowRadarRingsChange = (event: ChangeEvent) => setShowRadarRings(event.target.checked);
+  const onShowFriendlyRadarRingsChange = (event: ChangeEvent) => setShowFriendlyRadarRings(event.target.checked);
+  const onShowOtherFlightPlansChange = (event: ChangeEvent) => setShowOtherFlightPlans(event.target.checked);
+  const onShowOtherWpNamesChange = (event: ChangeEvent) => setShowOtherWpNames(event.target.checked);
+  const onShowAIFlightPlansChange = (event: ChangeEvent) => setShowAIFlightPlans(event.target.checked);
+  const onShowLegendChange = (event: ChangeEvent) => setShowLegend(event.target.checked);
   const unitSelectionOnClick = () => setShowRoleSelectionForm(!showRoleSelectionForm);
-  const onHideAllHostileUnitsChange = (event: any) => setHideAllHostileUnits(event.target.checked);
-  const onShowRulerChange = (event: any) => setShowRuler(event.target.checked);
+  const onHideAllHostileUnitsChange = (event: ChangeEvent) => setHideAllHostileUnits(event.target.checked);
+  const onShowRulerChange = (event: ChangeEvent) => setShowRuler(event.target.checked);
 
-  const onMapTypeSelected = (event: any) => {
+  const onMapTypeSelected = (event: SelectChangeEvent) => {
     const value = event.target.value;
 
-    setMapType(value);
+    setMapType(value as Basemaps);
   };
 
   return (
@@ -158,7 +160,7 @@ export function UserMenuBar() {
         />
         <FormControl>
           <InputLabel>Map type</InputLabel>
-          <Select className="MapTypeSelect" defaultValue={mapType} onChange={(event: any) => onMapTypeSelected(event)}>
+          <Select className="MapTypeSelect" defaultValue={mapType} onChange={(event: SelectChangeEvent) => onMapTypeSelected(event)}>
             {mapTypes.map((v: SelectOptionType) => (
               <MenuItem key={`mapTypes${v.value}`} value={v.value}>
                 {v.label}

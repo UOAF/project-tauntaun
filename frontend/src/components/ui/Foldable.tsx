@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, MouseEvent } from 'react';
 
 export type FoldableProps = {
   text?: string;
@@ -12,7 +12,7 @@ export function Foldable(props: React.PropsWithChildren<FoldableProps>) {
   const foldText = fold ? '>' : '<';
   const buttonText = `${text ? text : ''}${text ? ' ' : ''}${foldText}`;
 
-  const contextMenuProxy = (event: any) => {
+  const contextMenuProxy = (event: MouseEvent) => {
     onContextMenu?.();
     event.preventDefault();
   };

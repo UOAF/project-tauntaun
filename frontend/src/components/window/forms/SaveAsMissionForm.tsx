@@ -1,4 +1,4 @@
-import { Input } from '@material-ui/core';
+import { Input } from '@mui/material';
 import React, { useState } from 'react';
 import { AppStateContainer } from '../../../models/appState';
 import { gameService } from '../../../services/gameService';

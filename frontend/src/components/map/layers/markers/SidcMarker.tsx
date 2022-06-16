@@ -2,7 +2,7 @@ import './Markers.css';
 
 import React, { useMemo } from 'react';
 import ms from 'milsymbol';
-import { Icon, Marker as CoreMarker, LeafletEvent, LatLng } from 'leaflet';
+import { Icon, LatLng } from 'leaflet';
 import { Marker, Popup, MarkerProps } from 'react-leaflet';
 
 import { omit } from 'lodash';

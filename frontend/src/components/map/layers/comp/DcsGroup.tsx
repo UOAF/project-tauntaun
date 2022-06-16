@@ -12,10 +12,11 @@ import { DcsUnitThreatRing } from './DcsUnitThreatRing';
 import { DcsUnitRadarRing } from './DcsUnitRadarRing';
 import { DcsGroupThreatRing } from './DcsGroupThreatRing';
 import { DcsGroupRadarRing } from './DcsGroupRadarRing';
+import { GroupClickEventType } from '../../../../types/common';
 
 export type DcsGroupProps = {
   group: Group;
-  groupOnClick?: (group: Group, event: any) => void;
+  groupOnClick?: (event: GroupClickEventType) => void;
 };
 
 export function DcsGroup(props: DcsGroupProps): ReactElement {
@@ -47,7 +48,7 @@ export function DcsGroup(props: DcsGroupProps): ReactElement {
   const isVisible = isSelected || isShowOtherFlightPlans || isShowAIFlightPlans;
   const showRoute = isSameCoalition && isVisible;
 
-  const onClick = () => groupOnClick?.(group, { coalition: groupCoalition });
+  const onClick = () => groupOnClick?.({ group, coalition: groupCoalition });
 
   const renderGroupRoute = () => {
     const color = colorPalette[group.id % colorPalette.length];

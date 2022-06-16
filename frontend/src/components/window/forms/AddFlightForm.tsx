@@ -3,7 +3,7 @@ import '../Window.css';
 import React, { useState } from 'react';
 
 import { LatLng } from 'leaflet';
-import { MenuItem, Select } from '@material-ui/core';
+import { MenuItem, Select, SelectChangeEvent } from '@mui/material';
 import { AppStateContainer, MissionStateContainer, SessionStateContainer } from '../../../models';
 import { gameService } from '../../../services';
 
@@ -64,9 +64,9 @@ export function AddFlightForm() {
     setShowAddFlightForm(false);
   };
 
-  const onAirportChange = (event: any) => setSelectedAirport(+event.target.value);
-  const onCountryChange = (event: any) => setSelectedCountry(event.target.value);
-  const onPlaneChange = (event: any) => setSelectedPlane(event.target.value);
+  const onAirportChange = (event: SelectChangeEvent) => setSelectedAirport(+event.target.value);
+  const onCountryChange = (event: SelectChangeEvent) => setSelectedCountry(event.target.value);
+  const onPlaneChange = (event: SelectChangeEvent) => setSelectedPlane(event.target.value);
   const closeOnClick = () => setShowAddFlightForm(false);
 
   return (
