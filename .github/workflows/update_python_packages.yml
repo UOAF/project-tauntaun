@@ -41,5 +41,5 @@ jobs:
           files: poetry.lock
 
       - name: Create PR if changes were detected
-        if: check-poetry-lock.outputs.files_changed == 'true'
+        if: steps.check-poetry-lock.outputs.files_changed == 'true'
         uses: peter-evans/create-pull-request@v4
