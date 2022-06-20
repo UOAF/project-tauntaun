@@ -35,8 +35,8 @@ jobs:
         run: poetry update
 
       - name: Check for changes to poetry.lock
-        id: check-poetry-lock
         uses: tj-actions/verify-changed-files@v9.2
+        id: check-poetry-lock
         with:
           files: poetry.lock
 
