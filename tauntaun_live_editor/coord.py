@@ -456,5 +456,11 @@ _terrain_data = {
         'z': -238417.99059562,
         'zone': 55,
         'southhemi': False
+    },
+    'Falklands': {
+        'x': 4184583.3670,
+        'z': -147639.8755,
+        'zone': 21,
+        'southhemi': True
     }
 }
