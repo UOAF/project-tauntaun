@@ -299,7 +299,7 @@ develop = false
 type = "git"
 url = "https://github.com/pydcs/dcs.git"
 reference = "master"
-resolved_reference = "e7ed9061187f7c2cb6719ae757bf91e9cfb85441"
+resolved_reference = "7a740f65eefb2f835197e2cdd784a6577ca701c3"
 
 [[package]]
 name = "pyinstaller"
